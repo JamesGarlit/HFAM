@@ -1,0 +1,97 @@
+{% extends 'faculty_end/base.html' %}
+{% load static %}
+{% block content %}
+
+<!-- Page header -->
+<div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <h2 class="page-title">
+                    Leave Application
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Page body -->
+<div class="page-body">
+    <div class="container-xl">
+        <div class="row">
+            <div class="col-lg-6 col-sm-12 mx-auto">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Leave Details</h3>
+                    </div>
+                    <div class="card-body">
+                        <dl class="row">
+                            <dt class="col-sm-4">ID</dt>
+                            <dd class="col-sm-8">{{ leave_application.id }}</dd>
+                            <dt class="col-sm-4">Start Date</dt>
+                            <dd class="col-sm-8">{{ leave_application.leave_start_date }}</dd>
+                            <dt class="col-sm-4">End Date</dt>
+                            <dd class="col-sm-8">{{ leave_application.leave_end_date }}</dd>
+                            <dt class="col-sm-4">Leave Type</dt>
+                            <dd class="col-sm-8">{{ leave_application.leave_type }}</dd>
+                            <dt class="col-sm-4">Leave Reason</dt>
+                            <dd class="col-sm-8">{{ leave_application.leave_reason }}</dd>
+                            <dt class="col-sm-4">Supporting Documents</dt>
+                            <dd class="col-sm-8">
+                                {% if leave_application.leave_supporting_docs %}
+                                {{ leave_application.leave_supporting_docs }}
+                                {% else %}
+                                N/A
+                                {% endif %}
+                            </dd>
+                            <dt class="col-sm-4">Faculty ID</dt>
+                            <dd class="col-sm-8">{{ leave_application.user.id }}</dd>
+                            <dt class="col-sm-4">Faculty Name</dt>
+                            <dd class="col-sm-8">{{ leave_application.user.get_full_name }}</dd>
+                            <dt class="col-sm-4">Status</dt>
+                            <dd class="col-sm-8">
+                                {% if leave_application.approval %}
+                                {{ leave_application.approval.get_decision_display }}
+                                {% else %}
+                                Pending
+                                {% endif %}</dd>
+                            <dt class="col-sm-4">Admin Comment</dt>
+                            <dd class="col-sm-8">{{ leave_application.approval.comment }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% block css %}
+<!-- Include external CSS stylesheets -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<!-- Additional CSS for the specific page -->
+<style>
+    /* Your specific page CSS styles */
+</style>
+{% endblock %}
+
+{% block javascript %}
+<!-- Include external JavaScript libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<!-- Additional JavaScript for the specific page -->
+<script>
+    {% comment %} Alert Message Scripts {% endcomment %}
+    $(document).ready(function () {
+        {% if messages %}
+        {% for message in messages %}
+        {% if message.tags == 'success' %}
+        toastr.success('{{ message }}');
+        {% elif message.tags == 'error' %}
+        toastr.error('{{ message }}');
+        {% else %}
+        toastr('{{ message }}');
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+    });
+</script>
+{% endblock %}
+{% endblock %}

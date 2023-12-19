@@ -1,0 +1,110 @@
+{% extends 'faculty_end/base.html' %}
+{% load static %}
+{% block content %}
+
+<!-- Page header -->
+<div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <h2 class="page-title">
+                    QR Code Generator
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Page body -->
+<div class="page-body">
+    <div class="container-xl">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Generate Your QR Code</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col d-flex justify-content-center">
+                        <div class="border m-2" id="qrcode"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col text-center">
+                        <button class="btn btn-sm btn-primary m-1" onclick="generateQRCode()">Generate QR Code</button>
+                        <button class="btn btn-sm btn-primary m-1" id="downloadBtn" onclick="downloadQRCode()"
+                            disabled>Download QR
+                            Code</button>
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="card-footer">
+                Last updated 3 mins ago
+            </div> -->
+        </div>
+    </div>
+</div>
+{% block css %}
+<!-- Include external CSS stylesheets -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<!-- Additional CSS for the specific page -->
+<style>
+    /* Your specific page CSS styles */
+</style>
+{% endblock %}
+
+{% block javascript %}
+<!-- Include external JavaScript libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+
+<!-- Additional JavaScript for the specific page -->
+<script>
+    {% comment %} Alert Message Scripts {% endcomment %}
+    $(document).ready(function () {
+        {% if messages %}
+        {% for message in messages %}
+        {% if message.tags == 'success' %}
+        toastr.success('{{ message }}');
+        {% elif message.tags == 'error' %}
+        toastr.error('{{ message }}');
+        {% else %}
+        toastr('{{ message }}');
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+    });
+
+    function generateQRCode() {
+        // Generate a unique QR code for the day (in a real system, you'd do this on the server)
+        const today = new Date().toISOString().slice(0, 10);
+        const qrText = `{{ user.user_firstname }} {{ user.user_lastname }} | ${today}`;
+
+        // Clear previous QR code
+        document.getElementById('qrcode').innerHTML = '';
+
+        // Generate new QR code
+        const qrcode = new QRCode(document.getElementById('qrcode'), qrText);
+
+        // Enable download button
+        document.getElementById('downloadBtn').disabled = false;
+    }
+
+    function downloadQRCode() {
+        // Get the data URL of the QR code
+        const qrcodeDataUrl = document.getElementById('qrcode').querySelector('img').src;
+
+        // Create a temporary link element
+        const downloadLink = document.createElement('a');
+        downloadLink.href = qrcodeDataUrl;
+        downloadLink.download = 'qrcode.png';
+
+        // Append the link to the body and trigger the download
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+
+        // Remove the link from the body
+        document.body.removeChild(downloadLink);
+    }
+</script>
+</script>
+{% endblock %}
+{% endblock %}

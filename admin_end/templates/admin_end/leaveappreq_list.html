@@ -1,0 +1,98 @@
+{% extends "admin_end/base.html" %}
+{% load static %}
+{% block content %}
+<!-- Page header -->
+<div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">
+                    Overview
+                </div>
+                <h2 class="page-title">
+                    Leave Application
+                </h2>
+            </div>
+            <!-- Page title actions -->
+        </div>
+    </div>
+</div>
+<!-- Page body -->
+<div class="page-body">
+    <div class="container-xl">
+        <div class="card">
+            <div class="card-body">
+                <table id="leaveApp" class="table table-striped table-bordered" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Faculty Name</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for leave_application in leave_applications %}
+                        <tr>
+                            <td>{{ leave_application.id }}</td>
+                            <td>{{ leave_application.user.get_full_name }}</td>
+                            <td>{{ leave_application.leave_start_date }}</td>
+                            <td>{{ leave_application.leave_end_date }}</td>
+                            <td>{{ leave_application.leave_type }}</td>
+                            <td>{{ leave_application.approval.get_decision_display|default:"Pending" }}</td>
+                            <td><a href="{% url 'leaveappreq_view' leave_application.id %}"
+                                    class="btn btn-outline-info btn-sm">View</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% block css %}
+<style>
+</style>
+{% endblock %}
+{% block javascript %}
+<script>
+    $(document).ready(function() {
+        $('#leaveApp').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'copy',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'print',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'excel',
+                    title: 'Leave Application Request List',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdf',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                'colvis'
+            ],
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

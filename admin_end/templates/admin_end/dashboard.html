@@ -1,0 +1,237 @@
+{% extends "admin_end/base.html" %}
+{% load static %}
+{% block content %}
+<!-- Page header -->
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <!-- Page pre-title -->
+        <div class="page-pretitle">
+          Overview
+        </div>
+        <h2 class="page-title">
+          Dashboard
+        </h2>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Page body -->
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+      <div class="col-4">
+      </div>
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex">
+              <h3 class="card-title">Social referrals</h3>
+              <div class="ms-auto">
+                <div class="dropdown">
+                  <a class="dropdown-toggle text-secondary" href="#" data-bs-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="false">Last 7 days</a>
+                  <div class="dropdown-menu dropdown-menu-end">
+                    <a class="dropdown-item active" href="#">Last 7 days</a>
+                    <a class="dropdown-item" href="#">Last 30 days</a>
+                    <a class="dropdown-item" href="#">Last 3 months</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div id="chart-social-referrals"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body">
+            <div id="chart-tasks-overview"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-xl-4">
+        <div class="card">
+          <div class="card-body">
+            <div id="chart-demo-pie"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-xl-4">
+        <div class="card">
+          <div class="card-body">
+            <div id="chart-completion-tasks"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-xl-4">
+        <div class="card">
+          <div class="card-body">
+            <div id="chart-completion-tasks-2"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-xl-4">
+        <div class="card">
+          <div class="card-body">
+            <div id="chart-completion-tasks-3"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-xl-4">
+        <div class="card">
+          <div class="card-body">
+            <div id="chart-completion-tasks-4"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-xl-4">
+        <div class="card">
+          <div class="card-body">
+            <div id="chart-completion-tasks-5"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-xl-4">
+        <div class="card">
+          <div class="card-body">
+            <div id="chart-completion-tasks-6"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-xl-4">
+        <div class="card">
+          <div class="card-body">
+            <div id="chart-completion-tasks-7"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-xl-4">
+        <div class="card">
+          <div class="card-body">
+            <div id="chart-completion-tasks-8"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-xl-4">
+        <div class="card">
+          <div class="card-body">
+            <div id="chart-completion-tasks-9"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-xl-4">
+        <div class="card">
+          <div class="card-body">
+            <div id="chart-completion-tasks-10"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-xl-4">
+        <div class="card">
+          <div class="card-body">
+            <div id="chart-completion-tasks-11"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-xl-4">
+        <div class="card">
+          <div class="card-body">
+            <div id="chart-tasks"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-xl-4">
+        <div class="card">
+          <div class="card-body">
+            <div id="chart-line-stroke"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-xl-4">
+        <div class="card">
+          <div class="card-body">
+            <div id="chart-stepline"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-xl-4">
+        <div class="card">
+          <div class="card-body">
+            <div id="chart-temperature"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-xl-4">
+        <div class="card">
+          <div class="card-body">
+            <div id="chart-area"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-xl-4">
+        <div class="card">
+          <div class="card-body">
+            <div id="chart-area-spline"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-xl-4">
+        <div class="card">
+          <div class="card-body">
+            <div id="chart-area-spline-stacked"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-xl-4">
+        <div class="card">
+          <div class="card-body">
+            <div id="chart-spline"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-xl-4">
+        <div class="card">
+          <div class="card-body">
+            <div id="chart-scatter"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-xl-4">
+        <div class="card">
+          <div class="card-body">
+            <div id="chart-combination"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% block css %}
+<!-- Include external CSS stylesheets -->
+
+<!-- Additional CSS for the specific page -->
+<style>
+
+</style>
+{% endblock %}
+
+{% block javascript %}
+<script>
+  $(document).ready(function () {
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+                toastr.success('{{ message }}');
+            {% elif message.tags == 'error' %}
+                toastr.error('{{ message }}');
+            {% else %}
+                toastr('{{ message }}');
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+});
+</script>
+{% endblock %}
+{% endblock %}

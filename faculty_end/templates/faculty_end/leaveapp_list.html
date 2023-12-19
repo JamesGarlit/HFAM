@@ -1,0 +1,97 @@
+{% extends 'faculty_end/base.html' %}
+{% load static %}
+{% block content %}
+
+<!-- Page header -->
+<div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <h2 class="page-title">
+                    Leave Application
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Page body -->
+<div class="page-body">
+    <div class="container-xl">
+        <div class="row">
+            <div class="col-lg-6 col-sm-12 mx-auto">
+                <a href="{% url 'leaveapp_create' %}" class="btn btn-primary btn-md mb-2 w-100">File Leave
+                    Application</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6 col-sm-12 mx-auto">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Leave Application List</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="table-default" class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr class="text-center">
+                                        <th style="width: 2%">ID</th>
+                                        <th style="width: 78%">Status</th>
+                                        <th style="width: 20%">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="table-tbody text-center">
+                                    {% for leave_application in leave_applications %}
+                                    <tr>
+                                        <td>{{ leave_application.id }}</td>
+                                        <td>
+                                            {% if leave_application.approval %}
+                                            {{ leave_application.approval.get_decision_display }}
+                                            {% else %}
+                                            Pending
+                                            {% endif %}
+                                        </td>
+                                        <td><a href="{% url 'leaveapp_view' leave_application.id %}"
+                                                class="btn btn-info btn-sm">View</a></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% block css %}
+<!-- Include external CSS stylesheets -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<!-- Additional CSS for the specific page -->
+<style>
+    /* Your specific page CSS styles */
+</style>
+{% endblock %}
+
+{% block javascript %}
+<!-- Include external JavaScript libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<!-- Additional JavaScript for the specific page -->
+<script>
+    {% comment %} Alert Message Scripts {% endcomment %}
+    $(document).ready(function () {
+        {% if messages %}
+        {% for message in messages %}
+        {% if message.tags == 'success' %}
+        toastr.success('{{ message }}');
+        {% elif message.tags == 'error' %}
+        toastr.error('{{ message }}');
+        {% else %}
+        toastr('{{ message }}');
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+    });
+</script>
+{% endblock %}
+{% endblock %}

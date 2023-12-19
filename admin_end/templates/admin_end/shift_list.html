@@ -1,0 +1,116 @@
+{% extends "admin_end/base.html" %}
+{% load static %}
+{% block content %}
+<!-- Page header -->
+<div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">
+                    Overview
+                </div>
+                <h2 class="page-title">
+                    Faculty Shift
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Page body -->
+<div class="page-body">
+    <div class="container-xl">
+        <div class="card">
+            <div class="card-body">
+                <table id="shiftList" class="table table-striped table-bordered" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th><button class="table-sort" data-sort="sort-name">Faculty ID</button></th>
+                            <th><button class="table-sort" data-sort="sort-city">Faculty Name</button></th>
+                            <th><button class="table-sort" data-sort="sort-type">Schedule/s (Day: Shift Start - Shift End)</button></th>
+                            <th><button class="table-sort" data-sort="sort-score">Action</button></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-tbody">
+                        {% for faculty in faculty_schedule %}
+                        <tr>
+                            <td>{{ faculty.id }}</td>
+                            <td>{{ faculty.name }}</td>
+                            <td>
+                                {% if faculty.schedule_display %}
+                                {{ faculty.schedule_display }}
+                                {% else %}
+                                No schedule yet
+                                {% endif %}
+                            </td>
+                            <td><a href="{% url 'shift_details' user_id=faculty.id %}"
+                                    class="btn btn-block btn-sm btn-outline-primary">View</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% block css %}
+<style>
+</style>
+{% endblock %}
+
+{% block javascript %}
+<script>
+    $(document).ready(function() {
+        $('#shiftList').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'copy',
+                    title: 'Faculty Schedule Shift',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'print',
+                    title: 'Faculty Schedule Shift',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'excel',
+                    title: 'Faculty Schedule Shift',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdf',
+                    title: 'Faculty Schedule Shift',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                'colvis'
+            ],
+        });
+    });
+       
+    {% comment %} Alert Message Scripts {% endcomment %}
+    $(document).ready(function () {
+        {% if messages %}
+        {% for message in messages %}
+        {% if message.tags == 'success' %}
+        toastr.success('{{ message }}');
+        {% elif message.tags == 'error' %}
+        toastr.error('{{ message }}');
+        {% else %}
+        toastr('{{ message }}');
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+    });
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends 'faculty_end/base.html' %}
+{% load static %}
+{% block content %}
+
+<!-- Page header -->
+<div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <h2 class="page-title">
+                    Leave Application
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Page body -->
+<div class="page-body">
+    <div class="container-xl">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Leave Application List</h3>
+            </div>
+            <div class="card-body">
+                <div id="table-default" class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Location</th>
+                                <th>Latitude</th>
+                                <th>Longitude</th>
+                                <th>Date</th>
+                                <th>Time In</th>
+                                <th>Time In Status</th>
+                                <th>Time Out</th>
+                                <th>Time Out Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for attendance in attendance_records %}
+                                <tr>
+                                    <td>{{ attendance.user.get_full_name }}</td>
+                                    <td>{{ attendance.location }}</td>
+                                    <td>{{ attendance.latitude }}</td>
+                                    <td>{{ attendance.longitude }}</td>
+                                    <td>{{ attendance.date }}</td>
+                                    <td>{{ attendance.time_in }}</td>
+                                    <td>{{ attendance.calculate_time_in_status }}</td>
+                                    <td>{{ attendance.time_out }}</td>
+                                    <td>{{ attendance.calculate_time_out_status }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- <div class="card-footer">
+                    Last updated 3 mins ago
+                </div> -->
+            </div>
+        </div>
+    </div>
+</div>
+{% block css %}
+<!-- Include external CSS stylesheets -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<!-- Additional CSS for the specific page -->
+<style>
+    /* Your specific page CSS styles */
+</style>
+{% endblock %}
+
+{% block javascript %}
+<!-- Include external JavaScript libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<!-- Additional JavaScript for the specific page -->
+<script>
+    {% comment %} Alert Message Scripts {% endcomment %}
+    $(document).ready(function () {
+        {% if messages %}
+        {% for message in messages %}
+        {% if message.tags == 'success' %}
+        toastr.success('{{ message }}');
+        {% elif message.tags == 'error' %}
+        toastr.error('{{ message }}');
+        {% else %}
+        toastr('{{ message }}');
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+    });
+</script>
+{% endblock %}
+{% endblock %}

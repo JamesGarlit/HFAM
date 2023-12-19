@@ -1,0 +1,55 @@
+{% extends "admin_end/base.html" %}
+{% load static %}
+{% block content %}
+<!-- Page header -->
+<div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">
+                    Overview
+                </div>
+                <h2 class="page-title">
+                    Facutly Shift
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Page body -->
+<div class="page-body">
+    <div class="container-xl">
+        <form method="post" action="{% url 'shift_update' shift_id=shift.id %}" class="card">
+            {% csrf_token %}
+            <div class="card-header">
+                <h3 class="card-title">Shift Information form</h3>
+            </div>
+            <div class="card-body">
+                {{ form.as_p }}
+            </div>
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% block css %}
+<!-- Include external CSS stylesheets -->
+
+<!-- Additional CSS for the specific page -->
+<style>
+
+</style>
+
+{% comment %} Include external JavaScript libraries {% endcomment %}
+{% endblock %}
+
+{% block javascript %}
+
+{% comment %} specific js {% endcomment %}
+<script>
+
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "admin_end/base.html" %}
+{% load static %}
+{% block content %}
+<!-- Page header -->
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <!-- Page pre-title -->
+        <div class="page-pretitle">
+          Overview
+        </div>
+        <h2 class="page-title">
+          Dashboard
+        </h2>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Page body -->
+<div class="page-body">
+  <div class="container-xl">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">User Information form</h3>
+      </div>
+      <div class="card-body">
+        <p><strong>ID:</strong> {{ leave_application.id }}</p>
+        <p><strong>Start Date:</strong> {{ leave_application.leave_start_date }}</p>
+        <p><strong>End Date:</strong> {{ leave_application.leave_end_date }}</p>
+        <p><strong>Type:</strong> {{ leave_application.leave_type }}</p>
+        <p><strong>Reason:</strong> {{ leave_application.leave_reason }}</p>
+        {% if leave_application.leave_supporting_docs %}
+        <p><strong>Supporting Docs:</strong> <a href="{{ leave_application.leave_supporting_docs.url }}"
+            target="_blank">Download</a></p>
+        {% endif %}
+        <p><strong>Faculty Name:</strong> {{ leave_application.user.get_full_name }}</p>
+        <p><strong>Status:</strong> {{ leave_application.approval.get_decision_display }}</p>
+        <form method="post" action="{% url 'leaveappreq_decision' leave_application.id %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label" for="comment">Comment</label>
+            <textarea name="comment" class="form-control" for="comment"
+              rows="5">{{ leave_application.approval.comment }}</textarea>
+          </div>
+          <button class="btn btn-primary" type="submit" name="decision" value="accepted">Accept</button>
+          <button class="btn btn-danger" type="submit" name="decision" value="rejected">Reject</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% block css %}
+  <!-- Include external CSS stylesheets -->
+
+  <!-- Additional CSS for the specific page -->
+  <style>
+
+  </style>
+
+  {% comment %} Include external JavaScript libraries {% endcomment %}
+  {% endblock %}
+
+  {% block javascript %}
+
+  {% comment %} specific js {% endcomment %}
+  <script>
+
+  </script>
+  {% endblock %}
+  {% endblock %}

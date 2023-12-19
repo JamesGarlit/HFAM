@@ -1,0 +1,156 @@
+{% extends "admin_end/base.html" %}
+{% load static %}
+{% block content %}
+<!-- Page header -->
+<div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">
+                    Overview
+                </div>
+                <h2 class="page-title">
+                    Users
+                </h2>
+            </div>
+            <!-- Page title actions -->
+            <div class="col-auto ms-auto d-print-none">
+                <div class="btn-list">
+                    <a href="{% url 'user_create' %}" class="btn btn-primary d-none d-sm-inline-block">
+                        <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                            stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M12 5l0 14" />
+                            <path d="M5 12l14 0" />
+                        </svg>
+                        Create New User
+                    </a>
+                    <a href="{% url 'user_create' %}" class="btn btn-primary d-sm-none btn-icon">
+                        <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                            stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M12 5l0 14" />
+                            <path d="M5 12l14 0" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Page body -->
+<div class="page-body">
+    <div class="container-xl">
+        <div class="card">
+            <div class="card-body">
+                <table id="userList" class="table table-striped" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th><button class="table-sort" data-sort="sort-name">#</button></th>
+                            <th><button class="table-sort" data-sort="sort-city">Full Name</button></th>
+                            <th><button class="table-sort" data-sort="sort-type">Email</button></th>
+                            <th><button class="table-sort" data-sort="sort-score">Role</button></th>
+                            <th><button class="table-sort" data-sort="sort-quantity">Action</button></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-tbody">
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.user_firstname }} {{ user.user_lastname }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.user_role }}</td>
+                            {% comment %} <td>{{ user.password }}</td> {% endcomment %}
+                            <td>
+                                {% if user.is_active %}
+                                <form method="post" action="{% url 'deactivate_user' user.id %}"
+                                    style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">Deactivate</button>
+                                </form>
+                                {% else %}
+                                <form method="post" action="{% url 'activate_user' user.id %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-success btn-sm">Activate</button>
+                                </form>
+                                {% endif %}
+                                <a href="{% url 'user_update' user.id %}" type="button"
+                                    class="btn btn-outline-info btn-sm">Update</a>
+                                {% comment %} <a href="{% url 'user_deactivate' user.id %}" type="button"
+                                    class="btn btn-block btn-outline-info btn-sm">Deactivate</a> {% endcomment %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% block css %}
+<style>
+
+</style>
+{% endblock %}
+
+{% block javascript %}
+{% comment %} specific js {% endcomment %}
+<script>
+    $(document).ready(function() {
+        $('#userList').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'copy',
+                    title: 'Users List',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'print',
+                    title: 'Users List',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'excel',
+                    title: 'Users List',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdf',
+                    title: 'Users List',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                'colvis'
+            ],
+        });
+    });
+    {% comment %} Alert Message Scripts {% endcomment %}
+    $(document).ready(function () {
+        {% if messages %}
+        {% for message in messages %}
+        {% if message.tags == 'success' %}
+        toastr.success('{{ message }}');
+        {% elif message.tags == 'error' %}
+        toastr.error('{{ message }}');
+        {% else %}
+        toastr('{{ message }}');
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+    });
+</script>
+{% endblock %}
+{% endblock %}

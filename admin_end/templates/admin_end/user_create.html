@@ -1,0 +1,93 @@
+{% extends "admin_end/base.html" %}
+{% load static %}
+{% block content %}
+<!-- Page header -->
+<div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">
+                    Overview
+                </div>
+                <h2 class="page-title">
+                    Users
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Page body -->
+<div class="page-body">
+    <div class="container-xl">
+        <form method="post" action="{% url 'user_create' %}" enctype="multipart/form-data" class="card">
+            {% csrf_token %}
+            <div class="card-header">
+                <h3 class="card-title">User Information form</h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="form-label">User Picture</div>
+                    {{ form.user_picture }}
+                </div>
+
+                <div class="mb-3">
+                    <div class="form-label">First Name</div>
+                    {{ form.user_firstname }}
+                </div>
+
+                <!-- Last Name Field -->
+                <div class="mb-3">
+                    <div class="form-label">Last Name</div>
+                    {{ form.user_lastname }}
+                </div>
+
+                <!-- User Role Field -->
+                <div class="mb-3">
+                    <div class="form-label">Select</div>
+                    {{ form.user_role }}
+                </div>
+
+                <!-- Email Field -->
+                <div class="mb-3">
+                    <div class="form-label">Email</div>
+                    {{ form.email }}
+                </div>
+
+                <!-- Password Field -->
+                <div class="mb-3">
+                    <div class="form-label">Password</div>
+                    {{ form.password }}
+                </div>
+
+                <!-- Confirm Password Field -->
+                <div class="mb-3">
+                    <div class="form-label">Confirm Password</div>
+                    {{ form.confirm_password }}
+                </div>
+            </div>
+            <div class="card-footer text-end">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% block css %}
+<!-- Include external CSS stylesheets -->
+
+<!-- Additional CSS for the specific page -->
+<style>
+
+</style>
+
+{% comment %} Include external JavaScript libraries {% endcomment %}
+{% endblock %}
+
+{% block javascript %}
+
+{% comment %} specific js {% endcomment %}
+<script>
+
+</script>
+{% endblock %}
+{% endblock %}
