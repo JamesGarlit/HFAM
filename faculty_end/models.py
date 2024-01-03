@@ -1,6 +1,6 @@
 # faculty_end/models.py
 from django.db import models
-from admin_end.models import CustomUser, FacultyShift
+from admin_end.models import CustomUser
 
 class LeaveApplication(models.Model):
     LEAVE_TYPES = (
@@ -19,33 +19,28 @@ class LeaveApplication(models.Model):
     leave_reason = models.TextField()
     leave_supporting_docs = models.FileField(upload_to='leave_supporting_docs/', null=True, blank=True)
 
-class FacultyAttendance(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='faculty_attendances')
+class Place(models.Model):
     location = models.CharField(max_length=255)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6)
-    date = models.DateField()
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+
+    def __str__(self):
+        return self.location
+
+class Arrival(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    place = models.ForeignKey(Place, on_delete=models.CASCADE)
     time_in = models.TimeField()
-    time_out = models.TimeField(null=True, blank=True)
+    time_in_date = models.DateField()
 
-    def calculate_time_in_status(self):
-        shift = self.get_shift()
-        if shift:
-            if shift.shift_start <= self.time_in <= shift.shift_end:
-                return 'On Time'
-            elif self.time_in > shift.shift_end:
-                return 'Late'
-        return 'No Schedule'
+    def __str__(self):
+        return f"{self.user.get_full_name()} arrived at {self.place} on {self.time_in}"
 
-    def calculate_time_out_status(self):
-        shift = self.get_shift()
-        if shift and self.time_out:
-            if self.time_out <= shift.shift_end:
-                return 'Early'
-        return 'No Schedule'
+class Departure(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    place = models.ForeignKey(Place, on_delete=models.CASCADE)
+    time_out = models.TimeField()
+    time_out_date = models.DateField()
 
-    def get_shift(self):
-        try:
-            return FacultyShift.objects.get(user=self.user, shift_day=self.date.strftime('%A'))
-        except FacultyShift.DoesNotExist:
-            return None
+    def __str__(self):
+        return f"{self.user.get_full_name()} departed from {self.place} on {self.time_out}"

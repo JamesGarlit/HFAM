@@ -8,8 +8,15 @@ from django.db.models import OuterRef, Subquery
 from django.views import View
 from faculty_end.models import LeaveApplication
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import user_passes_test
 
+def is_superadmin(user):
+    return user.is_authenticated and user.is_superuser
 
+def is_admin(user):
+    return user.is_authenticated and user.groups.filter(name='admin').exists()
+
+@user_passes_test(is_superadmin, login_url='admin_login')
 @login_required(login_url='admin_login')
 def dashboard(request):
     return render(request,'admin_end/dashboard.html')
@@ -21,6 +28,7 @@ def admin_notif(request):
 def attendancerecord(request):
     return render(request,'admin_end/attendancerecord.html')
 
+@user_passes_test(is_superadmin, login_url='login')
 @login_required(login_url='/admin_login/')
 def user_create(request):
     if request.method == 'POST':

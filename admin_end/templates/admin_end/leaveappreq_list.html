@@ -43,12 +43,25 @@
                             <td>{{ leave_application.leave_start_date }}</td>
                             <td>{{ leave_application.leave_end_date }}</td>
                             <td>{{ leave_application.leave_type }}</td>
-                            <td>{{ leave_application.approval.get_decision_display|default:"Pending" }}</td>
-                            <td><a href="{% url 'leaveappreq_view' leave_application.id %}"
-                                    class="btn btn-outline-info btn-sm">View</a></td>
+                            <td>
+                                <span class="
+                                    {% if leave_application.approval.get_decision_display|default:"Pending" == "Pending" %}
+                                        badge bg-primary text-white
+                                    {% elif leave_application.approval.get_decision_display|default:"Pending" == "Accepted" %}
+                                        badge bg-success text-white
+                                    {% elif leave_application.approval.get_decision_display|default:"Pending" == "Rejected" %}
+                                        badge bg-danger text-white
+                                    {% endif %}
+                                    ">
+                                    {{ leave_application.approval.get_decision_display|default:"Pending" }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'leaveappreq_view' leave_application.id %}" class="btn btn-outline-info btn-sm">View</a>
+                            </td>
                         </tr>
                         {% endfor %}
-                    </tbody>
+                    </tbody>                    
                 </table>
             </div>
         </div>
@@ -62,6 +75,7 @@
 <script>
     $(document).ready(function() {
         $('#leaveApp').DataTable({
+            scrollX: true,
             dom: 'Bfrtip',
             buttons: [
                 {

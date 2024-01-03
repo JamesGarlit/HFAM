@@ -161,7 +161,7 @@
                         style="background-image: url({{ request.user.user_picture.url }})"></span>
                     {% else %}
                     <!-- Provide a default image or placeholder if user_picture is not available -->
-                    <span class="default-avatar"></span>
+                    <span class="default-avatar border-1"></span>
                     {% endif %}
                     <div class="d-none d-xl-block ps-2">
                         <div>{{ request.user.get_full_name }}</div>

@@ -14,23 +14,38 @@
         </h1>
         <div class="navbar-nav flex-row d-lg-none">
             <div class="nav-item dropdown">
-                <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
+                {% comment %} <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
                     aria-label="Open user menu">
-                    <span class="avatar avatar-sm" style="background-image: url(./static/avatars/000m.jpg)"></span>
                     <div class="d-none d-xl-block ps-2">
                         <div>{% if user.is_authenticated %}
                             <a href="#" class="d-block">{{ user.user_firstname }} {{ user.user_lastname }}</a>
                             {% endif %}
                         </div>
-                        <div class="mt-1 small text-secondary">UI Designer</div>
                     </div>
-                </a>
-                <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <a href="./profile.html" class="dropdown-item">Profile</a>
-                    <a href="./settings.html" class="dropdown-item">Settings</a>
-                    <div class="dropdown-divider"></div>
-                    <a href="./sign-in.html" class="dropdown-item">Logout</a>
-                </div>
+                </a> {% endcomment %}
+                {% if request.user.is_authenticated %}
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
+                            aria-label="Open user menu">
+                            {% if request.user.user_picture %}
+                            <span class="avatar avatar-sm"
+                                style="background-image: url({{ request.user.user_picture.url }})"></span>
+                            {% else %}
+                            <!-- Provide a default image or placeholder if user_picture is not available -->
+                            <span class="default-avatar border-1"></span>
+                            {% endif %}
+                            <div class="d-none d-xl-block ps-2">
+                                <div>{{ request.user.get_full_name }}</div>
+                            </div>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                            <a href="./profile.html" class="dropdown-item">Profile</a>
+                            <a href="./settings.html" class="dropdown-item">Settings</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="{% url 'admin_logout' %}" class="dropdown-item">Logout</a>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
         </div>
         <div class="collapse navbar-collapse" id="sidebar-menu">

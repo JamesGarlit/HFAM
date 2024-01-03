@@ -1,14 +1,11 @@
 # faculty_end/views.py
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import LeaveApplication
+from django.contrib.auth.decorators import login_required
+from .models import LeaveApplication, Place, Arrival, Departure
 from django.contrib.auth import authenticate, login, logout
 from .forms import LeaveApplicationForm
-from .models import FacultyAttendance
-from admin_end.models import CustomUser
-from django.http import HttpResponse
-
+from django.utils import timezone
 
 @login_required(login_url='faculty_login')
 def leaveapp_create(request):
@@ -41,7 +38,7 @@ def faculty_login(request):
         if user is not None and user.user_role == 'faculty':
             login(request, user)
             messages.success(request, 'Logged In Successful!')
-            return redirect('qrcode_scanner')
+            return redirect('attendance_record')
         else:
             messages.error(request, 'Incorrect credentials. Please try again.')
             return render(request, 'faculty_end/faculty_login.html')
@@ -63,52 +60,84 @@ def qrcode_generator(request):
     return render(request,'faculty_end/qrcode_generator.html')
 
 @login_required(login_url='faculty_login')
-def save_attendance(request):
-    if request.method == 'POST':
-        # Retrieve data from the form
-        user_id = request.user.id  # Use the current authenticated user's ID
-        user_role = request.user.user_role  # Get the user role
+def time_in(request):
+    return render(request,'faculty_end/time_in.html')
 
-        # Check if the authenticated user is a faculty
-        if user_role == 'faculty':
-            try:
-                # Try to get the user with the specified ID and faculty role
-                user = CustomUser.objects.get(id=user_id, user_role='faculty')
-            except CustomUser.DoesNotExist:
-                # Print an error message and return an HttpResponse
-                print(f"Error: Faculty User with ID {user_id} does not exist.")
-                return HttpResponse("Error: Faculty User does not exist.")
-
-            location = request.POST.get('location')
-            latitude = request.POST.get('latitude')
-            longitude = request.POST.get('longitude')
-            date = request.POST.get('date')
-            time_in = request.POST.get('time_in')
-            time_out = request.POST.get('time_out')
-
-            # Create and save the attendance object
-            attendance = FacultyAttendance(
-                user=user,
-                location=location,
-                latitude=latitude,
-                longitude=longitude,
-                date=date,
-                time_in=time_in,
-                time_out=time_out,
-            )
-            attendance.save()
-
-            return render(request, 'faculty_end/qrcode_scanner.html')
-        else:
-            # If the authenticated user is not a faculty, handle accordingly
-            print("Error: User is not a faculty.")
-            return HttpResponse("Error: User is not a faculty.")
-    else:
-        # Handle GET request or render the form
-        return render(request, 'qrcode_scanner.html')
-    
+@login_required(login_url='faculty_login')
 def attendance_record(request):
-    # Retrieve attendance records for the authenticated faculty user
-    attendance_records = FacultyAttendance.objects.filter(user=request.user)
+    # Retrieve the current user's Arrival and Departure records
+    user_arrivals = Arrival.objects.filter(user=request.user)
+    user_departures = Departure.objects.filter(user=request.user)
 
-    return render(request, 'faculty_end/attendance_record.html', {'attendance_records': attendance_records})
+    # Combine user Arrival and Departure records
+    user_records = list(user_arrivals) + list(user_departures)
+
+    # Sort user records by date and time in descending order (from latest to oldest)
+    user_records = sorted(user_records, key=lambda x: (x.time_in_date if hasattr(x, 'time_in_date') else x.time_out_date,
+                                                       x.time_in if hasattr(x, 'time_in') else x.time_out),
+                          reverse=True)
+
+    return render(request, 'faculty_end/attendance_record.html', {'records': user_records})
+
+def time_in(request):
+    if request.method == 'POST':
+        location = request.POST.get('location')
+        latitude = request.POST.get('latitude')
+        longitude = request.POST.get('longitude')
+        time_in_date = request.POST.get('time_in_date')
+        time_in_time = request.POST.get('time_in')
+
+        # Assuming you have a user associated with the request, you can get it like this
+        user = request.user
+
+        # Create or get the Place object
+        place, created = Place.objects.get_or_create(
+            location=location,
+            latitude=latitude,
+            longitude=longitude
+        )
+
+        # Create the Arrival object with only the time component
+        arrival = Arrival.objects.create(
+            user=user,
+            place=place,
+            time_in=timezone.datetime.strptime(time_in_time, "%H:%M").time(),
+            time_in_date=time_in_date
+        )
+        messages.success(request, 'Time in successfully!')
+        # You can do additional processing or redirect to another page if needed
+        return redirect('attendance_record')
+
+    return render(request, 'faculty_end/time_in.html')
+
+def time_out(request):
+    if request.method == 'POST':
+        location = request.POST.get('location')
+        latitude = request.POST.get('latitude')
+        longitude = request.POST.get('longitude')
+        time_out_date = request.POST.get('time_in_date')
+        time_out_time = request.POST.get('time_out')
+
+        # Assuming you have a user associated with the request, you can get it like this
+        user = request.user
+
+        # Create or get the Place object
+        place, created = Place.objects.get_or_create(
+            location=location,
+            latitude=latitude,
+            longitude=longitude
+        )
+
+        # Create the Departure object with only the time component
+        departure = Departure.objects.create(
+            user=user,
+            place=place,
+            time_out=timezone.datetime.strptime(time_out_time, "%H:%M").time(),
+            time_out_date=time_out_date
+        )
+        messages.success(request, 'Time out successfully!')
+        # You can do additional processing or redirect to another page if needed
+        return redirect('attendance_record')
+
+    return render(request, 'faculty_end/time_out.html')
+
