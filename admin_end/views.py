@@ -6,7 +6,7 @@ from .models import CustomUser, FacultyShift, Approval
 from .forms import UserForm, ApprovalForm, FacultyShiftForm, UserUpdateForm
 from django.db.models import OuterRef, Subquery
 from django.views import View
-from faculty_end.models import LeaveApplication
+from faculty_end.models import LeaveApplication, TimeIn, TimeOut
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import user_passes_test
 
@@ -21,15 +21,13 @@ def is_admin(user):
 def dashboard(request):
     return render(request,'admin_end/dashboard.html')
 
+@user_passes_test(is_superadmin, login_url='admin_login')
 @login_required(login_url='admin_login')
 def admin_notif(request):
     return render(request,'admin_end/admin_notif.html')
 
-def attendancerecord(request):
-    return render(request,'admin_end/attendancerecord.html')
-
-@user_passes_test(is_superadmin, login_url='login')
-@login_required(login_url='/admin_login/')
+@user_passes_test(is_superadmin, login_url='admin_login')
+@login_required(login_url='admin_login')
 def user_create(request):
     if request.method == 'POST':
         form = UserForm(request.POST, request.FILES)
@@ -44,7 +42,8 @@ def user_create(request):
     
     return render(request, 'admin_end/user_create.html', {'form': form})
 
-@login_required(login_url='/admin_login/')
+@user_passes_test(is_superadmin, login_url='admin_login')
+@login_required(login_url='admin_login')
 def user_update(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
 
@@ -70,16 +69,19 @@ def user_update(request, user_id):
     return render(request, 'admin_end/user_update.html', {'form': form, 'user': user})
 
 
-@login_required(login_url='/admin_login/')
+@user_passes_test(is_superadmin, login_url='admin_login')
+@login_required(login_url='admin_login')
 def user_list(request):
     users = CustomUser.objects.all()
     return render(request, 'admin_end/user_list.html', {'users': users})
 
-@login_required(login_url='/admin_login/')
+@user_passes_test(is_superadmin, login_url='admin_login')
+@login_required(login_url='admin_login')
 def user_view(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
     return render(request, 'admin_end/user_view.html', {'user': user})
 
+@user_passes_test(is_superadmin, login_url='admin_login')
 @login_required(login_url='admin_login')
 def shift_list(request):
     # Filter out deactivated faculty members
@@ -98,12 +100,14 @@ def shift_list(request):
 
     return render(request, 'admin_end/shift_list.html', {'faculty_schedule': faculty_schedule})
 
+@user_passes_test(is_superadmin, login_url='admin_login')
 @login_required(login_url='admin_login')
 def shift_details(request, user_id):
     faculty_user = get_object_or_404(CustomUser, id=user_id, user_role='faculty')
     shifts = FacultyShift.objects.filter(user=faculty_user)
     return render(request, 'admin_end/shift_details.html', {'faculty_user': faculty_user, 'shifts': shifts})
 
+@user_passes_test(is_superadmin, login_url='admin_login')
 @login_required(login_url='admin_login')
 def shift_create(request, user_id):
     faculty_user = get_object_or_404(CustomUser, id=user_id, user_role='faculty')
@@ -121,6 +125,7 @@ def shift_create(request, user_id):
 
     return render(request, 'admin_end/shift_create.html', {'faculty_user': faculty_user, 'form': form})
 
+@user_passes_test(is_superadmin, login_url='admin_login')
 @login_required(login_url='admin_login')
 def shift_update(request, shift_id):
     shift = get_object_or_404(FacultyShift, id=shift_id)
@@ -136,6 +141,7 @@ def shift_update(request, shift_id):
 
     return render(request, 'admin_end/shift_update.html', {'form': form, 'shift': shift})
 
+@user_passes_test(is_superadmin, login_url='admin_login')
 @login_required(login_url='admin_login')
 def shift_delete(request, shift_id):
     print(f"Received shift_id: {shift_id}")
@@ -169,7 +175,8 @@ def admin_logout(request):
     messages.success(request, 'Logged out successfully!')
     return redirect('admin_login')
 
-@login_required(login_url='/admin_login/')
+@user_passes_test(is_superadmin, login_url='admin_login')
+@login_required(login_url='admin_login')
 def deactivate_user(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
     user.is_active = False
@@ -177,7 +184,8 @@ def deactivate_user(request, user_id):
     messages.success(request, f'{user.user_firstname} {user.user_lastname} has been deactivated.')
     return redirect('user_list')
 
-@login_required(login_url='/admin_login/')
+@user_passes_test(is_superadmin, login_url='admin_login')
+@login_required(login_url='admin_login')
 def activate_user(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
     user.is_active = True
@@ -185,16 +193,19 @@ def activate_user(request, user_id):
     messages.success(request, f'{user.user_firstname} {user.user_lastname} has been activated.')
     return redirect('user_list')
 
+@user_passes_test(is_superadmin, login_url='admin_login')
 @login_required(login_url='admin_login')
 def leaveappreq_list(request):
     leave_applications = LeaveApplication.objects.all()
     return render(request, 'admin_end/leaveappreq_list.html', {'leave_applications': leave_applications})
 
+@user_passes_test(is_superadmin, login_url='admin_login')
 @login_required(login_url='admin_login')
 def leaveappreq_view(request, leave_id):
     leave_application = LeaveApplication.objects.get(id=leave_id)
     return render(request, 'admin_end/leaveappreq_view.html', {'leave_application': leave_application})
 
+@user_passes_test(is_superadmin, login_url='admin_login')
 @login_required(login_url='admin_login')
 def leaveappreq_decision(request, leave_id):
     leave_application = LeaveApplication.objects.get(id=leave_id)
@@ -233,3 +244,29 @@ def leaveappreq_decision(request, leave_id):
         form = ApprovalForm()
 
     return render(request, 'admin_end/leaveappreq_view.html', {'leave_application': leave_application, 'form': form})
+
+def faculty_attendance_record(request):
+    # Get all TimeIn and TimeOut records
+    time_in_records = TimeIn.objects.all()
+    time_out_records = TimeOut.objects.all()
+
+    # Combine TimeIn and TimeOut records based on the user and date
+    all_records = []
+    for time_in_record in time_in_records:
+        user = time_in_record.user
+        date = time_in_record.date
+
+        time_out_record = time_out_records.filter(user=user, date=date).first()
+
+        all_records.append({
+            'user': user,
+            'date': date,
+            'time_in': time_in_record.time_in,
+            'time_in_status': time_in_record.status,
+            'time_in_location': time_in_record.location,
+            'time_out': time_out_record.time_out if time_out_record else None,
+            'time_out_status': time_out_record.status if time_out_record else None,
+            'time_out_location': time_out_record.location if time_out_record else None,
+        })
+
+    return render(request, 'admin_end/faculty_attendance_record.html', {'all_records': all_records})

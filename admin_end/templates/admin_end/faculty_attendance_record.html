@@ -1,0 +1,147 @@
+{% extends "admin_end/base.html" %}
+{% load static %}
+{% block content %}
+<!-- Page header -->
+<div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">
+                    Overview
+                </div>
+                <h2 class="page-title">
+                    Attendance Record
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Page body -->
+<div class="page-body">
+    <div class="container-xl">
+        <div class="card">
+            <div class="card-body">
+                <table id="AllFacultyAttendanceRecord" class="table table-striped table-bordered" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Faculty Name</th>
+                            <th>Date</th>
+                            <th>Time In</th>
+                            <th>Time In Status</th>
+                            <th>Time In Location</th>
+                            <th>Time Out</th>
+                            <th>Time Out Status</th>
+                            <th>Time Out Location</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in all_records %}
+                            <tr>
+                                <td>{{ record.user.get_full_name }}</td>
+                                <td>{{ record.date }}</td>
+                                <td>{{ record.time_in|default:"N/A" }}</td>
+                                <td>{{ record.time_in_status|default:"N/A" }}</td>
+                                <td>{{ record.time_in_location|default:"N/A" }}</td>
+                                <td>{{ record.time_out|default:"N/A" }}</td>
+                                <td>{{ record.time_out_status|default:"N/A" }}</td>
+                                <td>{{ record.time_out_location|default:"N/A" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>                
+            </div>
+        </div>
+    </div>
+</div>
+{% block css %}
+<style>
+    thead input {
+        width: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block javascript %}
+{% comment %} specific js {% endcomment %}
+<script>
+    $(document).ready(function() {
+        // Setup - add a text input to each footer cell
+        $('#AllFacultyAttendanceRecord thead tr').clone(true).addClass('filters').appendTo('#AllFacultyAttendanceRecord thead');
+    
+        var table = $('#AllFacultyAttendanceRecord').DataTable({
+            fixedColumns: {
+                left: 0,
+                right: 1
+            },
+            scrollCollapse: true,
+            orderCellsTop: true,
+            fixedHeader: true,
+            scrollX: true,
+            dom: 'Bfrtlip',
+            buttons: [
+                {
+                    extend: 'copy',
+                    title: 'Attendance Record - ' + new Date().toLocaleDateString(),
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'print',
+                    title: 'Attendance Record - ' + new Date().toLocaleDateString(),
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'excel',
+                    title: 'Attendance Record - ' + new Date().toLocaleDateString(),
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdf',
+                    title: 'Attendance Record - ' + new Date().toLocaleDateString(),
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                'colvis'
+            ],
+            initComplete: function() {
+                var api = this.api();
+    
+                api.columns().eq(0).each(function(colIdx) {
+                    // Set the header cell to contain the input element
+                    var cell = $('.filters th').eq($(api.column(colIdx).header()).index());
+                    var title = $(cell).text();
+                    $(cell).html('<input type="text" placeholder="' + title + '" />');
+    
+                    $('input', $('.filters th').eq($(api.column(colIdx).header()).index()))
+                        .off('keyup change')
+                        .on('keyup change', function(e) {
+                            e.stopPropagation();
+                            $(this).attr('title', $(this).val());
+                            var regexr = '({search})';
+                            var cursorPosition = this.selectionStart;
+    
+                            api
+                                .column(colIdx)
+                                .search((this.value != "") ? regexr.replace('{search}', '(((' + this.value + ')))') : "", this.value != "", this.value == "")
+                                .draw();
+                            $(this).focus()[0].setSelectionRange(cursorPosition, cursorPosition);
+                        });
+    
+                    if (colIdx === api.columns().eq(0).length - 1) {
+                        // Include filter input for the last column
+                        $(cell).html('<input type="text" placeholder="' + title + '" />');
+                    }
+                });
+            }
+        });
+    });    
+</script>
+{% endblock %}
+{% endblock %}

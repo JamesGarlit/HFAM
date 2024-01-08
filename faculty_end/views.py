@@ -58,14 +58,29 @@ def qrcode_generator(request):
     return render(request,'faculty_end/qrcode_generator.html')
 
 def attendance_record(request):
-    return render(request,'faculty_end/attendance_record.html')
+    # Get the current user
+    user = request.user
 
-def attendance_record(request):
     # Get the current date
     current_date = datetime.now().date()
 
-    # Get all faculty shifts for the current date
-    faculty_shifts = FacultyShift.objects.filter(shift_day=current_date.strftime('%A'))
+    # Get the faculty shifts for the current date and the current user
+    faculty_shifts = FacultyShift.objects.filter(user=user, shift_day=current_date.strftime('%A'))
+
+    # Retrieve TimeIn and TimeOut records for each faculty shift
+    for faculty_shift in faculty_shifts:
+        time_in_record = TimeIn.objects.filter(user=user, faculty_shift=faculty_shift, date=current_date).first()
+        time_out_record = TimeOut.objects.filter(user=user, faculty_shift=faculty_shift, date=current_date).first()
+
+        if time_in_record:
+            faculty_shift.time_in = time_in_record.time_in
+            faculty_shift.time_in_status = time_in_record.status
+            faculty_shift.time_in_location = time_in_record.location
+
+        if time_out_record:
+            faculty_shift.time_out = time_out_record.time_out
+            faculty_shift.time_out_status = time_out_record.status
+            faculty_shift.time_out_location = time_out_record.location
 
     # Render the template with the faculty shifts
     return render(request, 'faculty_end/attendance_record.html', {'faculty_shifts': faculty_shifts, 'current_date': current_date})
@@ -79,14 +94,9 @@ def time_in(request, faculty_shift_id):
         time_in_date = request.POST.get('time_in_date')
         time_in_input = request.POST.get('time_in')
 
-        print("Debug: location =", location)  # Add this line for debugging
-        print("Debug: time_in_date =", time_in_date)  # Add this line for debugging
-        print("Debug: time_in_input =", time_in_input)  # Add this line for debugging
-
         if time_in_input is not None:
             try:
                 provided_time = datetime.strptime(time_in_input, '%H:%M').time()
-                print("Debug: provided_time =", provided_time)  # Add this line for debugging
             except ValueError:
                 return HttpResponse('Invalid time format. Please use HH:MM.')
 
@@ -98,7 +108,7 @@ def time_in(request, faculty_shift_id):
                 date=time_in_date,
                 defaults={'time_in': provided_time, 'status': status, 'location': location}
             )
-
+            messages.success(request, 'Time In Successful!')
             return redirect('attendance_record')
 
     return render(request, 'faculty_end/time_in.html', {'faculty_shift': faculty_shift})
@@ -112,14 +122,9 @@ def time_out(request, faculty_shift_id):
         time_out_date = request.POST.get('date')
         time_out_input = request.POST.get('time_out')
 
-        print("Debug: location =", location)  # Add this line for debugging
-        print("Debug: time_out_date =", time_out_date)  # Add this line for debugging
-        print("Debug: time_out_input =", time_out_input)  # Add this line for debugging
-
         if time_out_input is not None:
             try:
                 provided_time = datetime.strptime(time_out_input, '%H:%M').time()
-                print("Debug: provided_time =", provided_time)  # Add this line for debugging
             except ValueError:
                 return HttpResponse('Invalid time format. Please use HH:MM.')
 
@@ -133,6 +138,7 @@ def time_out(request, faculty_shift_id):
                 defaults={'time_out': provided_time, 'status': status, 'location': location}
             )
 
+            messages.success(request, 'Time Out Successful!')
             return redirect('attendance_record')
 
     return render(request, 'faculty_end/time_out.html', {'faculty_shift': faculty_shift})

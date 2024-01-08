@@ -103,10 +103,8 @@
                 const street = addressComponents.road || '';
                 const barangay = addressComponents.neighbourhood || addressComponents.suburb || addressComponents.village || '';
                 const city = addressComponents.city || '';
-                const state = addressComponents.state || '';
-                const country = addressComponents.country || '';
 
-                const fullAddress = [street, barangay, city, state, country].filter(Boolean).join(', ');
+                const fullAddress = [street, barangay, city].filter(Boolean).join(', ');
 
                 document.getElementById('location').value = fullAddress;
             });
