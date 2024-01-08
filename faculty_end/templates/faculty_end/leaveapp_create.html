@@ -1,113 +1,97 @@
-{% extends 'faculty_end/base.html' %}
 {% load static %}
-{% block content %}
-
-<!-- Page header -->
-<div class="page-header d-print-none">
+<header class="navbar navbar-expand-md d-print-none">
     <div class="container-xl">
-        <div class="row g-2 align-items-center">
-            <div class="col">
-                <h2 class="page-title">
-                    Leave Application
-                </h2>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Page body -->
-<div class="page-body">
-    <div class="container-xl">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Leave Application Form</h3>
-            </div>
-            <div class="card-body">
-                <div class="row justify-content-center">
-                    <div class="col-lg-5 col-md-5 col-sm-12">
-                        <div class="mb-1">
-                            <form method="post" action="{% url 'leaveapp_create' %}" enctype="multipart/form-data">
-                                {% csrf_token %}
-                                {{ form.as_p }}
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                    data-bs-target="#modal-info">
-                                    Submit
-                                </button>
-                                <div class="modal modal-blur fade" id="modal-info" tabindex="-1" role="dialog"
-                                    aria-hidden="true">
-                                    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-                                        <div class="modal-content">
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                aria-label="Close"></button>
-                                            <div class="modal-status bg-info"></div>
-                                            <div class="modal-body text-center py-4">
-                                                <!-- Download SVG icon from http://tabler-icons.io/i/alert-triangle -->
-                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                    class="icon mb-2 text-info icon-lg" width="24" height="24"
-                                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                                    fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path
-                                                        d="M11.94 2a2.99 2.99 0 0 1 2.45 1.279l.108 .164l8.431 14.074a2.989 2.989 0 0 1 -2.366 4.474l-.2 .009h-16.856a2.99 2.99 0 0 1 -2.648 -4.308l.101 -.189l8.425 -14.065a2.989 2.989 0 0 1 2.555 -1.438zm.06 10h-1l-.117 .007a1 1 0 0 0 0 1.986l.117 .007v3l.007 .117a1 1 0 0 0 .876 .876l.117 .007h1l.117 -.007a1 1 0 0 0 .876 -.876l.007 -.117l-.007 -.117a1 1 0 0 0 -.764 -.857l-.112 -.02l-.117 -.006v-3l-.007 -.117a1 1 0 0 0 -.876 -.876l-.117 -.007zm.01 -3l-.127 .007a1 1 0 0 0 0 1.986l.117 .007l.127 -.007a1 1 0 0 0 0 -1.986l-.117 -.007z"
-                                                        stroke-width="0" fill="currentColor" />
-                                                </svg>
-                                                <h3>Are you sure?</h3>
-                                                <div class="text-secondary">Do you really want to submit? What you've
-                                                    done cannot be undone. Please double check the form.</div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <div class="w-100">
-                                                    <div class="row">
-                                                        <div class="col"><a href="#" class="btn w-100"
-                                                                data-bs-dismiss="modal">
-                                                                Cancel
-                                                            </a></div>
-                                                        <div class="col"><button type="submit"
-                                                                class="btn btn-primary w-100">
-                                                                Yes
-                                                            </button></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu"
+            aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
+            <a href=".">
+                <img src="{% static '/static/photos/pupqc_logo.png' %}" width="110" height="32" alt="Tabler" class="navbar-brand-image">
+            </a>
+        </h1>
+        <div class="navbar-nav flex-row order-md-last">    
+            {% if request.user.is_authenticated %}
+            <div class="nav-item dropdown">
+                <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
+                    aria-label="Open user menu">
+                    {% if request.user.user_picture %}
+                    <span class="avatar avatar-sm"
+                        style="background-image: url({{ request.user.user_picture.url }})"></span>
+                    {% else %}
+                    <!-- Provide a default image or placeholder if user_picture is not available -->
+                    <span class="default-avatar"></span>
+                    {% endif %}
+                    <div class="d-none d-xl-block ps-2">
+                        <div>{{ request.user.get_full_name }}</div>
                     </div>
+                </a>
+                <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                    <a href="./profile.html" class="dropdown-item">Profile</a>
+                    <a href="./settings.html" class="dropdown-item">Settings</a>
+                    <div class="dropdown-divider"></div>
+                    <a href="{% url 'faculty_logout' %}" class="dropdown-item">Logout</a>
                 </div>
             </div>
+            {% endif %}
         </div>
     </div>
-</div>
-{% block css %}
-<!-- Include external CSS stylesheets -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-<!-- Additional CSS for the specific page -->
-<style>
-    /* Your specific page CSS styles */
-</style>
-{% endblock %}
-
-{% block javascript %}
-<!-- Include external JavaScript libraries -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
-<!-- Additional JavaScript for the specific page -->
-<script>
-    {% comment %} Alert Message Scripts {% endcomment %}
-    $(document).ready(function () {
-        {% if messages %}
-        {% for message in messages %}
-        {% if message.tags == 'success' %}
-        toastr.success('{{ message }}');
-        {% elif message.tags == 'error' %}
-        toastr.error('{{ message }}');
-        {% else %}
-        toastr('{{ message }}');
-        {% endif %}
-        {% endfor %}
-        {% endif %}
-    });
-</script>
-{% endblock %}
-{% endblock %}
+</header>
+<header class="navbar-expand-md">
+    <div class="collapse navbar-collapse" id="navbar-menu">
+        <div class="navbar">
+            <div class="container-xl">
+                <ul class="navbar-nav">
+                    {% comment %} <li class="nav-item">
+                        <a class="nav-link" href="{% url 'qrcode_scanner' %}">
+                            <span class="material-symbols-outlined">
+                                qr_code_scanner
+                                </span>
+                            <span class="nav-link-title">
+                                QR Scanner
+                            </span>
+                        </a>
+                    </li> {% endcomment %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'qrcode_generator' %}">
+                            <span class="material-symbols-outlined">
+                                qr_code_2
+                                </span>
+                            <span class="nav-link-title">
+                                QR Code Generator
+                            </span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'leaveapp_list' %}">
+                            <span class="material-symbols-outlined">
+                                schedule_send
+                                </span>
+                            <span class="nav-link-title">
+                                Leave Application
+                            </span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'attendance_record' %}">
+                            <span class="material-symbols-outlined">event_available</span>
+                            <span class="nav-link-title">
+                                Attendance
+                            </span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./">
+                            <span class="material-symbols-outlined">
+                                notifications
+                                </span>
+                            <span class="nav-link-title">
+                                Notification
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</header>

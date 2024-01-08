@@ -53,11 +53,11 @@
                     <table id="shiftDetails" class="table table-striped table-bordered" style="width:100%">
                         <thead>
                             <tr>
-                                <th><button class="table-sort" data-sort="sort-name">Shift ID</button></th>
-                                <th><button class="table-sort" data-sort="sort-city">Shift Start</button></th>
-                                <th><button class="table-sort" data-sort="sort-type">Shift End</button></th>
-                                <th><button class="table-sort" data-sort="sort-score">Shift Day</button></th>
-                                <th><button class="table-sort" data-sort="sort-date">Action</button></th>
+                                <th>Shift ID</th>
+                                <th>Shift Start</th>
+                                <th>Shift End</th>
+                                <th>Shift Day</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody class="table-tbody">
@@ -128,7 +128,9 @@
 </div>
 {% block css %}
 <style>
-
+    thead input {
+        width: 100%;
+    }
 </style>
 {% endblock %}
 

@@ -1,6 +1,6 @@
 # faculty_end/models.py
 from django.db import models
-from admin_end.models import CustomUser
+from admin_end.models import CustomUser, FacultyShift
 
 class LeaveApplication(models.Model):
     LEAVE_TYPES = (
@@ -19,28 +19,18 @@ class LeaveApplication(models.Model):
     leave_reason = models.TextField()
     leave_supporting_docs = models.FileField(upload_to='leave_supporting_docs/', null=True, blank=True)
 
-class Place(models.Model):
+class TimeIn(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    faculty_shift = models.ForeignKey(FacultyShift, on_delete=models.CASCADE)
     location = models.CharField(max_length=255)
-    latitude = models.FloatField()
-    longitude = models.FloatField()
-
-    def __str__(self):
-        return self.location
-
-class Arrival(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    place = models.ForeignKey(Place, on_delete=models.CASCADE)
+    date = models.DateField()
     time_in = models.TimeField()
-    time_in_date = models.DateField()
+    status = models.CharField(max_length=20) # 'On Time', 'Late', 'Early', 'Absent'
 
-    def __str__(self):
-        return f"{self.user.get_full_name()} arrived at {self.place} on {self.time_in}"
-
-class Departure(models.Model):
+class TimeOut(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    place = models.ForeignKey(Place, on_delete=models.CASCADE)
+    faculty_shift = models.ForeignKey(FacultyShift, on_delete=models.CASCADE)
+    location = models.CharField(max_length=255)
+    date = models.DateField()
     time_out = models.TimeField()
-    time_out_date = models.DateField()
-
-    def __str__(self):
-        return f"{self.user.get_full_name()} departed from {self.place} on {self.time_out}"
+    status = models.CharField(max_length=20) # 'On Time', 'Late', 'Early', 'Absent'

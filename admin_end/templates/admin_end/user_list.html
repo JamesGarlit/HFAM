@@ -48,14 +48,14 @@
     <div class="container-xl">
         <div class="card">
             <div class="card-body">
-                <table id="userList" class="table table-striped" style="width:100%">
+                <table id="userList" class="table table-striped display" style="width:100%">
                     <thead>
                         <tr>
-                            <th><button class="table-sort" data-sort="sort-name">#</button></th>
-                            <th><button class="table-sort" data-sort="sort-city">Full Name</button></th>
-                            <th><button class="table-sort" data-sort="sort-type">Email</button></th>
-                            <th><button class="table-sort" data-sort="sort-score">Role</button></th>
-                            <th><button class="table-sort" data-sort="sort-quantity">Action</button></th>
+                            <th>#</th>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody class="table-tbody">
@@ -94,7 +94,9 @@
 </div>
 {% block css %}
 <style>
-
+    thead input {
+        width: 100%;
+    }
 </style>
 {% endblock %}
 
@@ -102,42 +104,86 @@
 {% comment %} specific js {% endcomment %}
 <script>
     $(document).ready(function() {
-        $('#userList').DataTable({
-            scrollX: true,
-            dom: 'Bfrtip',
+        // Setup - add a text input to each footer cell
+        $('#userList thead tr').clone(true).addClass('filters').appendTo('#userList thead');
+    
+        var table = $('#userList').DataTable({
+            fixedColumns: {
+                left: 0,
+                right: 1
+            },
+            scrollCollapse: true,
+            orderCellsTop: true,
+            fixedHeader: true,
+            scrollX: true, // Add scrollX to enable horizontal scrolling
+            dom: 'Bfrtlip', // Include buttons and exclude the search filter ('f')
             buttons: [
                 {
                     extend: 'copy',
-                    title: 'Users List',
+                    title: 'User List - ' + new Date().toLocaleDateString(),
                     exportOptions: {
                         columns: ':visible'
                     }
                 },
                 {
                     extend: 'print',
-                    title: 'Users List',
+                    title: 'User List - ' + new Date().toLocaleDateString(),
                     exportOptions: {
                         columns: ':visible'
                     }
                 },
                 {
                     extend: 'excel',
-                    title: 'Users List',
+                    title: 'User List - ' + new Date().toLocaleDateString(),
                     exportOptions: {
                         columns: ':visible'
                     }
                 },
                 {
                     extend: 'pdf',
-                    title: 'Users List',
+                    title: 'User List - ' + new Date().toLocaleDateString(),
                     exportOptions: {
                         columns: ':visible'
                     }
                 },
                 'colvis'
             ],
+            initComplete: function() {
+                var api = this.api();
+                // For each column
+                api.columns().eq(0).each(function(colIdx) {
+                    // Exclude input filter for the last column
+                    if (colIdx < api.columns().eq(0).length - 1) {
+                        // Set the header cell to contain the input element
+                        var cell = $('.filters th').eq($(api.column(colIdx).header()).index());
+                        var title = $(cell).text();
+                        $(cell).html('<input type="text" placeholder="' + title + '" />');
+                        // On every keypress in this input
+                        $('input', $('.filters th').eq($(api.column(colIdx).header()).index()))
+                            .off('keyup change')
+                            .on('keyup change', function(e) {
+                                e.stopPropagation();
+                                // Get the search value
+                                $(this).attr('title', $(this).val());
+                                var regexr = '({search})'; //$(this).parents('th').find('select').val();
+                                var cursorPosition = this.selectionStart;
+                                // Search the column for that value
+                                api
+                                    .column(colIdx)
+                                    .search((this.value != "") ? regexr.replace('{search}', '(((' + this.value + ')))') : "", this.value != "", this.value == "")
+                                    .draw();
+                                $(this).focus()[0].setSelectionRange(cursorPosition, cursorPosition);
+                            });
+                    } else {
+                        // Remove filter input for the last column
+                        var cell = $('.filters th').eq($(api.column(colIdx).header()).index());
+                        $(cell).html('');
+                    }
+                });
+            }
         });
     });
+          
     {% comment %} Alert Message Scripts {% endcomment %}
     $(document).ready(function () {
         {% if messages %}
