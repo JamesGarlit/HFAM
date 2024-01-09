@@ -66,10 +66,14 @@
                                 </td>
                                 <td>{{ faculty_shift.shift_end|time:"g:i A" }}</td>
                                 <td>
-                                    {% if not faculty_shift.timeout_set.all %}
-                                        <a href="{% url 'time_out' faculty_shift.id %}" class="btn btn-block btn-sm btn-outline-danger">Time Out</a>
+                                    {% if faculty_shift.timein_set.all %}
+                                        {% if not faculty_shift.timeout_set.all %}
+                                            <a href="{% url 'time_out' faculty_shift.id %}" class="btn btn-block btn-sm btn-outline-danger">Time Out</a>
+                                        {% else %}
+                                            {{ faculty_shift.timeout_set.last.time_out|time:"g:i A" }}
+                                        {% endif %}
                                     {% else %}
-                                        {{ faculty_shift.timeout_set.last.time_out|time:"g:i A" }}
+                                        <button class="btn btn-block btn-sm btn-outline-danger" disabled>Time Out</button>
                                     {% endif %}
                                 </td>
                                 <td>
@@ -88,8 +92,8 @@
                                 </td>
                             </tr>
                         {% endfor %}
-                    </tbody>                           
-                </table>                                
+                    </tbody>
+                </table>                                                
             </div>
         </div>
     </div>

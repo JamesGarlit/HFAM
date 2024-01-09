@@ -36,20 +36,20 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for record in all_records %}
+                        {% for entry in faculty_attendance_data %}
                             <tr>
-                                <td>{{ record.user.get_full_name }}</td>
-                                <td>{{ record.date }}</td>
-                                <td>{{ record.time_in|default:"N/A" }}</td>
-                                <td>{{ record.time_in_status|default:"N/A" }}</td>
-                                <td>{{ record.time_in_location|default:"N/A" }}</td>
-                                <td>{{ record.time_out|default:"N/A" }}</td>
-                                <td>{{ record.time_out_status|default:"N/A" }}</td>
-                                <td>{{ record.time_out_location|default:"N/A" }}</td>
+                                <td>{{ entry.faculty_name }}</td>
+                                <td>{{ entry.date }}</td>
+                                <td>{{ entry.time_in }}</td>
+                                <td>{{ entry.time_in_status }}</td>
+                                <td>{{ entry.time_in_location }}</td>
+                                <td>{{ entry.time_out }}</td>
+                                <td>{{ entry.time_out_status }}</td>
+                                <td>{{ entry.time_out_location }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>
-                </table>                
+                </table>                                                               
             </div>
         </div>
     </div>

@@ -4,8 +4,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .models import CustomUser, FacultyShift, Approval
 from .forms import UserForm, ApprovalForm, FacultyShiftForm, UserUpdateForm
-from django.db.models import OuterRef, Subquery
-from django.views import View
+# from django.db.models import OuterRef, Subquery
+# from django.views import View
 from faculty_end.models import LeaveApplication, TimeIn, TimeOut
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import user_passes_test
@@ -246,27 +246,47 @@ def leaveappreq_decision(request, leave_id):
     return render(request, 'admin_end/leaveappreq_view.html', {'leave_application': leave_application, 'form': form})
 
 def faculty_attendance_record(request):
-    # Get all TimeIn and TimeOut records
-    time_in_records = TimeIn.objects.all()
-    time_out_records = TimeOut.objects.all()
+    # Assuming 'faculty' is the value in user_role for faculty members
+    all_faculty = CustomUser.objects.filter(user_role='faculty')
 
-    # Combine TimeIn and TimeOut records based on the user and date
-    all_records = []
-    for time_in_record in time_in_records:
-        user = time_in_record.user
-        date = time_in_record.date
+    faculty_attendance_data = {}
 
-        time_out_record = time_out_records.filter(user=user, date=date).first()
+    for faculty_member in all_faculty:
+        time_in_records = TimeIn.objects.filter(user=faculty_member)
+        time_out_records = TimeOut.objects.filter(user=faculty_member)
 
-        all_records.append({
-            'user': user,
-            'date': date,
-            'time_in': time_in_record.time_in,
-            'time_in_status': time_in_record.status,
-            'time_in_location': time_in_record.location,
-            'time_out': time_out_record.time_out if time_out_record else None,
-            'time_out_status': time_out_record.status if time_out_record else None,
-            'time_out_location': time_out_record.location if time_out_record else None,
-        })
+        for time_in_record in time_in_records:
+            # Use a tuple (date, user, shift_start, shift_end) as the key
+            key = (time_in_record.date, faculty_member, time_in_record.faculty_shift.shift_start, time_in_record.faculty_shift.shift_end)
+            # Initialize the entry if it doesn't exist
+            if key not in faculty_attendance_data:
+                faculty_attendance_data[key] = []
 
-    return render(request, 'admin_end/faculty_attendance_record.html', {'all_records': all_records})
+            faculty_attendance_data[key].append({
+                'faculty_name': faculty_member.get_full_name(),
+                'date': time_in_record.date,
+                'shift_start': time_in_record.faculty_shift.shift_start,
+                'shift_end': time_in_record.faculty_shift.shift_end,
+                'time_in': time_in_record.time_in,
+                'time_in_status': time_in_record.status,
+                'time_in_location': time_in_record.location,
+                'time_out': None,
+                'time_out_status': None,
+                'time_out_location': None,
+            })
+
+        for time_out_record in time_out_records:
+            # Use the same tuple (date, user, shift_start, shift_end) to find the corresponding TimeIn entry
+            key = (time_out_record.date, faculty_member, time_out_record.faculty_shift.shift_start, time_out_record.faculty_shift.shift_end)
+            if key in faculty_attendance_data:
+                # Append the TimeOut data to the list
+                faculty_attendance_data[key][-1]['time_out'] = time_out_record.time_out
+                faculty_attendance_data[key][-1]['time_out_status'] = time_out_record.status
+                faculty_attendance_data[key][-1]['time_out_location'] = time_out_record.location
+
+    # Convert the dictionary values to a list for rendering in the template
+    context = {
+        'faculty_attendance_data': [record for records in faculty_attendance_data.values() for record in records],
+    }
+
+    return render(request, 'admin_end/faculty_attendance_record.html', context)
