@@ -4,22 +4,64 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .models import LeaveApplication, TimeIn, TimeOut
 from django.contrib.auth import authenticate, login, logout
-from .forms import LeaveApplicationForm
 from admin_end.models import FacultyShift
-from datetime import datetime, time
+from datetime import datetime
 from django.http import HttpResponse
+from django.utils import timezone
 
 @login_required(login_url='faculty_login')
 def leaveapp_create(request):
-    form = LeaveApplicationForm(request.POST or None, request.FILES or None)
+    if request.method == 'POST':
+        # Extract data from the request
+        user = request.user  # Assuming the user is authenticated
+        leave_start_date = request.POST.get('leave_start_date')
+        leave_start_time = request.POST.get('leave_start_time')
+        leave_end_date = request.POST.get('leave_end_date')
+        leave_end_time = request.POST.get('leave_end_time')
+        leave_type = request.POST.get('leave_type')
+        leave_reason = request.POST.get('leave_reason')
+        leave_supporting_docs = request.FILES.get('leave_supporting_docs') if 'leave_supporting_docs' in request.FILES else None
 
-    if request.method == 'POST' and form.is_valid():
-        form.instance.user = request.user
-        form.save()
-        messages.success(request, 'Leave application submitted successfully.')
+        # Combine date and time fields to create datetime objects
+        leave_start_datetime_str = f'{leave_start_date} {leave_start_time}'
+        leave_end_datetime_str = f'{leave_end_date} {leave_end_time}'
+
+        # Try to parse datetime using the 12-hour format first
+        try:
+            leave_start_datetime = datetime.strptime(leave_start_datetime_str, '%Y-%m-%d %I:%M %p')
+            leave_end_datetime = datetime.strptime(leave_end_datetime_str, '%Y-%m-%d %I:%M %p')
+        except ValueError:
+            # If parsing with 12-hour format fails, try 24-hour format
+            leave_start_datetime = datetime.strptime(leave_start_datetime_str, '%Y-%m-%d %H:%M')
+            leave_end_datetime = datetime.strptime(leave_end_datetime_str, '%Y-%m-%d %H:%M')
+
+        # Create LeaveApplication instance
+        leave_application = LeaveApplication.objects.create(
+            user=user,
+            leave_start_date=leave_start_datetime.date(),
+            leave_start_time=leave_start_datetime.time(),
+            leave_end_date=leave_end_datetime.date(),
+            leave_end_time=leave_end_datetime.time(),
+            leave_type=leave_type,
+            leave_reason=leave_reason,
+            leave_supporting_docs=leave_supporting_docs,
+        )
+        messages.success(request, 'Leave application submitted successfully!')
+        # Redirect to a success page or display a success message
         return redirect('leaveapp_list')
 
-    return render(request, 'faculty_end/leaveapp_create.html', {'form': form})
+    # If the request method is GET, render the template with a form for creating a leave application
+    return render(request, 'faculty_end/leaveapp_create.html')
+# def leaveapp_create(request):
+#     form = LeaveApplicationForm(request.POST or None, request.FILES or None)
+
+#     if request.method == 'POST' and form.is_valid():
+#         form.instance.user = request.user
+#         form.save()
+#         messages.success(request, 'Leave application submitted successfully.')
+#         return redirect('leaveapp_list')
+
+#     return render(request, 'faculty_end/leaveapp_create.html', {'form': form})
 
 @login_required(login_url='faculty_login')
 def leaveapp_list(request):

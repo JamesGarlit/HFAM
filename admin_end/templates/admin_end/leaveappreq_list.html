@@ -26,7 +26,7 @@
                 <table id="leaveApp" class="table table-striped table-bordered" style="width:100%">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>Leave Received (Date - Time)</th>
                             <th>Faculty Name</th>
                             <th>Start Date</th>
                             <th>End Date</th>
@@ -38,7 +38,7 @@
                     <tbody>
                         {% for leave_application in leave_applications %}
                         <tr>
-                            <td>{{ leave_application.id }}</td>
+                            <td>{{ leave_application.leave_datetime_submitted|date:"F j, Y" }} - {{ leave_application.leave_datetime_submitted|time:"g:i A" }}</td>
                             <td>{{ leave_application.user.get_full_name }}</td>
                             <td>{{ leave_application.leave_start_date }}</td>
                             <td>{{ leave_application.leave_end_date }}</td>
@@ -106,6 +106,20 @@
                 'colvis'
             ],
         });
+    });
+
+    $(document).ready(function () {
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    toastr.success('{{ message }}');
+                {% elif message.tags == 'error' %}
+                    toastr.error('{{ message }}');
+                {% else %}
+                    toastr('{{ message }}');
+                {% endif %}
+            {% endfor %}
+        {% endif %}
     });
 </script>
 {% endblock %}

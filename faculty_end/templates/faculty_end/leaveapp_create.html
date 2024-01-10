@@ -1,97 +1,139 @@
+{% extends 'faculty_end/base.html' %}
 {% load static %}
-<header class="navbar navbar-expand-md d-print-none">
+{% block content %}
+
+<!-- Page header -->
+<div class="page-header d-print-none">
     <div class="container-xl">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu"
-            aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-            <a href=".">
-                <img src="{% static '/static/photos/pupqc_logo.png' %}" width="110" height="32" alt="Tabler" class="navbar-brand-image">
-            </a>
-        </h1>
-        <div class="navbar-nav flex-row order-md-last">    
-            {% if request.user.is_authenticated %}
-            <div class="nav-item dropdown">
-                <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
-                    aria-label="Open user menu">
-                    {% if request.user.user_picture %}
-                    <span class="avatar avatar-sm"
-                        style="background-image: url({{ request.user.user_picture.url }})"></span>
-                    {% else %}
-                    <!-- Provide a default image or placeholder if user_picture is not available -->
-                    <span class="default-avatar"></span>
-                    {% endif %}
-                    <div class="d-none d-xl-block ps-2">
-                        <div>{{ request.user.get_full_name }}</div>
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <h2 class="page-title">
+                    Leave Application
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Page body -->
+<div class="page-body">
+    <div class="container-xl">
+        <div class="row">
+            <div class="col-lg-12 col-sm-12 mx-auto">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Leave Application Form</h3>
                     </div>
-                </a>
-                <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <a href="./profile.html" class="dropdown-item">Profile</a>
-                    <a href="./settings.html" class="dropdown-item">Settings</a>
-                    <div class="dropdown-divider"></div>
-                    <a href="{% url 'faculty_logout' %}" class="dropdown-item">Logout</a>
+                    <div class="card-body">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-5 col-md-5 col-sm-12">
+                                <form id="leaveForm" method="post" action="{% url 'leaveapp_create' %}" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="form-floating mb-1">
+                                                <input name="leave_start_date" type="date" class="form-control" id="" value=""
+                                                    required>
+                                                <label for="">Leave Start Date</label>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+        
+                                            <div class="form-floating mb-1">
+                                                <input name="leave_start_time" type="time" class="form-control" id="" value=""
+                                                    required>
+                                                <label for="">Leave Start Time</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="form-floating mb-1">
+                                                <input name="leave_end_date" type="date" class="form-control" id="" value=""
+                                                    required>
+                                                <label for="">Leave End Date</label>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="form-floating mb-1">
+                                                <input name="leave_end_time" type="time" class="form-control" id="" value=""
+                                                    required>
+                                                <label for="">Leave End Time</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-floating mb-1">
+                                        <select name="leave_type" class="form-select" id="">
+                                            <option selected>Open this select menu</option>
+                                            <option value="Vacation leave (Annual leave)">Vacation leave (Annual leave)</option>
+                                            <option value="Family and medical leave (FMLA)">Family and medical leave (FMLA)</option>
+                                            <option value="Parental leave">Parental leave</option>
+                                            <option value="Sick leave">Sick leave</option>
+                                            <option value="Unpaid leave (or leave without pay)">Unpaid leave (or leave without pay)</option>
+                                            <option value="Public holidays">Public holidays</option>
+                                            <option value="Religious observance leave">Religious observance leave</option>
+                                            <option value="Sabbatical leave">Sabbatical leave</option>
+                                            <option value="Bereavement leave">Bereavement leave</option>
+                                            <option value="Military leave">Military leave</option>
+                                            <option value="Jury duty leave">Jury duty leave</option>
+                                            <option value="Time off in lieu (TOIL)">Time off in lieu (TOIL)</option>
+                                            <option value="Election day (Voting leave)">Election day (Voting leave)</option>
+                                            <option value="Time off for protests">Time off for protests</option>
+                                            <option value="Study leave">Study leave</option>
+                                            <option value="Adverse weather leave">Adverse weather leave</option>
+                                            <option value="Time off as a gift">Time off as a gift</option>
+                                        </select>
+                                        <label for="floatingSelect">Leave Type</label>
+                                    </div>                            
+                                    <div class="form-floating mb-1">
+                                        <textarea name="leave_reason" class="form-control" type="text" rows="5"
+                                            placeholder="Type something…"></textarea>
+                                        <label class="form-label">Leave Reason</label>
+                                    </div>
+                                    <div class="form-floating mb-1">
+                                        <input name="leave_supporting_docs" type="file" class="form-control" id="" value=""
+                                            required>
+                                        <label for="">Supporting Documents (Optional)</label>
+                                    </div>
+                                    <!-- Add the submit button -->
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            {% endif %}
         </div>
     </div>
-</header>
-<header class="navbar-expand-md">
-    <div class="collapse navbar-collapse" id="navbar-menu">
-        <div class="navbar">
-            <div class="container-xl">
-                <ul class="navbar-nav">
-                    {% comment %} <li class="nav-item">
-                        <a class="nav-link" href="{% url 'qrcode_scanner' %}">
-                            <span class="material-symbols-outlined">
-                                qr_code_scanner
-                                </span>
-                            <span class="nav-link-title">
-                                QR Scanner
-                            </span>
-                        </a>
-                    </li> {% endcomment %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'qrcode_generator' %}">
-                            <span class="material-symbols-outlined">
-                                qr_code_2
-                                </span>
-                            <span class="nav-link-title">
-                                QR Code Generator
-                            </span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'leaveapp_list' %}">
-                            <span class="material-symbols-outlined">
-                                schedule_send
-                                </span>
-                            <span class="nav-link-title">
-                                Leave Application
-                            </span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'attendance_record' %}">
-                            <span class="material-symbols-outlined">event_available</span>
-                            <span class="nav-link-title">
-                                Attendance
-                            </span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="./">
-                            <span class="material-symbols-outlined">
-                                notifications
-                                </span>
-                            <span class="nav-link-title">
-                                Notification
-                            </span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</header>
+</div>
+{% block css %}
+<!-- Include external CSS stylesheets -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<!-- Additional CSS for the specific page -->
+<style>
+    /* Your specific page CSS styles */
+</style>
+{% endblock %}
+
+{% block javascript %}
+<!-- Include external JavaScript libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<!-- Additional JavaScript for the specific page -->
+<script>
+    {% comment %} Alert Message Scripts {% endcomment %}
+    $(document).ready(function () {
+        {% if messages %}
+        {% for message in messages %}
+        {% if message.tags == 'success' %}
+        toastr.success('{{ message }}');
+        {% elif message.tags == 'error' %}
+        toastr.error('{{ message }}');
+        {% else %}
+        toastr('{{ message }}');
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+    });
+</script>
+{% endblock %}
+{% endblock %}
