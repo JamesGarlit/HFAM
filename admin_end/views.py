@@ -1,14 +1,14 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib import messages
 from .models import CustomUser, FacultyShift, Approval
-from .forms import UserForm, ApprovalForm, FacultyShiftForm, UserUpdateForm
-# from django.db.models import OuterRef, Subquery
-# from django.views import View
+from .forms import ApprovalForm, FacultyShiftForm, UserUpdateForm
 from faculty_end.models import LeaveApplication, TimeIn, TimeOut
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import user_passes_test
+from datetime import datetime
+from django.utils import timezone
 
 def is_superadmin(user):
     return user.is_authenticated and user.is_superuser
@@ -25,22 +25,51 @@ def dashboard(request):
 @login_required(login_url='admin_login')
 def admin_notif(request):
     return render(request,'admin_end/admin_notif.html')
-
+# ---------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------
+# USER FUNCTION
 @user_passes_test(is_superadmin, login_url='admin_login')
 @login_required(login_url='admin_login')
 def user_create(request):
     if request.method == 'POST':
-        form = UserForm(request.POST, request.FILES)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.set_password(form.cleaned_data['password'])
-            user.save()
-            messages.success(request, 'User created successfully!')
-            return redirect('user_list')
+        user_picture = request.FILES.get('user_picture')
+        user_firstname = request.POST.get('user_firstname')
+        user_lastname = request.POST.get('user_lastname')
+        employment_status = request.POST.get('employment_status')
+        user_role = request.POST.get('user_role')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        user = CustomUser(
+            user_picture=user_picture,
+            user_firstname=user_firstname,
+            user_lastname=user_lastname,
+            employment_status=employment_status,
+            user_role=user_role,
+            email=email,
+            is_active=True,
+            is_staff=True,
+        )
+        user.set_password(password)
+        user.save()
+        messages.success(request, 'User created successfully!')
+        return redirect('user_list')
     else:
-        form = UserForm()
+        # Render an empty form for GET requests
+        return render(request, 'admin_end/user_create.html')
+# def user_create(request):
+#     if request.method == 'POST':
+#         form = UserForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             user = form.save(commit=False)
+#             user.set_password(form.cleaned_data['password'])
+#             user.save()
+#             messages.success(request, 'User created successfully!')
+#             return redirect('user_list')
+#     else:
+#         form = UserForm()
     
-    return render(request, 'admin_end/user_create.html', {'form': form})
+#     return render(request, 'admin_end/user_create.html', {'form': form})
 
 @user_passes_test(is_superadmin, login_url='admin_login')
 @login_required(login_url='admin_login')
@@ -48,27 +77,68 @@ def user_update(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
 
     if request.method == 'POST':
-        form = UserUpdateForm(request.POST, request.FILES, instance=user)
-        if form.is_valid():
-            new_password = form.cleaned_data.get('password')
-            confirm_password = form.cleaned_data.get('confirm_password')
+        user_picture = request.FILES.get('user_picture')
+        user_firstname = request.POST.get('user_firstname')
+        user_lastname = request.POST.get('user_lastname')
+        employment_status = request.POST.get('employment_status')
+        user_role = request.POST.get('user_role')
+        email = request.POST.get('email')
+        new_password = request.POST.get('password')
 
-            if new_password and confirm_password and new_password == confirm_password:
-                # Update password only if a new one is provided
-                user.set_password(new_password)
-                user.save(update_fields=['password'])
+        if new_password:
+            # Update password only if a new one is provided
+            user.set_password(new_password)
+            user.save(update_fields=['password'])
+            # Important: update_session_auth_hash to avoid log out after password change
+            update_session_auth_hash(request, user)
 
-            user = form.save(commit=False)
-            user.save(update_fields=['user_picture', 'user_firstname', 'user_lastname', 'user_role', 'email'])
+        if user_picture:
+            user.user_picture = user_picture
 
-            messages.success(request, 'User information updated successfully!')
-            return redirect('user_list')
+        user.user_firstname = user_firstname
+        user.user_lastname = user_lastname
+        user.employment_status = employment_status
+        user.user_role = user_role
+
+        # Check if the new role is 'superadmin' or 'admin' and update is_superuser accordingly
+        if user_role in ['superadmin', 'admin']:
+            user.is_superuser = True
+        else:
+            user.is_superuser = False
+
+        user.email = email
+        user.save(update_fields=['user_picture', 'user_firstname', 'user_lastname', 'employment_status', 'user_role', 'is_superuser', 'email'])
+
+        messages.success(request, 'User information updated successfully!')
+        return redirect('user_list')
     else:
-        form = UserUpdateForm(instance=user)
+        return render(request, 'admin_end/user_update.html', {'user': user})
+# def user_update(request, user_id):
+#     user = get_object_or_404(CustomUser, id=user_id)
 
-    return render(request, 'admin_end/user_update.html', {'form': form, 'user': user})
+#     if request.method == 'POST':
+#         form = UserUpdateForm(request.POST, request.FILES, instance=user)
+#         if form.is_valid():
+#             new_password = form.cleaned_data.get('password')
+#             confirm_password = form.cleaned_data.get('confirm_password')
 
+#             if new_password and confirm_password and new_password == confirm_password:
+#                 user.set_password(new_password)
+#                 user.save(update_fields=['password'])
 
+#             user = form.save(commit=False)
+#             user.save(update_fields=['user_picture', 'user_firstname', 'user_lastname', 'user_role', 'email'])
+
+#             messages.success(request, 'User information updated successfully!')
+#             return redirect('user_list')
+#     else:
+#         form = UserUpdateForm(instance=user)
+
+#     return render(request, 'admin_end/user_update.html', {'form': form, 'user': user})
+
+# ---------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------
+# SHIFT FUNCTION
 @user_passes_test(is_superadmin, login_url='admin_login')
 @login_required(login_url='admin_login')
 def user_list(request):
@@ -155,7 +225,9 @@ def shift_delete(request, shift_id):
 
 def login_as(request):
     return render(request,'admin_end/login_as.html')
-
+# ---------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------
+# LOGIN FUNCTION
 def admin_login(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -169,12 +241,16 @@ def admin_login(request):
             messages.error(request, 'Invalid credentials or user is not a staff member.')
     return render(request, 'admin_end/admin_login.html')
 
+# LOGOUT FUNCTION
 @login_required(login_url='admin_login')
 def admin_logout(request):
     logout(request)
     messages.success(request, 'Logged out successfully!')
     return redirect('admin_login')
+# ---------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------
 
+# DEACTIVATE USER FUNCTION
 @user_passes_test(is_superadmin, login_url='admin_login')
 @login_required(login_url='admin_login')
 def deactivate_user(request, user_id):
@@ -184,6 +260,7 @@ def deactivate_user(request, user_id):
     messages.success(request, f'{user.user_firstname} {user.user_lastname} has been deactivated.')
     return redirect('user_list')
 
+#  ACTIVATE USER FUNCTION
 @user_passes_test(is_superadmin, login_url='admin_login')
 @login_required(login_url='admin_login')
 def activate_user(request, user_id):
@@ -192,13 +269,17 @@ def activate_user(request, user_id):
     user.save()
     messages.success(request, f'{user.user_firstname} {user.user_lastname} has been activated.')
     return redirect('user_list')
+# ---------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------
 
+# LEAVE APPLICATION LIST FUNCTION
 @user_passes_test(is_superadmin, login_url='admin_login')
 @login_required(login_url='admin_login')
 def leaveappreq_list(request):
     leave_applications = LeaveApplication.objects.all()
     return render(request, 'admin_end/leaveappreq_list.html', {'leave_applications': leave_applications})
 
+# LEAVE APPLICATION FUNCTION
 @user_passes_test(is_superadmin, login_url='admin_login')
 @login_required(login_url='admin_login')
 def leaveappreq_view(request, leave_id):
@@ -216,35 +297,34 @@ def leaveappreq_decision(request, leave_id):
         approval = Approval.objects.create(leave_application=leave_application)
 
     if request.method == 'POST':
-        form = ApprovalForm(request.POST)
-        if form.is_valid():
-            decision = form.cleaned_data['decision']
-            comment = form.cleaned_data['comment']
-            admin_user = get_user_model().objects.get(email=request.user.email)
+        decision = request.POST.get('decision')
+        comment = request.POST.get('comment')
+        admin_user = get_user_model().objects.get(email=request.user.email)
 
-            # Check if an associated Approval instance exists
-            if not hasattr(leave_application, 'approval'):
-                # If not, create a new Approval instance
-                approval = Approval.objects.create(leave_application=leave_application)
-            else:
-                approval = leave_application.approval
+        # Check if an associated Approval instance exists
+        if not hasattr(leave_application, 'approval'):
+            # If not, create a new Approval instance
+            approval = Approval.objects.create(leave_application=leave_application)
+        else:
+            approval = leave_application.approval
 
-            # Update the Approval instance
-            approval.decision = decision
-            approval.comment = comment
-            approval.admin_user = admin_user
-            approval.save()
+        # Update the Approval instance
+        approval.decision = decision
+        approval.comment = comment
+        approval.admin_user = admin_user
+        approval.approval_datetime = timezone.now()  # Set the approval_datetime to the current date and time
+        approval.save()
 
-            # Notify faculty about the decision
-            # (You may want to implement a notification mechanism)
+        # Notify faculty about the decision
+        # (You may want to implement a notification mechanism)
 
-            messages.success(request, f'Leave application {decision}ed successfully.')
-            return redirect('leaveappreq_list')
-    else:
-        form = ApprovalForm()
+        messages.success(request, f'Leave application {decision}ed successfully.')
+        return redirect('leaveappreq_list')
 
-    return render(request, 'admin_end/leaveappreq_view.html', {'leave_application': leave_application, 'form': form})
-
+    return render(request, 'admin_end/leaveappreq_view.html', {'leave_application': leave_application})
+# ---------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------
+# ATTENDANCE RECORD FUNCTION
 def faculty_attendance_record(request):
     # Assuming 'faculty' is the value in user_role for faculty members
     all_faculty = CustomUser.objects.filter(user_role='faculty')
@@ -290,3 +370,32 @@ def faculty_attendance_record(request):
     }
 
     return render(request, 'admin_end/faculty_attendance_record.html', context)
+
+# ---------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------
+# LATE NOTIFICATION
+def late_notif(request):
+    # Get current date and time
+    current_datetime = datetime.now()
+
+    # Retrieve faculty members who are late
+    late_faculty = TimeIn.objects.filter(status='Late', date=current_datetime.date(), time_in__lt=current_datetime.time())
+
+    # Create a list to store the data for the table
+    table_data = []
+
+    # Calculate minutes late for each late faculty member
+    for entry in late_faculty:
+        time_in = datetime.combine(datetime.min, entry.time_in)
+        minutes_late = (current_datetime - datetime.combine(entry.date, time_in.time())).seconds // 60
+
+        # Add data to the table_data list
+        table_data.append({
+            'faculty_name': entry.user.get_full_name(),
+            'minutes_late': minutes_late,
+            'date': entry.date,
+            'time': entry.time_in.strftime('%H:%M:%S')  # Format time as HH:MM:SS
+        })
+
+    # Render the template with the table data
+    return render(request, 'admin_end/late_notif.html', {'table_data': table_data})

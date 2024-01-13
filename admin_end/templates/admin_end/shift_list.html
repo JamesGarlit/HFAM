@@ -68,10 +68,6 @@
         $('#shiftList thead tr').clone(true).addClass('filters').appendTo('#shiftList thead');
     
         var table = $('#shiftList').DataTable({
-            fixedColumns: {
-                left: 0,
-                right: 1
-            },
             orderCellsTop: true,
             fixedHeader: true,
             scrollX: true, // Add scrollX to enable horizontal scrolling

@@ -75,32 +75,41 @@
 
     function generateQRCode() {
         // Generate a unique QR code for the day (in a real system, you'd do this on the server)
-        const today = new Date().toISOString().slice(0, 10);
+        const currentDate = new Date();
+        const day = currentDate.getDate();
+        const formattedDay = (day < 10) ? `0${day}` : day;
+        
+        const month = currentDate.getMonth() + 1; // Months are zero-indexed
+        const year = currentDate.getFullYear();
+    
+        const today = `${year}-${(month < 10) ? `0${month}` : month}-${formattedDay}`;
+    
         const qrText = `{{ user.user_firstname }} {{ user.user_lastname }} | ${today}`;
-
+    
         // Clear previous QR code
         document.getElementById('qrcode').innerHTML = '';
-
+    
         // Generate new QR code
         const qrcode = new QRCode(document.getElementById('qrcode'), qrText);
-
+    
         // Enable download button
         document.getElementById('downloadBtn').disabled = false;
     }
-
+        
+    
     function downloadQRCode() {
         // Get the data URL of the QR code
         const qrcodeDataUrl = document.getElementById('qrcode').querySelector('img').src;
-
+    
         // Create a temporary link element
         const downloadLink = document.createElement('a');
         downloadLink.href = qrcodeDataUrl;
         downloadLink.download = 'qrcode.png';
-
+    
         // Append the link to the body and trigger the download
         document.body.appendChild(downloadLink);
         downloadLink.click();
-
+    
         // Remove the link from the body
         document.body.removeChild(downloadLink);
     }

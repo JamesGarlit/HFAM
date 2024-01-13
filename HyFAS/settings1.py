@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+# from .db_config import SECRET_KEY, DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_OPTIONS
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -22,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-!8s#p+l^wi3b)0c7vvd%nrcbp5o^ilof79fif-_mc^8ob(71m@'
-
+# 'django-insecure-!8s#p+l^wi3b)0c7vvd%nrcbp5o^ilof79fif-_mc^8ob(71m@'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -76,16 +77,27 @@ WSGI_APPLICATION = 'HyFAS.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'hyfas',
+#         'USER': 'postgres',
+#         'PASSWORD':'attendancesys',
+#         'HOST':'localhost',
+#         'PORT':'5432',
+#     }
+# }  
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'hyfas',
-        'USER': 'postgres',
-        'PASSWORD':'attendancesys',
-        'HOST':'localhost',
-        'PORT':'5432',
+        'NAME': 'mypupqc_fpsv2',
+        'USER': 'daenyuhl',
+        'PASSWORD': 'fLKvIhu42QWs',
+        'HOST': 'ep-jolly-salad-64757132.ap-southeast-1.aws.neon.tech',
+        'PORT': '5432',
+        'OPTIONS': {'sslmode': 'require'},
     }
-}  
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -111,7 +123,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Asia/Manila'
+TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
@@ -134,6 +146,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
+# settings.py
 AUTH_USER_MODEL = 'admin_end.CustomUser'
+
 

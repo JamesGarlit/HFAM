@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from .models import LeaveApplication, TimeIn, TimeOut
 from django.contrib.auth import authenticate, login, logout
 from admin_end.models import FacultyShift
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.http import HttpResponse
 from django.utils import timezone
 
@@ -172,14 +172,12 @@ def time_out(request, faculty_shift_id):
 
             status = get_time_status(provided_time, faculty_shift.shift_end)
 
-            # Explicitly set the date field when creating a new TimeOut record
             time_out_record, created = TimeOut.objects.get_or_create(
                 user=user,
                 faculty_shift=faculty_shift,
                 date=time_out_date,
                 defaults={'time_out': provided_time, 'status': status, 'location': location}
             )
-
             messages.success(request, 'Time Out Successful!')
             return redirect('attendance_record')
 
@@ -193,3 +191,20 @@ def get_time_status(current_time, target_time):
         return 'Late'
     else:
         return 'Early'
+    
+def notify_faculty(request):
+    # Get the current user (faculty)
+    current_user = request.user
+
+    # Get the faculty's shift for the current day
+    current_day = timezone.now().strftime('%A')
+    faculty_shift = FacultyShift.objects.filter(user=current_user, shift_day=current_day).first()
+
+    if faculty_shift:
+        # Calculate the time difference between now and the shift start time
+        time_difference = faculty_shift.shift_start - timezone.now().time()
+
+        # Check if it's less than or equal to 2 minutes before the shift start
+        if 0 <= time_difference.seconds <= 2 * 60:
+            # Send a notification
+            messages.info(request, 'Your shift will start in 2 minutes.')

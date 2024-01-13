@@ -154,19 +154,17 @@
             </div>
             {% if request.user.is_authenticated %}
             <div class="nav-item dropdown">
-                <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
-                    aria-label="Open user menu">
+                <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
                     {% if request.user.user_picture %}
-                    <span class="avatar avatar-sm"
-                        style="background-image: url({{ request.user.user_picture.url }})"></span>
+                        <span class="avatar avatar-sm" style="background-image: url({{ request.user.user_picture.url }})"></span>
                     {% else %}
-                    <!-- Provide a default image or placeholder if user_picture is not available -->
-                    <span class="default-avatar border-1"></span>
+                        <!-- Provide a default image or placeholder if user_picture is not available -->
+                        <span class="avatar avatar-sm default-avatar" style="background-image: url({% static '/static/photos/defaultpicture.png' %})"></span>
                     {% endif %}
                     <div class="d-none d-xl-block ps-2">
                         <div>{{ request.user.get_full_name }}</div>
                     </div>
-                </a>
+                </a>                
                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
                     <a href="./profile.html" class="dropdown-item">Profile</a>
                     <a href="./settings.html" class="dropdown-item">Settings</a>

@@ -38,10 +38,10 @@
                     <tbody>
                         {% for leave_application in leave_applications %}
                         <tr>
-                            <td>{{ leave_application.leave_datetime_submitted|date:"F j, Y" }} - {{ leave_application.leave_datetime_submitted|time:"g:i A" }}</td>
+                            <td>{{ leave_application.leave_datetime_submitted|date:"F j, Y" }}, {{ leave_application.leave_datetime_submitted|time:"g:i A" }}</td>
                             <td>{{ leave_application.user.get_full_name }}</td>
-                            <td>{{ leave_application.leave_start_date }}</td>
-                            <td>{{ leave_application.leave_end_date }}</td>
+                            <td>{{ leave_application.leave_start_date|date:"F j, Y" }}, {{ leave_application.leave_start_time|time:"g:i A" }}</td>
+                            <td>{{ leave_application.leave_end_date|date:"F j, Y" }}, {{ leave_application.leave_end_time|time:"g:i A" }}</td>
                             <td>{{ leave_application.leave_type }}</td>
                             <td>
                                 <span class="

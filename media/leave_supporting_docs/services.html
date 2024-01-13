@@ -1,0 +1,107 @@
+{% extends 'main/index.html' %}
+{% load static %}
+{% block content %}
+  
+    <!-- slideshow -->
+    <div class="slideshow-container">
+    <img src="{% static 'img/1.png' %}"  class="slide">
+    <img src="{% static 'img/2.jpg' %}"  class="slide">
+    <img src="{% static 'img/3.jpg' %}"  class="slide">
+    <img src="{% static 'img/4.webp' %}" class="slide">
+    <img src="{% static 'img/5.jpg' %}" class="slide">
+    </div>
+    <!-- end of slideshow -->
+
+    <h2 class="title">PLEASE CHOOSE FROM THE FOLLOWING SERVICES</h2>
+      <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-auto">
+                <button class="hover-button mb-3" onclick="window.location.href='/profiles/'">
+                    <div class="d-flex flex-row mb-3"><i class="icon fas fa-user-circle" style="color: #ee6055;"></i></div>
+                    <h4 class="custom-h4" style="color: #ee6055;">Resident Profile<br>Management</h4>
+                </button>
+            </div>
+            <div class="col-md-auto">
+                <button class="hover-button mb-3" onclick="window.location.href='/brgy_officials/'">
+                    <div class="d-flex flex-row mb-3"><i class="icon fas fa-user-shield" style="color: #809bce;"></i></div>
+                   <h4 class="custom-h4" style="color: #809bce;">Barangay Officials<br>and Personnel</h4>
+                </button>
+            </div>
+            <div class="col-md-auto">
+                <button class="hover-button mb-3" onclick="window.location.href='/gov_admin/'">
+                    <div class="d-flex flex-row mb-3"><i class="icon fas fa-landmark" style="color: #fb6f92"></i></div>
+                <h4 class="custom-h4" style="color: #fb6f92">Barangay Governance<br>and Administration</h4>
+                </button>
+            </div>
+            <div class="col-md-auto">
+                <button class="hover-button mb-3" onclick="window.location.href='/projects/'">
+                    <div class="d-flex flex-row mb-3"><i class="icon fas fa-tasks" style="color: #0a9396"></i></div>
+                    <h4 class="custom-h4" style="color: #0a9396" >Barangay Projects<br>and Program</h4>
+                </button>
+            </div>
+            <div class="col-md-auto">
+                <button class="hover-button mb-3" onclick="window.location.href='/incident_logs/'">
+                    <div class="d-flex flex-row mb-3"><i class="icon fas fa-exclamation-triangle" style="color: #52796f"></i></div>
+                    <h4 class="custom-h4" style="color: #52796f">Incident and<br> Case Management</h4>
+                </button>
+            </div>
+            <div class="col-md-auto">
+                <button class="hover-button mb-3" onclick="window.location.href='/clearance_permit/'">
+                    <div class="d-flex flex-row mb-3"><i class="icon fas fa-file-signature" style="color: #606c38"></i></div>
+                    <h4 class="custom-h4" style="color: #606c38">Clearances and<br> Permit</h4>
+                </button>
+            </div>
+            <div class="col-md-auto">
+                <button class="hover-button mb-3" onclick="window.location.href='/doc_management/'">
+                    <div class="d-flex flex-row mb-3"><i class="icon fas fa-file" style="color: #fcac5d"></i></div>
+                    <h4 class="custom-h4" style="color: #fcac5d">Document<br>Management</h4>
+                </button>
+            </div>
+        </div>
+    </div>
+
+{% block css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<link rel="stylesheet" href="{% static 'css/services.css' %}">
+<link rel="stylesheet" href="{% static 'css/slideshow.css' %}">
+<link rel="stylesheet" href="{% static 'css/services_modals.css' %}">
+ <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+
+ {% endblock %}
+
+ {% block js %}
+ <script src="{% static 'js/landing.js' %}"></script>
+
+
+<!-- Use one version of Bootstrap and jQuery -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+
+ <script>
+    // Trigger the modal when the page loads
+    $(document).ready(function(){
+        $('#myModal').modal('show');
+    });
+  </script>
+ <!-- <script>
+     $(document).ready(function () {
+         // Trigger the modal when the page loads
+         $('#myModal').modal('show');
+ 
+         // Close modals when clicking on "Cancel" button
+         $('#firstmodal .btn-light').on('click', function () {
+             $('#myModal').modal('hide');
+ 
+             // Trigger click on services buttons
+             $('.hover-button').click();
+         });
+     });
+ </script> -->
+ 
+
+
+ {% endblock %}
+ {% endblock %}

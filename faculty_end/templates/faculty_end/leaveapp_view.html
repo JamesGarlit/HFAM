@@ -24,39 +24,94 @@
                         <h3 class="card-title">Leave Details</h3>
                     </div>
                     <div class="card-body">
-                        <div class="row justify-content-center">
-                            <div class="col-lg-5 col-md-5 col-sm-12">
-                                <dl class="row">
-                                    <dt class="col-sm-4">Start Date</dt>
-                                    <dd class="col-sm-8">{{ leave_application.leave_start_date }}</dd>
-                                    <dt class="col-sm-4">End Date</dt>
-                                    <dd class="col-sm-8">{{ leave_application.leave_end_date }}</dd>
-                                    <dt class="col-sm-4">Leave Type</dt>
-                                    <dd class="col-sm-8">{{ leave_application.leave_type }}</dd>
-                                    <dt class="col-sm-4">Leave Reason</dt>
-                                    <dd class="col-sm-8">{{ leave_application.leave_reason }}</dd>
-                                    <dt class="col-sm-4">Supporting Documents</dt>
-                                    <dd class="col-sm-8">
-                                        {% if leave_application.leave_supporting_docs %}
-                                        <a href="{{ leave_application.leave_supporting_docs.url }}" target="_blank">View</a>
-                                        {% else %}
-                                        No supporting docs
-                                        {% endif %}
-                                    </dd>
-                                    <dt class="col-sm-4">Faculty ID</dt>
-                                    <dd class="col-sm-8">{{ leave_application.user.id }}</dd>
-                                    <dt class="col-sm-4">Faculty Name</dt>
-                                    <dd class="col-sm-8">{{ leave_application.user.get_full_name }}</dd>
-                                    <dt class="col-sm-4">Status</dt>
-                                    <dd class="col-sm-8">
-                                        {% if leave_application.approval %}
-                                        {{ leave_application.approval.get_decision_display }}
-                                        {% else %}
-                                        Pending
-                                        {% endif %}</dd>
-                                    <dt class="col-sm-4">Admin Comment</dt>
-                                    <dd class="col-sm-8">{{ leave_application.approval.comment }}</dd>
-                                </dl>
+                        <div class="card-body">
+                            <div class="row">
+                              <div class="col-lg-2 col-md-2 col-sm-12">
+                                Faculty Name
+                              </div>
+                              <div class="col-lg-10 col-md-10 col-sm-12">
+                                <p><strong>{{ leave_application.user.get_full_name }}</strong></p>
+                              </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-2 col-md-2 col-sm-12">
+                                  Application Status
+                                </div>
+                                <div class="col-lg-10 col-md-10 col-sm-12">
+                                  <p><strong>{{ leave_application.approval.get_decision_display|default:"Pending" }}</strong></p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-2 col-md-2 col-sm-12">
+                                  Approval Date - Time
+                                </div>
+                                <div class="col-lg-10 col-md-10 col-sm-12">
+                                  <p><strong>{{ leave_application.approval.approval_datetime|date:"F j, Y" }}, {{ leave_application.approval.approval_datetime|time:"g:i A" }}</strong></p>
+                                </div>
+                            </div>                            
+                            <div class="row">
+                              <div class="col-lg-2 col-md-2 col-sm-12">
+                                Leave Period
+                              </div>
+                              <div class="col-lg-10 col-md-10 col-sm-12">
+                                <p>
+                                  <strong>
+                                    Start from {{ leave_application.leave_start_time|time:"g:i A" }} on {{ leave_application.leave_start_date }} to {{ leave_application.leave_end_time|time:"g:i A" }} on {{ leave_application.leave_end_date }}
+                                  </strong>
+                                </p>
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col-lg-2 col-md-2 col-sm-12">
+                                Leave Type
+                              </div>
+                              <div class="col-lg-10 col-md-10 col-sm-12">
+                                <p>
+                                  <strong>
+                                    {{ leave_application.leave_type }}
+                                  </strong>
+                                </p>
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col-lg-2 col-md-2 col-sm-12">
+                                Leave Reason
+                              </div>
+                              <div class="col-lg-10 col-md-10 col-sm-12">
+                                <p class="custom-justification">
+                                  <strong>
+                                    {{ leave_application.leave_reason }}
+                                  </strong>
+                                </p>
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col-lg-2 col-md-2 col-sm-12">
+                                Supporting Document
+                              </div>
+                              <div class="col-lg-10 col-md-10 col-sm-12">
+                                <p>
+                                  <strong>
+                                    {% if leave_application.leave_supporting_docs %}
+                                    <a href="{{ leave_application.leave_supporting_docs.url }}" target="_blank">View</a>
+                                    {% else %}
+                                    No supporting document
+                                    {% endif %}
+                                  </strong>
+                                </p>
+                              </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-2 col-md-2 col-sm-12">
+                                    Comment
+                                </div>
+                                <div class="col-lg-10 col-md-10 col-sm-12">
+                                    <p>
+                                        <strong>
+                                            {{ leave_application.approval.comment }}
+                                        </strong>
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -70,7 +125,9 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <!-- Additional CSS for the specific page -->
 <style>
-    /* Your specific page CSS styles */
+    .custom-justification {
+        text-align: justify;
+      }
 </style>
 {% endblock %}
 

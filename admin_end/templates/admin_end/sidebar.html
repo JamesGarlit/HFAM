@@ -24,27 +24,27 @@
                     </div>
                 </a> {% endcomment %}
                 {% if request.user.is_authenticated %}
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
-                            aria-label="Open user menu">
-                            {% if request.user.user_picture %}
-                            <span class="avatar avatar-sm"
-                                style="background-image: url({{ request.user.user_picture.url }})"></span>
-                            {% else %}
-                            <!-- Provide a default image or placeholder if user_picture is not available -->
-                            <span class="default-avatar border-1"></span>
-                            {% endif %}
-                            <div class="d-none d-xl-block ps-2">
-                                <div>{{ request.user.get_full_name }}</div>
-                            </div>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                            <a href="./profile.html" class="dropdown-item">Profile</a>
-                            <a href="./settings.html" class="dropdown-item">Settings</a>
-                            <div class="dropdown-divider"></div>
-                            <a href="{% url 'admin_logout' %}" class="dropdown-item">Logout</a>
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
+                        aria-label="Open user menu">
+                        {% if request.user.user_picture %}
+                        <span class="avatar avatar-sm"
+                            style="background-image: url({{ request.user.user_picture.url }})"></span>
+                        {% else %}
+                        <!-- Provide a default image or placeholder if user_picture is not available -->
+                        <span class="default-avatar border-1"></span>
+                        {% endif %}
+                        <div class="d-none d-xl-block ps-2">
+                            <div>{{ request.user.get_full_name }}</div>
                         </div>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                        <a href="./profile.html" class="dropdown-item">Profile</a>
+                        <a href="./settings.html" class="dropdown-item">Settings</a>
+                        <div class="dropdown-divider"></div>
+                        <a href="{% url 'admin_logout' %}" class="dropdown-item">Logout</a>
                     </div>
+                </div>
                 {% endif %}
             </div>
         </div>
@@ -60,6 +60,12 @@
                     <a class="nav-link" href="{% url 'faculty_attendance_record' %}">
                         <span class="material-symbols-outlined m-1">event_available</span>
                         <span class="nav-link-title">Attendance Record</span>
+                    </a>
+                </li>
+                <li class="nav-item {% if request.path == '/late_notif/' %}active{% endif %}">
+                    <a class="nav-link" href="{% url 'late_notif' %}">
+                        <span class="material-symbols-outlined m-1">notifications</span>
+                        <span class="nav-link-title">Notification</span>
                     </a>
                 </li>
                 <li class="nav-item {% if request.path == '/user_list/' %}active{% endif %}">
@@ -81,6 +87,6 @@
                     </a>
                 </li>
             </ul>
-        </div>        
+        </div>
     </div>
 </aside>

@@ -39,11 +39,11 @@
                         {% for entry in faculty_attendance_data %}
                             <tr>
                                 <td>{{ entry.faculty_name }}</td>
-                                <td>{{ entry.date }}</td>
-                                <td>{{ entry.time_in }}</td>
+                                <td>{{ entry.date|date:"F j, Y" }}</td>
+                                <td>{{ entry.time_in|time:"g:i A" }}</td>
                                 <td>{{ entry.time_in_status }}</td>
                                 <td>{{ entry.time_in_location }}</td>
-                                <td>{{ entry.time_out }}</td>
+                                <td>{{ entry.time_out|time:"g:i A" }}</td>
                                 <td>{{ entry.time_out_status }}</td>
                                 <td>{{ entry.time_out_location }}</td>
                             </tr>
@@ -70,10 +70,6 @@
         $('#AllFacultyAttendanceRecord thead tr').clone(true).addClass('filters').appendTo('#AllFacultyAttendanceRecord thead');
     
         var table = $('#AllFacultyAttendanceRecord').DataTable({
-            fixedColumns: {
-                left: 0,
-                right: 1
-            },
             scrollCollapse: true,
             orderCellsTop: true,
             fixedHeader: true,

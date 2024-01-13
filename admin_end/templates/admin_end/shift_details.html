@@ -64,8 +64,8 @@
                             {% for shift in shifts %}
                             <tr>
                                 <td>{{ shift.id }}</td>
-                                <td>{{ shift.shift_start }}</td>
-                                <td>{{ shift.shift_end }}</td>
+                                <td>{{ shift.shift_start|time:"g:i A" }}</td>
+                                <td>{{ shift.shift_end|time:"g:i A" }}</td>
                                 <td>{{ shift.shift_day }}</td>
                                 <td>
                                     <a href="{% url 'shift_update' shift_id=shift.id %}" type="button"
