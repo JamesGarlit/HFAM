@@ -93,7 +93,7 @@
             </p>
           </div>
         </div>
-        <form method="post" action="{% url 'leaveappreq_decision' leave_application.id %}">
+        <form method="post" action="{% url 'leaveappreq_decision' leave_application.id %}" id="decisionForm">
           {% csrf_token %}
           <div class="mb-3">
             <div class="row">
@@ -101,13 +101,13 @@
                 <label class="form-label" for="comment">Comment</label>
               </div>
               <div class="col-lg-10 col-md-10 col-sm-12">
-                <textarea name="comment" class="form-control" for="comment" rows="5">{{ leave_application.approval.comment }}</textarea>
-                <button class="btn btn-primary mt-1" type="submit" name="decision" value="accepted">Accept</button>
-                <button class="btn btn-danger mt-1" type="submit" name="decision" value="rejected">Reject</button>
+                <textarea name="comment" class="form-control" for="comment" rows="5" id="commentTextarea">{{ leave_application.approval.comment }}</textarea>
+                <button class="btn btn-primary mt-1" type="submit" name="decision" value="accepted" style="display: none;">Accept</button>
+                <button class="btn btn-danger mt-1" type="submit" name="decision" value="rejected" style="display: none;">Reject</button>
               </div>
-            </div>     
+            </div>
           </div>
-        </form>
+        </form>                
       </div>
     </div>
   </div>
@@ -126,6 +126,27 @@
 
     {% comment %} specific js {% endcomment %}
 <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Check if decision has been made
+    var decisionStatus = "{{ leave_application.approval.decision|default:'' }}";
+
+    // Disable textarea and hide buttons if decision has been made
+    if (decisionStatus === "accepted" || decisionStatus === "rejected") {
+      document.getElementById("commentTextarea").disabled = true;
+
+      var buttons = document.querySelectorAll("#decisionForm button");
+      buttons.forEach(function (button) {
+        button.style.display = "none";
+      });
+    }
+    // If decision has not been made, keep buttons visible
+    else {
+      var buttons = document.querySelectorAll("#decisionForm button");
+      buttons.forEach(function (button) {
+        button.style.display = "inline-block"; // Set to your desired display style
+      });
+    }
+  });
 </script>
 {% endblock %}
 {% endblock %}

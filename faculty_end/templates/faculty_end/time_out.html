@@ -19,7 +19,7 @@
     <div class="container-xl">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Scan Your QR Code</h3>
+                <h3 class="card-title">Schedule: {{ shift_start|time:"g:i A" }} - {{ shift_end|time:"g:i A" }}</h3>
             </div>
             <div class="card-body">
                 <div class="row justify-content-center">
@@ -30,24 +30,40 @@
                             </div>
                         </div>
                         <div class="mb-1">
-                            <form id="timeOutForm" method="post" action="{% url 'time_out' faculty_shift.id %}">
+                            <form id="timeInForm" method="post" action="{% url 'time_out' faculty_shift.id %}">
                                 {% csrf_token %}
-                                <div class="form-floating mb-1">
-                                    <input name="location" type="text" class="form-control" id="location" value="" required readonly>
-                                    <label for="location">Location</label>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="form-floating mb-1">
+                                            <input name="location" type="text" class="form-control" id="location" value="" required readonly>
+                                            <label for="location">Location</label>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="form-floating mb-1">
-                                    <input name="date" type="date" class="form-control" id="date" value="" required>
-                                    <label for="date">Date</label>
-                                </div>
-                                <div class="form-floating mb-1">
-                                    <input name="time_out" type="time" class="form-control" id="time_out" value="" required >
-                                    <label for="time_out">Time</label>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="form-floating mb-1">
+                                            <input name="time_out_date" type="date" class="form-control" id="date" value="" required readonly>
+                                            <label for="date">Date</label>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-floating mb-1">
+                                            <input name="time_out" type="time" class="form-control" id="time_out" value="" required readonly>
+                                            <label for="time_out">Time</label>
+                                        </div>
+                                    </div>
                                 </div>
                                 <!-- Add the submit button -->
-                                <button type="submit" class="btn btn-primary">Submit</button>
+                                <div class="row justify-content-center">
+                                    <div class="col-lg-10 col-md-10 col-sm-10">
+                                        <div class="d-grid gap-2 text-center">
+                                            <button type="submit" class="btn btn-primary">Submit</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </form>
-                        </div>
+                        </div>                        
                     </div>
                 </div>
             </div>

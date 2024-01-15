@@ -187,6 +187,14 @@
             <div class="container-xl">
                 <ul class="navbar-nav">
                     <li class="nav-item">
+                        <a class="nav-link" href="{% url 'attendance_record' %}">
+                            <span class="material-symbols-outlined">event_available</span>
+                            <span class="nav-link-title">
+                                Attendance
+                            </span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{% url 'qrcode_generator' %}">
                             <span class="material-symbols-outlined">
                                 qr_code_2
@@ -203,14 +211,6 @@
                             </span>
                             <span class="nav-link-title">
                                 Leave Application
-                            </span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'attendance_record' %}">
-                            <span class="material-symbols-outlined">event_available</span>
-                            <span class="nav-link-title">
-                                Attendance
                             </span>
                         </a>
                     </li>

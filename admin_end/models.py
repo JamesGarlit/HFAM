@@ -122,7 +122,6 @@ class Approval(models.Model):
     decision = models.CharField(max_length=10, choices=DECISION_CHOICES, default='pending')
     comment = models.CharField(max_length=250, blank=True, null=True)
     admin_user = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, null=True)
-    approval_datetime = models.DateTimeField(default='2024-01-10 18:27:59')  # This field will store the approval date and time
-
+    approval_datetime = models.DateTimeField(null=True, blank=True)
     def __str__(self):
         return f"{self.leave_application} - {self.decision}"

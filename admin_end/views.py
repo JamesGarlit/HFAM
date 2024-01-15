@@ -3,12 +3,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib import messages
 from .models import CustomUser, FacultyShift, Approval
-from .forms import ApprovalForm, FacultyShiftForm, UserUpdateForm
+from .forms import FacultyShiftForm
 from faculty_end.models import LeaveApplication, TimeIn, TimeOut
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import user_passes_test
 from datetime import datetime
 from django.utils import timezone
+import requests
 
 def is_superadmin(user):
     return user.is_authenticated and user.is_superuser
@@ -165,6 +166,7 @@ def shift_list(request):
         faculty_schedule.append({
             'id': faculty.id,
             'name': faculty.get_full_name(),
+            'employment_status': faculty.employment_status,  # Add this line
             'schedule_display': schedule_display,
         })
 
@@ -229,16 +231,42 @@ def login_as(request):
 # ---------------------------------------------------------------------------------------------------------
 # LOGIN FUNCTION
 def admin_login(request):
+    RECAPTCHA_SECRET_KEY = '6Lc_w1EpAAAAAPtl_6VlzrVSK8ufqIvpsG6MYwDE'  # Replace with your actual reCAPTCHA secret key
+
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
+        recaptcha_response = request.POST.get('g-recaptcha-response')
+
+        # Check if email, password, and reCAPTCHA response are provided
+        if not email or not password or not recaptcha_response:
+            messages.error(request, 'Please fill out all required fields.')
+            return render(request, 'admin_end/admin_login.html')
+
+        # Verify reCAPTCHA
+        url = 'https://www.google.com/recaptcha/api/siteverify'
+        data = {
+            'secret': RECAPTCHA_SECRET_KEY,
+            'response': recaptcha_response,
+        }
+
+        response = requests.post(url, data=data)
+        result = response.json()
+
+        if not result.get('success', False):
+            messages.error(request, 'reCAPTCHA verification failed. Please try again.')
+            return render(request, 'admin_end/admin_login.html')
+
+        # Authenticate user
         user = authenticate(request, email=email, password=password)
+
         if user is not None and user.is_staff:
             login(request, user)
             messages.success(request, 'Login Successfully.')
-            return redirect('dashboard')  # Redirect to the shift list page after login
+            return redirect('dashboard')
         else:
             messages.error(request, 'Invalid credentials or user is not a staff member.')
+
     return render(request, 'admin_end/admin_login.html')
 
 # LOGOUT FUNCTION
@@ -321,7 +349,11 @@ def leaveappreq_decision(request, leave_id):
         messages.success(request, f'Leave application {decision}ed successfully.')
         return redirect('leaveappreq_list')
 
-    return render(request, 'admin_end/leaveappreq_view.html', {'leave_application': leave_application})
+    # Check if a decision has been made
+    decision_made = hasattr(leave_application, 'approval') and leave_application.approval.decision is not None
+
+    return render(request, 'admin_end/leaveappreq_view.html', {'leave_application': leave_application, 'decision_made': decision_made})
+
 # ---------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 # ATTENDANCE RECORD FUNCTION

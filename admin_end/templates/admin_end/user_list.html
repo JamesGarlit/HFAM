@@ -65,7 +65,6 @@
                             <td>{{ user.user_firstname }} {{ user.user_lastname }}</td>
                             <td>{{ user.email }}</td>
                             <td>{{ user.user_role }}</td>
-                            {% comment %} <td>{{ user.password }}</td> {% endcomment %}
                             <td>
                                 {% if user.is_active %}
                                 <form method="post" action="{% url 'deactivate_user' user.id %}"
@@ -79,10 +78,7 @@
                                     <button type="submit" class="btn btn-outline-success btn-sm">Activate</button>
                                 </form>
                                 {% endif %}
-                                <a href="{% url 'user_update' user.id %}" type="button"
-                                    class="btn btn-outline-info btn-sm">Update</a>
-                                {% comment %} <a href="{% url 'user_deactivate' user.id %}" type="button"
-                                    class="btn btn-block btn-outline-info btn-sm">Deactivate</a> {% endcomment %}
+                                <a href="{% url 'user_update' user.id %}" type="button" class="btn btn-outline-info btn-sm">Update</a>
                             </td>
                         </tr>
                         {% endfor %}

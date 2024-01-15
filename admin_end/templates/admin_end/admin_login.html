@@ -22,6 +22,7 @@
   <link href="{% static '/dist/css/tabler-vendors.min.css' %}" rel="stylesheet" />
   <link href="{% static '/dist/css/demo.min.css' %}" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <style>
     @import url('https://rsms.me/inter/inter.css');
 
@@ -80,6 +81,11 @@
               <span class="form-check-label">Remember me on this device</span>
             </label>
           </div>
+          <div class="row">
+            <div class="col d-flex justify-content-center">
+              <div class="g-recaptcha" data-sitekey="6Lc_w1EpAAAAADv41yL8P_qVyHc0XxY7fj5NgoKp"></div>
+            </div>
+          </div>
           <div class="form-footer">
             <button type="submit" class="btn btn-primary w-100">Sign in</button>
           </div>
@@ -127,6 +133,21 @@
         }
       });
     });
+
+    {% comment %} document.addEventListener('DOMContentLoaded', function () {
+      var form = document.querySelector('form');
+  
+      form.addEventListener('submit', function (event) {
+        var recaptchaResponse = grecaptcha.getResponse();
+  
+        if (recaptchaResponse.length === 0) {
+          // If reCAPTCHA is not answered, prevent form submission
+          event.preventDefault();
+          toastr.error('Please complete the reCAPTCHA verification.');
+        }
+        //additional form validation here if needed
+      });
+    }); {% endcomment %}
 
     $(document).ready(function () {
       {% if messages %}
