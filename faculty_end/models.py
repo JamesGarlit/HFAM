@@ -18,13 +18,13 @@ class TimeIn(models.Model):
     faculty_shift = models.ForeignKey(FacultyShift, on_delete=models.CASCADE)
     location = models.CharField(max_length=255)
     date = models.DateField()
-    time_in = models.TimeField()
-    status = models.CharField(max_length=20) # 'On Time', 'Late', 'Early', 'Absent'
+    time_in = models.TimeField(blank=True, null=True)
+    status = models.CharField(max_length=20)  # 'On Time', 'Late', 'Early', 'Absent'
 
 class TimeOut(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     faculty_shift = models.ForeignKey(FacultyShift, on_delete=models.CASCADE)
     location = models.CharField(max_length=255)
     date = models.DateField()
-    time_out = models.TimeField()
+    time_out = models.TimeField(blank=True, null=True)
     status = models.CharField(max_length=20) # 'On Time', 'Late', 'Early', 'Absent'

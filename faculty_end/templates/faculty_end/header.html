@@ -215,7 +215,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="./">
+                        <a class="nav-link" href="{% url 'notif' %}">
                             <span class="material-symbols-outlined">
                                 notifications
                             </span>
@@ -224,6 +224,16 @@
                             </span>
                         </a>
                     </li>
+                    {% comment %} <li class="nav-item">
+                        <a class="nav-link" href="./">
+                            <span class="material-symbols-outlined">
+                                notifications
+                            </span>
+                            <span class="nav-link-title">
+                                Notification
+                            </span>
+                        </a>
+                    </li> {% endcomment %}
                 </ul>
             </div>
         </div>

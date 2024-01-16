@@ -35,7 +35,7 @@
                                 <div class="row">
                                     <div class="col">
                                         <div class="form-floating mb-1">
-                                            <input name="location" type="text" class="form-control" id="location" value="" required readonly>
+                                            <input name="location" type="text" class="form-control" id="location" value="" readonly>
                                             <label for="location">Location</label>
                                         </div>
                                     </div>
@@ -43,13 +43,13 @@
                                 <div class="row">
                                     <div class="col">
                                         <div class="form-floating mb-1">
-                                            <input name="time_in_date" type="date" class="form-control" id="date" value="" required readonly>
+                                            <input name="time_in_date" type="date" class="form-control" id="date" value="" readonly>
                                             <label for="date">Date</label>
                                         </div>
                                     </div>
                                     <div class="col">
                                         <div class="form-floating mb-1">
-                                            <input name="time_in" type="time" class="form-control" id="time_in" value="" required readonly>
+                                            <input name="time_in" type="time" class="form-control" id="time_in" value="" readonly>
                                             <label for="time_in">Time</label>
                                         </div>
                                     </div>
@@ -77,7 +77,6 @@
 
 {% block javascript %}
 <script src="https://cdn.rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jsqr@1.0.0/dist/jsQR.min.js"></script>
 <script>
     let scanner = new Instascan.Scanner({ video: document.getElementById('scanner') });
     let loggedInUser = '{{ request.user.get_full_name }}'; // Replace this with the actual way you store the logged-in user's full name
@@ -112,14 +111,9 @@
         let day = currentDate.getDate().toString().padStart(2, '0');
         let currentDateFormatted = `${year}-${month}-${day}`;
 
-        console.log('QR Date:', qrDate);
-        console.log('Current Date:', currentDateFormatted);
-
         // Check if the QR code date is the current date and the username matches the logged-in user
         if (qrDate === currentDateFormatted && qrFirstName === loggedInUser.split(' ')[0] && qrLastName === loggedInUser.split(' ')[1]) {
-            console.log('Valid QR code.');
-
-            // Update the input fields with username and date information
+            toastr.error('Valid QR code.');
 
             // Get current location and date
             navigator.geolocation.getCurrentPosition(async function (position) {
@@ -133,7 +127,6 @@
                 document.getElementById('location').value = formattedAddress.trim();
             });
             
-
             // Get current time
             let hours = currentDate.getHours().toString().padStart(2, '0');
             let minutes = currentDate.getMinutes().toString().padStart(2, '0');
@@ -143,7 +136,7 @@
             document.getElementById('date').value = currentDateFormatted;
             document.getElementById('time_in').value = timeFormatted;
         } else {
-            toastr.error('Invalid QR code.');
+            toastr.error('Invalid QR code!');
         }
     }
 </script>

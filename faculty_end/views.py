@@ -5,8 +5,7 @@ from django.contrib.auth.decorators import login_required
 from .models import LeaveApplication, TimeIn, TimeOut
 from django.contrib.auth import authenticate, login, logout
 from admin_end.models import FacultyShift
-from datetime import datetime
-from django.utils import timezone
+from datetime import datetime, timedelta
 import requests
 
 @login_required(login_url='faculty_login')
@@ -102,21 +101,6 @@ def faculty_login(request):
             return render(request, 'faculty_end/faculty_login.html')
 
     return render(request, 'faculty_end/faculty_login.html')
-# def faculty_login(request):
-#     if request.method == 'POST':
-#         email = request.POST.get('email')
-#         password = request.POST.get('password')
-#         user = authenticate(request, email=email, password=password)
-
-#         if user is not None and user.user_role == 'faculty':
-#             login(request, user)
-#             messages.success(request, 'Logged In Successful!')
-#             return redirect('attendance_record')
-#         else:
-#             messages.error(request, 'Incorrect credentials. Please try again.')
-#             return render(request, 'faculty_end/faculty_login.html')
-
-#     return render(request, 'faculty_end/faculty_login.html')
 
 @login_required(login_url='faculty_login')
 def faculty_logout(request):
@@ -161,8 +145,24 @@ def time_in(request, faculty_shift_id):
     user = request.user
 
     # Retrieve shift_start and shift_end for the faculty_shift
-    shift_start = faculty_shift.shift_start
-    shift_end = faculty_shift.shift_end
+    shift_start = datetime.combine(datetime.today(), faculty_shift.shift_start)
+    shift_end = datetime.combine(datetime.today(), faculty_shift.shift_end)
+
+    # Check if the faculty member is absent for any schedule (30 minutes after shift_start) and no attendance record is present
+    for schedule in user.faculty_shifts.all():
+        schedule_start = datetime.combine(datetime.today(), schedule.shift_start)
+        if datetime.now() > schedule_start + timedelta(minutes=30):
+            # Use get() instead of get_or_create() to avoid creating a record with a null time_in
+            try:
+                time_in_record = TimeIn.objects.get(user=user, faculty_shift=schedule, date=datetime.now().date())
+            except TimeIn.DoesNotExist:
+                time_in_record = TimeIn.objects.create(
+                    user=user,
+                    faculty_shift=schedule,
+                    date=datetime.now().date(),
+                    status='Absent'
+                )
+                messages.warning(request, f'Automatically marked as Absent for {schedule} due to no time_in provided after 30 minutes.')
 
     if request.method == 'POST':
         location = request.POST.get('location')
@@ -188,13 +188,30 @@ def time_in(request, faculty_shift_id):
 
     return render(request, 'faculty_end/time_in.html', {'faculty_shift': faculty_shift, 'shift_start': shift_start, 'shift_end': shift_end})
 
+
 def time_out(request, faculty_shift_id):
     faculty_shift = get_object_or_404(FacultyShift, pk=faculty_shift_id)
     user = request.user
 
     # Retrieve shift_start and shift_end for the faculty_shift
-    shift_start = faculty_shift.shift_start
-    shift_end = faculty_shift.shift_end
+    shift_start = datetime.combine(datetime.today(), faculty_shift.shift_start)
+    shift_end = datetime.combine(datetime.today(), faculty_shift.shift_end)
+
+    # Check if the faculty member is absent for any schedule (30 minutes after shift_start) and no attendance record is present
+    for schedule in user.faculty_shifts.all():
+        schedule_end = datetime.combine(datetime.today(), schedule.shift_end)
+        if datetime.now() > schedule_end + timedelta(minutes=30):
+            # Use get() instead of get_or_create() to avoid creating a record with a null time_in
+            try:
+                time_out_record = TimeOut.objects.get(user=user, faculty_shift=schedule, date=datetime.now().date())
+            except TimeOut.DoesNotExist:
+                time_in_record = TimeOut.objects.create(
+                    user=user,
+                    faculty_shift=schedule,
+                    date=datetime.now().date(),
+                    status='Absent'
+                )
+                messages.warning(request, f'Automatically marked as Absent for {schedule} due to no time_in provided after 30 minutes.')
 
     if request.method == 'POST':
         location = request.POST.get('location')
@@ -220,6 +237,7 @@ def time_out(request, faculty_shift_id):
 
     return render(request, 'faculty_end/time_out.html', {'faculty_shift': faculty_shift, 'shift_start': shift_start, 'shift_end': shift_end})
 
+
 def get_time_status(current_time, target_time):
     # Compare the current time with the target time and determine the status
     if current_time == target_time:
@@ -229,19 +247,23 @@ def get_time_status(current_time, target_time):
     else:
         return 'Early'
     
-def notify_faculty(request):
+def notif(request):
     # Get the current user (faculty)
-    current_user = request.user
+    faculty_user = request.user
 
-    # Get the faculty's shift for the current day
-    current_day = timezone.now().strftime('%A')
-    faculty_shift = FacultyShift.objects.filter(user=current_user, shift_day=current_day).first()
+    # Get the current day and time
+    current_day = datetime.now().strftime('%A')  # Returns the full weekday name
 
-    if faculty_shift:
-        # Calculate the time difference between now and the shift start time
-        time_difference = faculty_shift.shift_start - timezone.now().time()
+    # Get all shifts for the current day
+    faculty_shifts = FacultyShift.objects.filter(user=faculty_user, shift_day=current_day)
 
-        # Check if it's less than or equal to 2 minutes before the shift start
-        if 0 <= time_difference.seconds <= 2 * 60:
-            # Send a notification
-            messages.info(request, 'Your shift will start in 2 minutes.')
+    # List to store messages for all shifts
+    messages = []
+
+    # Check each shift and create a message for it
+    for shift in faculty_shifts:
+        message = f"Your shift on {shift.get_schedule_display()} is scheduled today. Please mark your attendance."
+        messages.append(message)
+
+    # You can pass the list of messages to the template and render it
+    return render(request, 'faculty_end/notif.html', {'messages': messages})
