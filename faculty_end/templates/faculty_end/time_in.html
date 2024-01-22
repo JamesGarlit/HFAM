@@ -103,7 +103,7 @@
         const [qrFirstName, qrLastName] = qrFullName.split(' ');
 
         // Get the current date in the Philippines timezone (Asia/Manila)
-        let currentDate = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Manila"}));
+        let currentDate = new Date(new Date().toLocaleString("en-PH", {timeZone: "Asia/Manila"}));
 
         // Format the current date to 'YYYY-MM-DD'
         let year = currentDate.getFullYear();

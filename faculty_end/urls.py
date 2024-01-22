@@ -1,6 +1,5 @@
 from django.urls import path
-from .views import leaveapp_create, leaveapp_list, leaveapp_view, faculty_login, faculty_logout, qrcode_generator, faculty_login, time_in, time_out, attendance_record, notif
-
+from .views import leaveapp_create, leaveapp_list, leaveapp_view, faculty_login, faculty_logout, qrcode_generator, faculty_login, time_in, time_out, attendance_record, notif, account_settings, change_password, error_400
 
 urlpatterns = [
     path('leaveapp_create/', leaveapp_create, name='leaveapp_create'),
@@ -14,4 +13,9 @@ urlpatterns = [
     path('time_in/<int:faculty_shift_id>/', time_in, name='time_in'),
     path('time_out/<int:faculty_shift_id>/', time_out, name='time_out'),
     path('notif/', notif, name='notif'),
+    path('account_settings/', account_settings, name='account_settings'),
+    path('account_settings/', change_password, name='change_password'),
+    path('error_400/', error_400, name='error_400'),
+
+
 ]

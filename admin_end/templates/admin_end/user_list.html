@@ -51,7 +51,6 @@
                 <table id="userList" class="table table-striped display" style="width:100%">
                     <thead>
                         <tr>
-                            <th>#</th>
                             <th>Full Name</th>
                             <th>Email</th>
                             <th>Role</th>
@@ -59,12 +58,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for user in users %}
+                        {% if faculties_from_api %}
                         <tr>
-                            <td>{{ user.id }}</td>
-                            <td>{{ user.user_firstname }} {{ user.user_lastname }}</td>
-                            <td>{{ user.email }}</td>
-                            <td>{{ user.user_role }}</td>
+                            {% for faculty in faculties_from_api %}
+                            <td>{{ faculty.FirstName }} {{ faculty.MiddleName }} {{ faculty.LastName }} {{ faculty.NameExtension }}</td>
+                            <td>{{ faculty.Email }}</td>
+                            <td>{{ faculty.FacultyType }}</td>
                             <td>
                                 {% if user.is_active %}
                                 <form method="post" action="{% url 'deactivate_user' user.id %}"
@@ -78,10 +77,14 @@
                                     <button type="submit" class="btn btn-outline-success btn-sm">Activate</button>
                                 </form>
                                 {% endif %}
-                                <a href="{% url 'user_update' user.id %}" type="button" class="btn btn-outline-info btn-sm">Update</a>
+                                <a href="{% url 'user_update' user.id %}" type="button"
+                                    class="btn btn-outline-info btn-sm">Update</a>
                             </td>
                         </tr>
                         {% endfor %}
+                        {% else %}
+                            <p>No data from the API.</p>
+                        {% endif %}
                     </tbody>
                 </table>
             </div>
@@ -107,33 +110,34 @@
             scrollCollapse: true,
             orderCellsTop: true,
             fixedHeader: true,
-            scrollX: true, // Add scrollX to enable horizontal scrolling
-            dom: 'Bfrtlip', // Include buttons and exclude the search filter ('f')
+            order: [[0, 'desc']],
+            scrollX: true,
+            dom: 'Bfrtlip',
             buttons: [
                 {
                     extend: 'copy',
-                    title: 'User List - ' + new Date().toLocaleDateString(),
+                    title: 'Attendance Record - ' + new Date().toLocaleDateString(),
                     exportOptions: {
                         columns: ':visible'
                     }
                 },
                 {
                     extend: 'print',
-                    title: 'User List - ' + new Date().toLocaleDateString(),
+                    title: 'Attendance Record - ' + new Date().toLocaleDateString(),
                     exportOptions: {
                         columns: ':visible'
                     }
                 },
                 {
                     extend: 'excel',
-                    title: 'User List - ' + new Date().toLocaleDateString(),
+                    title: 'Attendance Record - ' + new Date().toLocaleDateString(),
                     exportOptions: {
                         columns: ':visible'
                     }
                 },
                 {
                     extend: 'pdf',
-                    title: 'User List - ' + new Date().toLocaleDateString(),
+                    title: 'Attendance Record - ' + new Date().toLocaleDateString(),
                     exportOptions: {
                         columns: ':visible'
                     }
@@ -142,39 +146,36 @@
             ],
             initComplete: function() {
                 var api = this.api();
-                // For each column
+    
                 api.columns().eq(0).each(function(colIdx) {
-                    // Exclude input filter for the last column
-                    if (colIdx < api.columns().eq(0).length - 1) {
-                        // Set the header cell to contain the input element
-                        var cell = $('.filters th').eq($(api.column(colIdx).header()).index());
-                        var title = $(cell).text();
+                    // Set the header cell to contain the input element
+                    var cell = $('.filters th').eq($(api.column(colIdx).header()).index());
+                    var title = $(cell).text();
+                    $(cell).html('<input type="text" placeholder="' + title + '" />');
+    
+                    $('input', $('.filters th').eq($(api.column(colIdx).header()).index()))
+                        .off('keyup change')
+                        .on('keyup change', function(e) {
+                            e.stopPropagation();
+                            $(this).attr('title', $(this).val());
+                            var regexr = '({search})';
+                            var cursorPosition = this.selectionStart;
+    
+                            api
+                                .column(colIdx)
+                                .search((this.value != "") ? regexr.replace('{search}', '(((' + this.value + ')))') : "", this.value != "", this.value == "")
+                                .draw();
+                            $(this).focus()[0].setSelectionRange(cursorPosition, cursorPosition);
+                        });
+    
+                    if (colIdx === api.columns().eq(0).length - 1) {
+                        // Include filter input for the last column
                         $(cell).html('<input type="text" placeholder="' + title + '" />');
-                        // On every keypress in this input
-                        $('input', $('.filters th').eq($(api.column(colIdx).header()).index()))
-                            .off('keyup change')
-                            .on('keyup change', function(e) {
-                                e.stopPropagation();
-                                // Get the search value
-                                $(this).attr('title', $(this).val());
-                                var regexr = '({search})'; //$(this).parents('th').find('select').val();
-                                var cursorPosition = this.selectionStart;
-                                // Search the column for that value
-                                api
-                                    .column(colIdx)
-                                    .search((this.value != "") ? regexr.replace('{search}', '(((' + this.value + ')))') : "", this.value != "", this.value == "")
-                                    .draw();
-                                $(this).focus()[0].setSelectionRange(cursorPosition, cursorPosition);
-                            });
-                    } else {
-                        // Remove filter input for the last column
-                        var cell = $('.filters th').eq($(api.column(colIdx).header()).index());
-                        $(cell).html('');
                     }
                 });
             }
         });
-    });
+    });    
           
     {% comment %} Alert Message Scripts {% endcomment %}
     $(document).ready(function () {

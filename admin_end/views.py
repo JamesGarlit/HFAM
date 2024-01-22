@@ -2,12 +2,12 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib import messages
-from .models import CustomUser, FacultyShift, Approval
+from .models import CustomUser, FacultyShift, Approval, AttendanceNotification
 from .forms import FacultyShiftForm
 from faculty_end.models import LeaveApplication, TimeIn, TimeOut
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import user_passes_test
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.utils import timezone
 import requests
 
@@ -58,19 +58,6 @@ def user_create(request):
     else:
         # Render an empty form for GET requests
         return render(request, 'admin_end/user_create.html')
-# def user_create(request):
-#     if request.method == 'POST':
-#         form = UserForm(request.POST, request.FILES)
-#         if form.is_valid():
-#             user = form.save(commit=False)
-#             user.set_password(form.cleaned_data['password'])
-#             user.save()
-#             messages.success(request, 'User created successfully!')
-#             return redirect('user_list')
-#     else:
-#         form = UserForm()
-    
-#     return render(request, 'admin_end/user_create.html', {'form': form})
 
 @user_passes_test(is_superadmin, login_url='admin_login')
 @login_required(login_url='admin_login')
@@ -114,28 +101,6 @@ def user_update(request, user_id):
         return redirect('user_list')
     else:
         return render(request, 'admin_end/user_update.html', {'user': user})
-# def user_update(request, user_id):
-#     user = get_object_or_404(CustomUser, id=user_id)
-
-#     if request.method == 'POST':
-#         form = UserUpdateForm(request.POST, request.FILES, instance=user)
-#         if form.is_valid():
-#             new_password = form.cleaned_data.get('password')
-#             confirm_password = form.cleaned_data.get('confirm_password')
-
-#             if new_password and confirm_password and new_password == confirm_password:
-#                 user.set_password(new_password)
-#                 user.save(update_fields=['password'])
-
-#             user = form.save(commit=False)
-#             user.save(update_fields=['user_picture', 'user_firstname', 'user_lastname', 'user_role', 'email'])
-
-#             messages.success(request, 'User information updated successfully!')
-#             return redirect('user_list')
-#     else:
-#         form = UserUpdateForm(instance=user)
-
-#     return render(request, 'admin_end/user_update.html', {'form': form, 'user': user})
 
 # ---------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
@@ -143,8 +108,54 @@ def user_update(request, user_id):
 @user_passes_test(is_superadmin, login_url='admin_login')
 @login_required(login_url='admin_login')
 def user_list(request):
-    users = CustomUser.objects.all()
-    return render(request, 'admin_end/user_list.html', {'users': users})
+    # Your API endpoint
+    api_url = 'https://pupqcfis-com.onrender.com/api/all/FISFaculty'
+
+    # Make a GET request to the API
+    response = requests.get(api_url)
+
+    if response.status_code == 200:
+        # Process the API response data
+        api_data = response.json()
+        
+        # Extracting faculty_account_ids into a list
+        faculty_account_ids = list(api_data['Faculties'].keys())
+        
+        # Fetching Specific data for each faculty
+        faculties_from_api = []
+        for faculty_id in faculty_account_ids:
+            faculty_info = api_data['Faculties'][faculty_id]
+            faculty_rank = faculty_info['Rank']
+            faculty_name = faculty_info['LastName']
+            faculty_email = faculty_info['Email']
+            faculty_type = faculty_info['FacultyType']
+
+            # Create a dictionary with relevant faculty information
+            faculty_data = {
+                'FacultyID': faculty_id,
+                'Rank': faculty_rank,
+                'FirstName': faculty_info['FirstName'],
+                'MiddleName': faculty_info['MiddleName'],
+                'LastName': faculty_name,
+                'NameExtension': faculty_info['NameExtension'],
+                'Email': faculty_email,
+                'FacultyType': faculty_type,
+            }
+
+            faculties_from_api.append(faculty_data)
+        
+        # Retrieve local users from the database
+        local_users = CustomUser.objects.all()
+
+        return render(request, 'admin_end/user_list.html', {'faculties_from_api': faculties_from_api, 'local_users': local_users})
+    
+    else:
+        print("Failed to fetch data. Status code:", response.status_code)
+        # Handle the error case as needed
+        return render(request, 'admin_end/user_list.html', {'error_message': 'Failed to fetch data from the API'})
+# def user_list(request):
+#     users = CustomUser.objects.all()
+#     return render(request, 'admin_end/user_list.html', {'users': users})
 
 @user_passes_test(is_superadmin, login_url='admin_login')
 @login_required(login_url='admin_login')
@@ -166,7 +177,7 @@ def shift_list(request):
         faculty_schedule.append({
             'id': faculty.id,
             'name': faculty.get_full_name(),
-            'employment_status': faculty.employment_status,  # Add this line
+            'employment_status': faculty.employment_status,
             'schedule_display': schedule_display,
         })
 
@@ -225,11 +236,12 @@ def shift_delete(request, shift_id):
 
     return render(request, 'admin_end/shift_delete.html', {'shift': shift})
 
-def login_as(request):
-    return render(request,'admin_end/login_as.html')
 # ---------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 # LOGIN FUNCTION
+def login_as(request):
+    return render(request,'admin_end/login_as.html')
+
 def admin_login(request):
     RECAPTCHA_SECRET_KEY = '6Lc_w1EpAAAAAPtl_6VlzrVSK8ufqIvpsG6MYwDE'  # Replace with your actual reCAPTCHA secret key
 
@@ -260,12 +272,12 @@ def admin_login(request):
         # Authenticate user
         user = authenticate(request, email=email, password=password)
 
-        if user is not None and user.is_staff:
+        if user is not None and user.user_role in ['admin', 'superadmin']:
             login(request, user)
             messages.success(request, 'Login Successfully.')
             return redirect('dashboard')
         else:
-            messages.error(request, 'Invalid credentials or user is not a staff member.')
+            messages.error(request, 'Invalid credentials or your credentials are not registered.')
 
     return render(request, 'admin_end/admin_login.html')
 
@@ -304,8 +316,19 @@ def activate_user(request, user_id):
 @user_passes_test(is_superadmin, login_url='admin_login')
 @login_required(login_url='admin_login')
 def leaveappreq_list(request):
-    leave_applications = LeaveApplication.objects.all()
-    return render(request, 'admin_end/leaveappreq_list.html', {'leave_applications': leave_applications})
+    new_leave_applications = LeaveApplication.objects.filter(is_viewed=False)
+    has_new_leave_applications = new_leave_applications.exists()
+
+    # Update is_viewed to mark applications as viewed
+    new_leave_applications.update(is_viewed=True)
+
+    all_leave_applications = LeaveApplication.objects.all()
+
+    return render(request, 'admin_end/leaveappreq_list.html', {
+        'leave_applications': all_leave_applications,  # Display all applications in the table
+        'has_new_leave_applications': has_new_leave_applications,
+    })
+
 
 # LEAVE APPLICATION FUNCTION
 @user_passes_test(is_superadmin, login_url='admin_login')
@@ -357,6 +380,8 @@ def leaveappreq_decision(request, leave_id):
 # ---------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 # ATTENDANCE RECORD FUNCTION
+@user_passes_test(is_superadmin, login_url='admin_login')
+@login_required(login_url='admin_login')
 def faculty_attendance_record(request):
     # Assuming 'faculty' is the value in user_role for faculty members
     all_faculty = CustomUser.objects.filter(user_role='faculty')
@@ -406,28 +431,30 @@ def faculty_attendance_record(request):
 # ---------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 # LATE NOTIFICATION
-def late_notif(request):
-    # Get current date and time
-    current_datetime = datetime.now()
+def attendance_notif(request):
+    notifications = []
 
-    # Retrieve faculty members who are late
-    late_faculty = TimeIn.objects.filter(status='Late', date=current_datetime.date(), time_in__lt=current_datetime.time())
+    # Retrieve TimeIn records
+    time_in_records = TimeIn.objects.all()
+    for time_in_record in time_in_records:
+        notification = AttendanceNotification(
+            user=time_in_record.user,
+            date=time_in_record.date,
+            time_in=time_in_record.time_in,
+            status=time_in_record.status,
+        )
+        notifications.append(notification)
 
-    # Create a list to store the data for the table
-    table_data = []
+    # Retrieve TimeOut records
+    time_out_records = TimeOut.objects.all()
+    for time_out_record in time_out_records:
+        notification = AttendanceNotification(
+            user=time_out_record.user,
+            date=time_out_record.date,
+            time_out=time_out_record.time_out,
+            status=time_out_record.status,
+        )
+        notifications.append(notification)
 
-    # Calculate minutes late for each late faculty member
-    for entry in late_faculty:
-        time_in = datetime.combine(datetime.min, entry.time_in)
-        minutes_late = (current_datetime - datetime.combine(entry.date, time_in.time())).seconds // 60
-
-        # Add data to the table_data list
-        table_data.append({
-            'faculty_name': entry.user.get_full_name(),
-            'minutes_late': minutes_late,
-            'date': entry.date,
-            'time': entry.time_in.strftime('%H:%M:%S')  # Format time as HH:MM:SS
-        })
-
-    # Render the template with the table data
-    return render(request, 'admin_end/late_notif.html', {'table_data': table_data})
+    context = {'notifications': notifications}
+    return render(request, 'admin_end/attendance_notif.html', context)

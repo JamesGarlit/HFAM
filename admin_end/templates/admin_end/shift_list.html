@@ -11,7 +11,7 @@
                     Overview
                 </div>
                 <h2 class="page-title">
-                    Faculty Shift
+                    Account 
                 </h2>
             </div>
         </div>
@@ -22,7 +22,7 @@
     <div class="container-xl">
         <div class="card">
             <div class="card-body">
-                <table id="shiftList" class="table table-striped table-bordered" style="width:100%">
+                <table id="accountList" class="table table-striped table-bordered" style="width:100%">
                     <thead>
                         <tr>
                             <th>Faculty Name</th>
@@ -65,9 +65,9 @@
 <script>
     $(document).ready(function() {
         // Setup - add a text input to each footer cell
-        $('#shiftList thead tr').clone(true).addClass('filters').appendTo('#shiftList thead');
+        $('#accountList thead tr').clone(true).addClass('filters').appendTo('#accountList thead');
     
-        var table = $('#shiftList').DataTable({
+        var table = $('#accountList').DataTable({
             scrollCollapse: true,
             orderCellsTop: true,
             fixedHeader: true,

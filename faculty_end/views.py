@@ -1,14 +1,22 @@
 # faculty_end/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import LeaveApplication, TimeIn, TimeOut
 from django.contrib.auth import authenticate, login, logout
 from admin_end.models import FacultyShift
 from datetime import datetime, timedelta
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.hashers import make_password
 import requests
 
+def is_faculty(user):
+    # Check if the user has the faculty role or any other condition that identifies faculty members
+    # You may need to adjust this based on your actual user model or authentication system
+    return user.is_authenticated and not user.is_superuser
+
 @login_required(login_url='faculty_login')
+@user_passes_test(is_faculty, login_url='error_400')
 def leaveapp_create(request):
     if request.method == 'POST':
         # Extract data from the request
@@ -53,11 +61,13 @@ def leaveapp_create(request):
     return render(request, 'faculty_end/leaveapp_create.html')
 
 @login_required(login_url='faculty_login')
+@user_passes_test(is_faculty, login_url='error_400')
 def leaveapp_list(request):
     leave_applications = LeaveApplication.objects.filter(user=request.user)
     return render(request, 'faculty_end/leaveapp_list.html', {'leave_applications': leave_applications})
 
 @login_required(login_url='faculty_login')
+@user_passes_test(is_faculty, login_url='error_400')
 def leaveapp_view(request, leave_id):
     leave_application = LeaveApplication.objects.get(id=leave_id)
     return render(request, 'faculty_end/leaveapp_view.html', {'leave_application': leave_application})
@@ -103,15 +113,39 @@ def faculty_login(request):
     return render(request, 'faculty_end/faculty_login.html')
 
 @login_required(login_url='faculty_login')
+@user_passes_test(is_faculty, login_url='error_400')
 def faculty_logout(request):
-    logout(request)
-    messages.success(request, 'Logout Successful!')
+    if request.user.is_authenticated:
+        # Optional: Clear session data
+        request.session.flush()
+
+        # Logout the user
+        logout(request)
+
+        # Add a success message
+        messages.success(request, 'Logout Successful!')
+    else:
+        # Add a warning message if the user is not authenticated
+        messages.warning(request, 'You are not logged in.')
+
+    # Redirect to the login page
     return redirect('faculty_login')
-    
+
 @login_required(login_url='faculty_login')
+@user_passes_test(is_faculty, login_url='error_400')
 def qrcode_generator(request):
     return render(request,'faculty_end/qrcode_generator.html')
 
+@login_required(login_url='faculty_login')
+@user_passes_test(is_faculty, login_url='error_400')
+def account_settings(request):
+    return render(request,'faculty_end/account_settings.html')
+
+def error_400(request):
+    return render(request,'faculty_end/error_400.html')
+
+@login_required(login_url='faculty_login')
+@user_passes_test(is_faculty, login_url='error_400')
 def attendance_record(request):
     # Get the current user
     user = request.user
@@ -140,6 +174,8 @@ def attendance_record(request):
     # Render the template with the faculty shifts
     return render(request, 'faculty_end/attendance_record.html', {'faculty_shifts': faculty_shifts, 'current_date': current_date})
 
+@login_required(login_url='faculty_login')
+@user_passes_test(is_faculty, login_url='error_400')
 def time_in(request, faculty_shift_id):
     faculty_shift = get_object_or_404(FacultyShift, pk=faculty_shift_id)
     user = request.user
@@ -188,7 +224,8 @@ def time_in(request, faculty_shift_id):
 
     return render(request, 'faculty_end/time_in.html', {'faculty_shift': faculty_shift, 'shift_start': shift_start, 'shift_end': shift_end})
 
-
+@login_required(login_url='faculty_login')
+@user_passes_test(is_faculty, login_url='error_400')
 def time_out(request, faculty_shift_id):
     faculty_shift = get_object_or_404(FacultyShift, pk=faculty_shift_id)
     user = request.user
@@ -237,7 +274,8 @@ def time_out(request, faculty_shift_id):
 
     return render(request, 'faculty_end/time_out.html', {'faculty_shift': faculty_shift, 'shift_start': shift_start, 'shift_end': shift_end})
 
-
+@login_required(login_url='faculty_login')
+@user_passes_test(is_faculty, login_url='error_400')
 def get_time_status(current_time, target_time):
     # Compare the current time with the target time and determine the status
     if current_time == target_time:
@@ -247,6 +285,8 @@ def get_time_status(current_time, target_time):
     else:
         return 'Early'
     
+@login_required(login_url='faculty_login')
+@user_passes_test(is_faculty, login_url='error_400')  
 def notif(request):
     # Get the current user (faculty)
     faculty_user = request.user
@@ -267,3 +307,27 @@ def notif(request):
 
     # You can pass the list of messages to the template and render it
     return render(request, 'faculty_end/notif.html', {'messages': messages})
+
+@login_required(login_url='faculty_login')
+@user_passes_test(is_faculty, login_url='error_400')
+def change_password(request):
+    if request.method == 'POST':
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('new_password')
+        confirm_current_password = request.POST.get('confirm_current_password')
+
+        # Check if the current password is correct
+        if request.user.check_password(current_password):
+            # Update the user's password
+            request.user.set_password(new_password)
+            request.user.save()
+
+            # Update the session to prevent the user from being logged out
+            update_session_auth_hash(request, request.user)
+
+            messages.success(request, 'Your password was successfully updated!')
+            return redirect('account_settings')
+        else:
+            messages.error(request, 'Current password is incorrect.')
+
+    return render(request, 'faculty_end/account_settings.html')

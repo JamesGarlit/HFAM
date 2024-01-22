@@ -59,21 +59,31 @@
                 <li class="nav-item {% if request.path == '/faculty_attendance_record/' %}active{% endif %}">
                     <a class="nav-link" href="{% url 'faculty_attendance_record' %}">
                         <span class="material-symbols-outlined m-1">event_available</span>
-                        <span class="nav-link-title">Attendance Record</span>
+                        <span class="nav-link-title">Attendance Records</span>
                     </a>
                 </li>
-                <li class="nav-item {% if request.path == '/late_notif/' %}active{% endif %}">
-                    <a class="nav-link" href="{% url 'late_notif' %}">
+                <li class="nav-item {% if request.path == '/attendance_notif/' %}active{% endif %}">
+                    <a class="nav-link" href="{% url 'attendance_notif' %}">
                         <span class="material-symbols-outlined m-1">notifications</span>
-                        <span class="nav-link-title">Notification</span>
+                        <span class="nav-link-title">Notifications</span>
                     </a>
                 </li>
-                <li class="nav-item {% if request.path == '/user_list/' %}active{% endif %}">
-                    <a class="nav-link" href="{% url 'user_list' %}">
-                        <span class="material-symbols-outlined m-1">group</span>
-                        <span class="nav-link-title">Users</span>
-                    </a>
-                </li>
+                {% if request.user.is_authenticated and request.user.is_superuser and request.user.user_role == 'superadmin' %}
+                    <li class="nav-item {% if request.path == '/user_list/' %}active{% endif %}">
+                        <a class="nav-link" href="{% url 'user_list' %}">
+                            <span class="material-symbols-outlined m-1">group</span>
+                            <span class="nav-link-title">Users</span>
+                        </a>
+                    </li>
+                {% endif %}
+                {% if request.user.is_authenticated and request.user.is_superuser and request.user.user_role == 'superadmin' %}
+                    <li class="nav-item {% if request.path == '/user_list/' %}active{% endif %}">
+                        <a class="nav-link" href="{% url 'user_list' %}">
+                            <span class="material-symbols-outlined m-1">manage_accounts</span>
+                            <span class="nav-link-title">Accounts</span>
+                        </a>
+                    </li>
+                {% endif %}
                 <li class="nav-item {% if request.path == '/shift_list/' %}active{% endif %}">
                     <a class="nav-link" href="{% url 'shift_list' %}">
                         <span class="material-symbols-outlined m-1">schedule</span>
@@ -84,7 +94,8 @@
                     <a class="nav-link" href="{% url 'leaveappreq_list' %}">
                         <span class="material-symbols-outlined m-1">date_range</span>
                         <span class="nav-link-title">Leave Application</span>
-                    </a>
+                        {% if has_new_leave_applications %}<span style="color: red;">(New)</span>{% endif %}
+                    </a>                    
                 </li>
             </ul>
         </div>

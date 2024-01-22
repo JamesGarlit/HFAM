@@ -12,6 +12,7 @@ class LeaveApplication(models.Model):
     leave_reason = models.TextField()
     leave_supporting_docs = models.FileField(upload_to='leave_supporting_docs/', null=True, blank=True)
     leave_datetime_submitted = models.DateTimeField(auto_now_add=True)  # New field for submission datetime
+    is_viewed = models.BooleanField(default=False)
 
 class TimeIn(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)

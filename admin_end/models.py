@@ -1,40 +1,4 @@
-# admin_end/models.py
-# from django.db import models
-# from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group, Permission
-# from django.contrib.auth import get_user_model
-
-# class CustomUserManager(BaseUserManager):
-#     def create_user(self, email, password=None, **extra_fields):
-#         if not email:
-#             raise ValueError("The Email field must be set")
-#         email = self.normalize_email(email)
-#         user = self.model(email=email, **extra_fields)
-#         user.set_password(password)
-#         user.save(using=self._db)
-#         return user
-
-#     def create_superuser(self, email, password=None, **extra_fields):
-#         extra_fields.setdefault('is_staff', True)
-#         extra_fields.setdefault('is_superuser', True)
-#         return self.create_user(email, password, **extra_fields)
-    
-# class CustomUser(AbstractBaseUser, PermissionsMixin):
-#     user_picture = models.ImageField(upload_to='user_pictures/', null=True, blank=True)
-#     user_firstname = models.CharField(max_length=30)
-#     user_lastname = models.CharField(max_length=30)
-#     employment_status = models.CharField(max_length=10)
-#     user_role = models.CharField(max_length=10)
-#     email = models.EmailField(unique=True)
-#     is_active = models.BooleanField(default=True)
-#     is_staff = models.BooleanField(default=True)
-
-#     groups = models.ManyToManyField(Group, blank=True, related_name='customuser_set', related_query_name='user')
-#     user_permissions = models.ManyToManyField(Permission, blank=True, related_name='customuser_set', related_query_name='user')
-
-#     objects = CustomUserManager()
-
-#     USERNAME_FIELD = 'email'
-#     REQUIRED_FIELDS = ['user_firstname', 'user_lastname', 'user_role']
+#admin_end
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group, Permission
 from django.contrib.auth import get_user_model
@@ -125,3 +89,13 @@ class Approval(models.Model):
     approval_datetime = models.DateTimeField(null=True, blank=True)
     def __str__(self):
         return f"{self.leave_application} - {self.decision}"
+    
+class AttendanceNotification(models.Model):
+    user = models.ForeignKey('CustomUser', on_delete=models.CASCADE)
+    date = models.DateField()
+    time_in = models.TimeField(blank=True, null=True)
+    time_out = models.TimeField(blank=True, null=True)
+    status = models.CharField(max_length=20)
+
+    def __str__(self):
+        return f"{self.user.user_firstname} {self.user.user_lastname} - {self.date}"
