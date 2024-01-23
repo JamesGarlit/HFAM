@@ -91,6 +91,9 @@
           </div>
         </form>
       </div>
+      <div class="text-center text-secondary mt-3 mx-2">
+        By using this service, you understood and agree to the PUP Online Services <a href="https://www.pup.edu.ph/terms/" tabindex="-1">Terms of Use</a> and <a href="https://www.pup.edu.ph/privacy/" tabindex="-1">Privacy Statement</a>
+      </div>
     </div>
     <div class="col-12 col-lg-6 col-xl-8 d-none d-lg-block">
       <!-- Photo -->
@@ -136,10 +139,10 @@
 
     {% comment %} document.addEventListener('DOMContentLoaded', function () {
       var form = document.querySelector('form');
-  
+
       form.addEventListener('submit', function (event) {
         var recaptchaResponse = grecaptcha.getResponse();
-  
+
         if (recaptchaResponse.length === 0) {
           // If reCAPTCHA is not answered, prevent form submission
           event.preventDefault();
@@ -151,17 +154,17 @@
 
     $(document).ready(function () {
       {% if messages %}
-          {% for message in messages %}
-              {% if message.tags == 'success' %}
-                  toastr.success('{{ message }}');
-              {% elif message.tags == 'error' %}
-                  toastr.error('{{ message }}');
-              {% else %}
-                  toastr('{{ message }}');
-              {% endif %}
-          {% endfor %}
+      {% for message in messages %}
+      {% if message.tags == 'success' %}
+      toastr.success('{{ message }}');
+      {% elif message.tags == 'error' %}
+      toastr.error('{{ message }}');
+      {% else %}
+      toastr('{{ message }}');
       {% endif %}
-  });
+      {% endfor %}
+      {% endif %}
+    });
   </script>
 </body>
 
