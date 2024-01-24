@@ -26,10 +26,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-!8s#p+l^wi3b)0c7vvd%nrcbp5o^ilof79fif-_mc^8ob(71m@')
 
 # SECURITY WARNING: Don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+DEBUG = 'RENDER' not in os.environ
 
+ALLOWED_HOSTS = []
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'hfam.onrender.com']
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 
 # Application definition
@@ -44,12 +47,14 @@ INSTALLED_APPS = [
     'admin_end',
     'faculty_end',
     'rest_framework',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'corsheaders.middleware.common.CommonMiddleware'
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -75,28 +80,28 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'HyFAS.wsgi.application'
-
+CORS_ALLOWED_ORIGINS = True
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-if not DEBUG:
-    DATABASES = {
-        "default": dj_database_url.parse(os.environ.get("DATABASE_URL"))
-    }
 
-else:
-
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'hyfas',
-            'USER': 'postgres',
-            'PASSWORD':'attendancesys',
-            'HOST':'localhost',
-            'PORT':'5432',
-        }
-    }  
+DATABASES = {
+    'default': dj_database_url.confi(
+        conn_max_age=600,
+        conn_health_check=True,
+    )
+}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'hyfas',
+#         'USER': 'postgres',
+#         'PASSWORD':'attendancesys',
+#         'HOST':'localhost',
+#         'PORT':'5432',
+#     }
+# }  
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
