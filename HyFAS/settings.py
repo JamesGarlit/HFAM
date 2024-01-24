@@ -80,14 +80,14 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'HyFAS.wsgi.application'
-CORS_ALLOWED_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 
 DATABASES = {
-    'default': dj_database_url.confi(
+    'default': dj_database_url.config(
         conn_max_age=600,
         conn_health_check=True,
     )
