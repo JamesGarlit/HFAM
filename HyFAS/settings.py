@@ -83,7 +83,7 @@ DATABASES = {
         'NAME': 'hyfas',
         'USER': 'postgres',
         'PASSWORD':'attendancesys',
-        'HOST':'127.0.0.1',
+        'HOST':'localhost',
         'PORT':'5432',
     }
 }  
