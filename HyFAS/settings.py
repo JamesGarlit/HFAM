@@ -22,17 +22,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = 'django-insecure-!8s#p+l^wi3b)0c7vvd%nrcbp5o^ilof79fif-_mc^8ob(71m@'
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-!8s#p+l^wi3b)0c7vvd%nrcbp5o^ilof79fif-_mc^8ob(71m@')
+SECRET_KEY = 'django-insecure-!8s#p+l^wi3b)0c7vvd%nrcbp5o^ilof79fif-_mc^8ob(71m@'
 
-# SECURITY WARNING: Don't run with debug turned on in production!
-DEBUG = 'RENDER' not in os.environ
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
 
 ALLOWED_HOSTS = []
-
-RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 
 # Application definition
@@ -47,14 +42,12 @@ INSTALLED_APPS = [
     'admin_end',
     'faculty_end',
     'rest_framework',
-    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'corsheaders.middleware.common.CommonMiddleware'
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -80,28 +73,23 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'HyFAS.wsgi.application'
-CORS_ALLOW_ALL_ORIGINS = True
+
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-
 DATABASES = {
-    'default': dj_database_url.config(
-        conn_max_age=600,
-        conn_health_check=True,
-    )
-}
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'hyfas',
-#         'USER': 'postgres',
-#         'PASSWORD':'attendancesys',
-#         'HOST':'localhost',
-#         'PORT':'5432',
-#     }
-# }  
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'hyfas',
+        'USER': 'postgres',
+        'PASSWORD':'attendancesys',
+        'HOST':'localhost',
+        'PORT':'5432',
+    }
+}  
+
+DATABASES["default"] = dj_database_url.parse("postgres://hyfas_user:wzhuEHVMtkti9jdpxi3wWu3BsIn5CkXd@dpg-cmolnpacn0vc7396u5ng-a.oregon-postgres.render.com/hyfas")
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
