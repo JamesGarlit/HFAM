@@ -1,0 +1,196 @@
+{% extends "admin_end/base.html" %}
+{% load static %}
+{% block content %}
+<!-- Page header -->
+<div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">
+                    Overview
+                </div>
+                <h2 class="page-title">
+                    Users
+                </h2>
+            </div>
+            <!-- Page title actions -->
+            <div class="col-auto ms-auto d-print-none">
+                <div class="btn-list">
+                    <a href="{% url 'user_create' %}" class="btn btn-primary d-none d-sm-inline-block">
+                        <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                            stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M12 5l0 14" />
+                            <path d="M5 12l14 0" />
+                        </svg>
+                        Create New User
+                    </a>
+                    <a href="{% url 'user_create' %}" class="btn btn-primary d-sm-none btn-icon">
+                        <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                            stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M12 5l0 14" />
+                            <path d="M5 12l14 0" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Page body -->
+<div class="page-body">
+    <div class="container-xl">
+        <div class="card">
+            <div class="card-body">
+                <table id="userList" class="table table-striped display" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if faculties_from_api %}
+                        <tr>
+                            {% for faculty in faculties_from_api %}
+                            <td>{{ faculty.FirstName }} {{ faculty.MiddleName }} {{ faculty.LastName }} {{ faculty.NameExtension }}</td>
+                            <td>{{ faculty.Email }}</td>
+                            <td>{{ faculty.FacultyType }}</td>
+                            <td>
+                                {% if user.is_active %}
+                                <form method="post" action="{% url 'deactivate_user' user.id %}"
+                                    style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">Deactivate</button>
+                                </form>
+                                {% else %}
+                                <form method="post" action="{% url 'activate_user' user.id %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-success btn-sm">Activate</button>
+                                </form>
+                                {% endif %}
+                                <a href="{% url 'user_update' user.id %}" type="button"
+                                    class="btn btn-outline-info btn-sm">Update</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                            <p>No data from the API.</p>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% block css %}
+<style>
+    thead input {
+        width: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block javascript %}
+{% comment %} specific js {% endcomment %}
+<script>
+    $(document).ready(function() {
+        // Setup - add a text input to each footer cell
+        $('#userList thead tr').clone(true).addClass('filters').appendTo('#userList thead');
+    
+        var table = $('#userList').DataTable({
+            scrollCollapse: true,
+            orderCellsTop: true,
+            fixedHeader: true,
+            order: [[0, 'desc']],
+            scrollX: true,
+            dom: 'Bfrtlip',
+            buttons: [
+                {
+                    extend: 'copy',
+                    title: 'Attendance Record - ' + new Date().toLocaleDateString(),
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'print',
+                    title: 'Attendance Record - ' + new Date().toLocaleDateString(),
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'excel',
+                    title: 'Attendance Record - ' + new Date().toLocaleDateString(),
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdf',
+                    title: 'Attendance Record - ' + new Date().toLocaleDateString(),
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                'colvis'
+            ],
+            initComplete: function() {
+                var api = this.api();
+    
+                api.columns().eq(0).each(function(colIdx) {
+                    // Set the header cell to contain the input element
+                    var cell = $('.filters th').eq($(api.column(colIdx).header()).index());
+                    var title = $(cell).text();
+                    $(cell).html('<input type="text" placeholder="' + title + '" />');
+    
+                    $('input', $('.filters th').eq($(api.column(colIdx).header()).index()))
+                        .off('keyup change')
+                        .on('keyup change', function(e) {
+                            e.stopPropagation();
+                            $(this).attr('title', $(this).val());
+                            var regexr = '({search})';
+                            var cursorPosition = this.selectionStart;
+    
+                            api
+                                .column(colIdx)
+                                .search((this.value != "") ? regexr.replace('{search}', '(((' + this.value + ')))') : "", this.value != "", this.value == "")
+                                .draw();
+                            $(this).focus()[0].setSelectionRange(cursorPosition, cursorPosition);
+                        });
+    
+                    if (colIdx === api.columns().eq(0).length - 1) {
+                        // Include filter input for the last column
+                        $(cell).html('<input type="text" placeholder="' + title + '" />');
+                    }
+                });
+            }
+        });
+    });    
+          
+    {% comment %} Alert Message Scripts {% endcomment %}
+    $(document).ready(function () {
+        {% if messages %}
+        {% for message in messages %}
+        {% if message.tags == 'success' %}
+        toastr.success('{{ message }}');
+        {% elif message.tags == 'error' %}
+        toastr.error('{{ message }}');
+        {% else %}
+        toastr('{{ message }}');
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+    });
+</script>
+{% endblock %}
+{% endblock %}

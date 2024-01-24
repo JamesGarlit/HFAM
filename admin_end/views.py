@@ -107,55 +107,56 @@ def user_update(request, user_id):
 # SHIFT FUNCTION
 @user_passes_test(is_superadmin, login_url='admin_login')
 @login_required(login_url='admin_login')
-def user_list(request):
-    # Your API endpoint
-    api_url = 'https://pupqcfis-com.onrender.com/api/all/FISFaculty'
-
-    # Make a GET request to the API
-    response = requests.get(api_url)
-
-    if response.status_code == 200:
-        # Process the API response data
-        api_data = response.json()
-        
-        # Extracting faculty_account_ids into a list
-        faculty_account_ids = list(api_data['Faculties'].keys())
-        
-        # Fetching Specific data for each faculty
-        faculties_from_api = []
-        for faculty_id in faculty_account_ids:
-            faculty_info = api_data['Faculties'][faculty_id]
-            faculty_rank = faculty_info['Rank']
-            faculty_name = faculty_info['LastName']
-            faculty_email = faculty_info['Email']
-            faculty_type = faculty_info['FacultyType']
-
-            # Create a dictionary with relevant faculty information
-            faculty_data = {
-                'FacultyID': faculty_id,
-                'Rank': faculty_rank,
-                'FirstName': faculty_info['FirstName'],
-                'MiddleName': faculty_info['MiddleName'],
-                'LastName': faculty_name,
-                'NameExtension': faculty_info['NameExtension'],
-                'Email': faculty_email,
-                'FacultyType': faculty_type,
-            }
-
-            faculties_from_api.append(faculty_data)
-        
-        # Retrieve local users from the database
-        local_users = CustomUser.objects.all()
-
-        return render(request, 'admin_end/user_list.html', {'faculties_from_api': faculties_from_api, 'local_users': local_users})
-    
-    else:
-        print("Failed to fetch data. Status code:", response.status_code)
-        # Handle the error case as needed
-        return render(request, 'admin_end/user_list.html', {'error_message': 'Failed to fetch data from the API'})
 # def user_list(request):
-#     users = CustomUser.objects.all()
-#     return render(request, 'admin_end/user_list.html', {'users': users})
+#     # Your API endpoint
+#     api_url = 'https://pupqcfis-com.onrender.com/api/all/FISFaculty'
+
+#     # Make a GET request to the API
+#     response = requests.get(api_url)
+
+#     if response.status_code == 200:
+#         # Process the API response data
+#         api_data = response.json()
+        
+#         # Extracting faculty_account_ids into a list
+#         faculty_account_ids = list(api_data['Faculties'].keys())
+        
+#         # Fetching Specific data for each faculty
+#         faculties_from_api = []
+#         for faculty_id in faculty_account_ids:
+#             faculty_info = api_data['Faculties'][faculty_id]
+#             faculty_rank = faculty_info['Rank']
+#             faculty_name = faculty_info['LastName']
+#             faculty_email = faculty_info['Email']
+#             faculty_type = faculty_info['FacultyType']
+
+#             # Create a dictionary with relevant faculty information
+#             faculty_data = {
+#                 'FacultyID': faculty_id,
+#                 'Rank': faculty_rank,
+#                 'FirstName': faculty_info['FirstName'],
+#                 'MiddleName': faculty_info['MiddleName'],
+#                 'LastName': faculty_name,
+#                 'NameExtension': faculty_info['NameExtension'],
+#                 'Email': faculty_email,
+#                 'FacultyType': faculty_type,
+#             }
+
+#             faculties_from_api.append(faculty_data)
+        
+#         # Retrieve local users from the database
+#         local_users = CustomUser.objects.all()
+
+#         return render(request, 'admin_end/user_list.html', {'faculties_from_api': faculties_from_api, 'local_users': local_users})
+    
+#     else:
+#         print("Failed to fetch data. Status code:", response.status_code)
+#         # Handle the error case as needed
+#         return render(request, 'admin_end/user_list.html', {'error_message': 'Failed to fetch data from the API'})
+    
+def user_list(request):
+    users = CustomUser.objects.all()
+    return render(request, 'admin_end/user_list.html', {'users': users})
 
 @user_passes_test(is_superadmin, login_url='admin_login')
 @login_required(login_url='admin_login')

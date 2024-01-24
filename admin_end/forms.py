@@ -1,69 +1,69 @@
 from django import forms
 from .models import CustomUser, FacultyShift, Approval
 
-class UserForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=False)
-    confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=False)
+# class UserForm(forms.ModelForm):
+#     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=False)
+#     confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=False)
 
-    class Meta:
-        model = CustomUser
-        fields = ['user_picture', 'user_firstname', 'user_lastname', 'user_role', 'email', 'password']
+#     class Meta:
+#         model = CustomUser
+#         fields = ['user_picture', 'user_firstname', 'user_lastname', 'user_role', 'email', 'password']
 
-        widgets = {
-            'user_picture': forms.FileInput(attrs={'class': 'form-control-file', 'accept': 'image/*'}),
-            'user_firstname': forms.TextInput(attrs={'class': 'form-control'}),
-            'user_lastname': forms.TextInput(attrs={'class': 'form-control'}),
-            'user_role': forms.Select(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
-        }
+#         widgets = {
+#             'user_picture': forms.FileInput(attrs={'class': 'form-control-file', 'accept': 'image/*'}),
+#             'user_firstname': forms.TextInput(attrs={'class': 'form-control'}),
+#             'user_lastname': forms.TextInput(attrs={'class': 'form-control'}),
+#             'user_role': forms.Select(attrs={'class': 'form-control'}),
+#             'email': forms.EmailInput(attrs={'class': 'form-control'}),
+#         }
 
-    def clean(self):
-        cleaned_data = super().clean()
-        password = cleaned_data.get('password')
-        confirm_password = cleaned_data.get('confirm_password')
+#     def clean(self):
+#         cleaned_data = super().clean()
+#         password = cleaned_data.get('password')
+#         confirm_password = cleaned_data.get('confirm_password')
 
-        if password and not confirm_password:
-            raise forms.ValidationError("Please confirm your password.")
-        elif password != confirm_password:
-            raise forms.ValidationError("Passwords do not match.")
+#         if password and not confirm_password:
+#             raise forms.ValidationError("Please confirm your password.")
+#         elif password != confirm_password:
+#             raise forms.ValidationError("Passwords do not match.")
 
-class UserUpdateForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=False)
-    confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=False)
+# class UserUpdateForm(forms.ModelForm):
+#     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=False)
+#     confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=False)
 
-    class Meta:
-        model = CustomUser
-        fields = ['user_picture', 'user_firstname', 'user_lastname', 'user_role', 'email', 'password']
+#     class Meta:
+#         model = CustomUser
+#         fields = ['user_picture', 'user_firstname', 'user_lastname', 'user_role', 'email', 'password']
 
-        widgets = {
-            'user_picture': forms.FileInput(attrs={'class': 'form-control-file', 'accept': 'image/*'}),
-            'user_firstname': forms.TextInput(attrs={'class': 'form-control'}),
-            'user_lastname': forms.TextInput(attrs={'class': 'form-control'}),
-            'user_role': forms.Select(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
-        }
+#         widgets = {
+#             'user_picture': forms.FileInput(attrs={'class': 'form-control-file', 'accept': 'image/*'}),
+#             'user_firstname': forms.TextInput(attrs={'class': 'form-control'}),
+#             'user_lastname': forms.TextInput(attrs={'class': 'form-control'}),
+#             'user_role': forms.Select(attrs={'class': 'form-control'}),
+#             'email': forms.EmailInput(attrs={'class': 'form-control'}),
+#         }
 
-    def clean(self):
-        cleaned_data = super().clean()
-        password = cleaned_data.get('password')
-        confirm_password = cleaned_data.get('confirm_password')
+#     def clean(self):
+#         cleaned_data = super().clean()
+#         password = cleaned_data.get('password')
+#         confirm_password = cleaned_data.get('confirm_password')
 
-        if password and not confirm_password:
-            raise forms.ValidationError("Please confirm your password.")
-        elif password != confirm_password:
-            raise forms.ValidationError("Passwords do not match.")
+#         if password and not confirm_password:
+#             raise forms.ValidationError("Please confirm your password.")
+#         elif password != confirm_password:
+#             raise forms.ValidationError("Passwords do not match.")
 
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        new_password = self.cleaned_data.get('password')
+#     def save(self, commit=True):
+#         user = super().save(commit=False)
+#         new_password = self.cleaned_data.get('password')
 
-        if new_password:
-            user.set_password(new_password)
+#         if new_password:
+#             user.set_password(new_password)
 
-        if commit:
-            user.save()
+#         if commit:
+#             user.save()
 
-        return user
+#         return user
 # class UserForm(forms.ModelForm):
 #     class Meta:
 #         model = CustomUser

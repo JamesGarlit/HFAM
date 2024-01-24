@@ -28,14 +28,13 @@
                     <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
                         aria-label="Open user menu">
                         {% if request.user.user_picture %}
-                        <span class="avatar avatar-sm"
-                            style="background-image: url({{ request.user.user_picture.url }})"></span>
+                        <span class="avatar avatar-sm" style="background-image: url()"></span>
                         {% else %}
                         <!-- Provide a default image or placeholder if user_picture is not available -->
                         <span class="default-avatar border-1"></span>
                         {% endif %}
                         <div class="d-none d-xl-block ps-2">
-                            <div>{{ request.user.get_full_name }}</div>
+                            <div></div>
                         </div>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
@@ -68,22 +67,18 @@
                         <span class="nav-link-title">Notifications</span>
                     </a>
                 </li>
-                {% if request.user.is_authenticated and request.user.is_superuser and request.user.user_role == 'superadmin' %}
-                    <li class="nav-item {% if request.path == '/user_list/' %}active{% endif %}">
-                        <a class="nav-link" href="{% url 'user_list' %}">
-                            <span class="material-symbols-outlined m-1">group</span>
-                            <span class="nav-link-title">Users</span>
-                        </a>
-                    </li>
-                {% endif %}
-                {% if request.user.is_authenticated and request.user.is_superuser and request.user.user_role == 'superadmin' %}
-                    <li class="nav-item {% if request.path == '/user_list/' %}active{% endif %}">
-                        <a class="nav-link" href="{% url 'user_list' %}">
-                            <span class="material-symbols-outlined m-1">manage_accounts</span>
-                            <span class="nav-link-title">Accounts</span>
-                        </a>
-                    </li>
-                {% endif %}
+                <li class="nav-item {% if request.path == '/user_list/' %}active{% endif %}">
+                    <a class="nav-link" href="{% url 'user_list' %}">
+                        <span class="material-symbols-outlined m-1">group</span>
+                        <span class="nav-link-title">Users</span>
+                    </a>
+                </li>
+                <li class="nav-item {% if request.path == '/user_list/' %}active{% endif %}">
+                    <a class="nav-link" href="{% url 'user_list' %}">
+                        <span class="material-symbols-outlined m-1">manage_accounts</span>
+                        <span class="nav-link-title">Accounts</span>
+                    </a>
+                </li>
                 <li class="nav-item {% if request.path == '/shift_list/' %}active{% endif %}">
                     <a class="nav-link" href="{% url 'shift_list' %}">
                         <span class="material-symbols-outlined m-1">schedule</span>
@@ -95,7 +90,7 @@
                         <span class="material-symbols-outlined m-1">date_range</span>
                         <span class="nav-link-title">Leave Application</span>
                         {% if has_new_leave_applications %}<span style="color: red;">(New)</span>{% endif %}
-                    </a>                    
+                    </a>
                 </li>
             </ul>
         </div>
