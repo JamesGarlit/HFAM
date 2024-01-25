@@ -1,42 +1,46 @@
-# faculty_end/management/commands/create_dummy_leave_applications.py
+# faculty_end/management/commands/create_dummy_time_entries.py
 from django.core.management.base import BaseCommand
 from faker import Faker
-from faculty_end.models import LeaveApplication
-from admin_end.models import CustomUser
+from admin_end.models import CustomUser, FacultyShift
+from faculty_end.models import TimeIn, TimeOut
 
 fake = Faker()
 
 class Command(BaseCommand):
-    help = 'Create dummy leave applications for a specific user (ID 1) for testing purposes.'
+    help = 'Create dummy data for time in and time out for existing dummy users.'
 
     def handle(self, *args, **options):
-        # Fetch the user with ID 1
-        user = CustomUser.objects.get(id=1)
+        # Fetch existing users with IDs from 2 to 100
+        existing_users = CustomUser.objects.filter(id__range=(2, 100))
 
-        # Your dummy data creation logic here
-        for _ in range(20):
-            start_date = fake.date_between(start_date='-30d', end_date='today')
-            start_time = fake.time()
-            end_date = fake.date_between(start_date='today', end_date='+30d')
-            end_time = fake.time()
-            leave_type = fake.word()
-            leave_reason = fake.text()
-            leave_datetime_submitted = fake.date_time_this_month()
-            is_viewed = fake.boolean()
+        # Your dummy data creation logic here for time in and time out
+        for user in existing_users:
+            # Fetch shifts for the user
+            shifts = FacultyShift.objects.filter(user=user)
 
-            leave_application = LeaveApplication.objects.create(
-                user=user,
-                leave_start_date=start_date,
-                leave_start_time=start_time,
-                leave_end_date=end_date,
-                leave_end_time=end_time,
-                leave_type=leave_type,
-                leave_reason=leave_reason,
-                leave_datetime_submitted=leave_datetime_submitted,
-                is_viewed=is_viewed,
-            )
+            for shift in shifts:
+                for _ in range(5):  # Create 5 dummy time in and time out entries for each user
+                    location = fake.company()
+                    date = fake.date_between(start_date='-30d', end_date='today')
 
-            # If you want to add supporting docs, you can do it here
-            # leave_application.leave_supporting_docs = ...
+                    # Create dummy time in entry
+                    TimeIn.objects.create(
+                        user=user,
+                        faculty_shift=shift,
+                        location=location,
+                        date=date,
+                        time_in=fake.time(),
+                        status=fake.random_element(elements=('On Time', 'Late', 'Early', 'Absent')),
+                    )
 
-        self.stdout.write(self.style.SUCCESS('Successfully created dummy leave applications for user with ID 1.'))
+                    # Create dummy time out entry
+                    TimeOut.objects.create(
+                        user=user,
+                        faculty_shift=shift,
+                        location=location,
+                        date=date,
+                        time_out=fake.time(),
+                        status=fake.random_element(elements=('On Time', 'Late', 'Early', 'Absent')),
+                    )
+
+                    self.stdout.write(self.style.SUCCESS(f'Successfully created time in and time out entries for user: {user.email}'))

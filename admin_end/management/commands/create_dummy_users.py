@@ -2,25 +2,24 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.hashers import make_password
 from faker import Faker
-from admin_end.models import CustomUser
+from admin_end.models import CustomUser, FacultyShift
 
 fake = Faker()
 
 class Command(BaseCommand):
-    help = 'Create dummy users for testing purposes.'
+    help = 'Create shifts for existing dummy users for testing purposes.'
 
     def handle(self, *args, **options):
-        # Your dummy data creation logic here
-        for _ in range(200):  # Create 200 dummy users
-            user_created_by_manager = CustomUser.objects.create_user(
-                email=fake.email(),
-                password=make_password(fake.password()),  # Hash the password
-                user_firstname=fake.first_name(),
-                user_middlename=fake.first_name(),
-                user_lastname=fake.last_name(),
-                extension_name=fake.suffix(),
-                employment_status=fake.random_element(elements=('Full-Time', 'Part-Time')),
-                user_role=fake.random_element(elements=('admin', 'faculty', 'superadmin')),
+        # Fetch existing users with IDs from 2 to 100
+        existing_users = CustomUser.objects.filter(id__range=(2, 100))
+
+        # Your dummy data creation logic here for shifts
+        for user in existing_users:
+            FacultyShift.objects.create(
+                user=user,
+                shift_start=fake.time(),
+                shift_end=fake.time(),
+                shift_day=fake.random_element(elements=('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')),
             )
 
-            self.stdout.write(self.style.SUCCESS(f'Successfully created dummy user: {user_created_by_manager.email}'))
+            self.stdout.write(self.style.SUCCESS(f'Successfully created shift for user: {user.email}'))
