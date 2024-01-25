@@ -11,9 +11,120 @@ from django.contrib.auth.hashers import make_password
 import requests
 
 def is_faculty(user):
-    # Check if the user has the faculty role or any other condition that identifies faculty members
-    # You may need to adjust this based on your actual user model or authentication system
     return user.is_authenticated and not user.is_superuser
+
+@login_required(login_url='faculty_login')
+@user_passes_test(is_faculty, login_url='error_400')
+def time_in(request, faculty_shift_id):
+    faculty_shift = get_object_or_404(FacultyShift, pk=faculty_shift_id)
+    user = request.user
+
+    # Retrieve shift_start and shift_end for the faculty_shift
+    shift_start = datetime.combine(datetime.today(), faculty_shift.shift_start)
+    shift_end = datetime.combine(datetime.today(), faculty_shift.shift_end)
+
+    # Check if the faculty member is absent for any schedule (30 minutes after shift_start) and no attendance record is present
+    for schedule in user.faculty_shifts.all():
+        schedule_start = datetime.combine(datetime.today(), schedule.shift_start)
+        if datetime.now() > schedule_start + timedelta(minutes=30):
+            # Use get() instead of get_or_create() to avoid creating a record with a null time_in
+            try:
+                time_in_record = TimeIn.objects.get(user=user, faculty_shift=schedule, date=datetime.now().date())
+            except TimeIn.DoesNotExist:
+                time_in_record = TimeIn.objects.create(
+                    user=user,
+                    faculty_shift=schedule,
+                    date=datetime.now().date(),
+                    status='Absent'
+                )
+                messages.warning(request, f'Automatically marked as Absent for {schedule} due to no time_in provided after 30 minutes.')
+
+    if request.method == 'POST':
+        location = request.POST.get('location')
+        time_in_date = request.POST.get('time_in_date')
+        time_in_input = request.POST.get('time_in')
+
+        if time_in_input is not None:
+            try:
+                provided_time = datetime.strptime(time_in_input, '%H:%M').time()
+            except ValueError:
+                return render(request, 'faculty_end/time_in.html', {'faculty_shift': faculty_shift, 'shift_start': shift_start, 'shift_end': shift_end, 'error_message': 'Invalid time format. Please use HH:MM.'})
+
+            # Compare provided_time with faculty_shift.shift_start
+            if provided_time == faculty_shift.shift_start:
+                status = 'On Time'
+            elif provided_time > faculty_shift.shift_start:
+                status = 'Late'
+            else:
+                status = 'Early'
+
+            time_in_record, created = TimeIn.objects.get_or_create(
+                user=user,
+                faculty_shift=faculty_shift,
+                date=time_in_date,
+                defaults={'time_in': provided_time, 'status': status, 'location': location}
+            )
+            messages.success(request, 'Time In Successful!')
+            return redirect('attendance_record')
+
+    return render(request, 'faculty_end/time_in.html', {'faculty_shift': faculty_shift, 'shift_start': shift_start, 'shift_end': shift_end})
+
+@login_required(login_url='faculty_login')
+@user_passes_test(is_faculty, login_url='error_400')
+def time_out(request, faculty_shift_id):
+    faculty_shift = get_object_or_404(FacultyShift, pk=faculty_shift_id)
+    user = request.user
+
+    # Retrieve shift_start and shift_end for the faculty_shift
+    shift_start = datetime.combine(datetime.today(), faculty_shift.shift_start)
+    shift_end = datetime.combine(datetime.today(), faculty_shift.shift_end)
+
+    # Check if the faculty member is absent for any schedule (30 minutes after shift_start) and no attendance record is present
+    for schedule in user.faculty_shifts.all():
+        schedule_end = datetime.combine(datetime.today(), schedule.shift_end)
+        if datetime.now() > schedule_end + timedelta(minutes=30):
+            # Use get() instead of get_or_create() to avoid creating a record with a null time_in
+            try:
+                time_out_record = TimeOut.objects.get(user=user, faculty_shift=schedule, date=datetime.now().date())
+            except TimeOut.DoesNotExist:
+                time_in_record = TimeOut.objects.create(
+                    user=user,
+                    faculty_shift=schedule,
+                    date=datetime.now().date(),
+                    status='Absent'
+                )
+                messages.warning(request, f'Automatically marked as Absent for {schedule} due to no time_in provided after 30 minutes.')
+
+    if request.method == 'POST':
+        location = request.POST.get('location')
+        time_out_date = request.POST.get('time_out_date')
+        time_out_input = request.POST.get('time_out')
+
+        if time_out_input is not None:
+            try:
+                provided_time = datetime.strptime(time_out_input, '%H:%M').time()
+            except ValueError:
+                return render(request, 'faculty_end/time_out.html', {'faculty_shift': faculty_shift, 'shift_start': shift_start, 'shift_end': shift_end, 'error_message': 'Invalid time format. Please use HH:MM.'})
+
+            # Compare provided_time with faculty_shift.shift_end
+            if provided_time == faculty_shift.shift_end:
+                status = 'On Time'
+            elif provided_time > faculty_shift.shift_end:
+                status = 'Late'
+            else:
+                status = 'Early'
+
+            time_out_record, created = TimeOut.objects.get_or_create(
+                user=user,
+                faculty_shift=faculty_shift,
+                date=time_out_date,
+                defaults={'time_out': provided_time, 'status': status, 'location': location}
+            )
+            messages.success(request, 'Time Out Successful!')
+            return redirect('attendance_record')
+
+    return render(request, 'faculty_end/time_out.html', {'faculty_shift': faculty_shift, 'shift_start': shift_start, 'shift_end': shift_end})
+
 
 @login_required(login_url='faculty_login')
 @user_passes_test(is_faculty, login_url='error_400')
@@ -174,120 +285,6 @@ def attendance_record(request):
     # Render the template with the faculty shifts
     return render(request, 'faculty_end/attendance_record.html', {'faculty_shifts': faculty_shifts, 'current_date': current_date})
 
-@login_required(login_url='faculty_login')
-@user_passes_test(is_faculty, login_url='error_400')
-def time_in(request, faculty_shift_id):
-    faculty_shift = get_object_or_404(FacultyShift, pk=faculty_shift_id)
-    user = request.user
-
-    # Retrieve shift_start and shift_end for the faculty_shift
-    shift_start = datetime.combine(datetime.today(), faculty_shift.shift_start)
-    shift_end = datetime.combine(datetime.today(), faculty_shift.shift_end)
-
-    # Check if the faculty member is absent for any schedule (30 minutes after shift_start) and no attendance record is present
-    for schedule in user.faculty_shifts.all():
-        schedule_start = datetime.combine(datetime.today(), schedule.shift_start)
-        if datetime.now() > schedule_start + timedelta(minutes=30):
-            # Use get() instead of get_or_create() to avoid creating a record with a null time_in
-            try:
-                time_in_record = TimeIn.objects.get(user=user, faculty_shift=schedule, date=datetime.now().date())
-            except TimeIn.DoesNotExist:
-                time_in_record = TimeIn.objects.create(
-                    user=user,
-                    faculty_shift=schedule,
-                    date=datetime.now().date(),
-                    status='Absent'
-                )
-                messages.warning(request, f'Automatically marked as Absent for {schedule} due to no time_in provided after 30 minutes.')
-
-    if request.method == 'POST':
-        location = request.POST.get('location')
-        time_in_date = request.POST.get('time_in_date')
-        time_in_input = request.POST.get('time_in')
-
-        if time_in_input is not None:
-            try:
-                provided_time = datetime.strptime(time_in_input, '%H:%M').time()
-            except ValueError:
-                return render(request, 'faculty_end/time_in.html', {'faculty_shift': faculty_shift, 'shift_start': shift_start, 'shift_end': shift_end, 'error_message': 'Invalid time format. Please use HH:MM.'})
-
-            status = get_time_status(provided_time, faculty_shift.shift_start)
-
-            time_in_record, created = TimeIn.objects.get_or_create(
-                user=user,
-                faculty_shift=faculty_shift,
-                date=time_in_date,
-                defaults={'time_in': provided_time, 'status': status, 'location': location}
-            )
-            messages.success(request, 'Time In Successful!')
-            return redirect('attendance_record')
-
-    return render(request, 'faculty_end/time_in.html', {'faculty_shift': faculty_shift, 'shift_start': shift_start, 'shift_end': shift_end})
-
-@login_required(login_url='faculty_login')
-@user_passes_test(is_faculty, login_url='error_400')
-def time_out(request, faculty_shift_id):
-    faculty_shift = get_object_or_404(FacultyShift, pk=faculty_shift_id)
-    user = request.user
-
-    # Retrieve shift_start and shift_end for the faculty_shift
-    shift_start = datetime.combine(datetime.today(), faculty_shift.shift_start)
-    shift_end = datetime.combine(datetime.today(), faculty_shift.shift_end)
-
-    # Check if the faculty member is absent for any schedule (30 minutes after shift_start) and no attendance record is present
-    for schedule in user.faculty_shifts.all():
-        schedule_end = datetime.combine(datetime.today(), schedule.shift_end)
-        if datetime.now() > schedule_end + timedelta(minutes=30):
-            # Use get() instead of get_or_create() to avoid creating a record with a null time_in
-            try:
-                time_out_record = TimeOut.objects.get(user=user, faculty_shift=schedule, date=datetime.now().date())
-            except TimeOut.DoesNotExist:
-                time_in_record = TimeOut.objects.create(
-                    user=user,
-                    faculty_shift=schedule,
-                    date=datetime.now().date(),
-                    status='Absent'
-                )
-                messages.warning(request, f'Automatically marked as Absent for {schedule} due to no time_in provided after 30 minutes.')
-
-    if request.method == 'POST':
-        location = request.POST.get('location')
-        time_out_date = request.POST.get('time_out_date')
-        time_out_input = request.POST.get('time_out')
-
-        if time_out_input is not None:
-            try:
-                provided_time = datetime.strptime(time_out_input, '%H:%M').time()
-            except ValueError:
-                return render(request, 'faculty_end/time_out.html', {'faculty_shift': faculty_shift, 'shift_start': shift_start, 'shift_end': shift_end, 'error_message': 'Invalid time format. Please use HH:MM.'})
-
-            status = get_time_status(provided_time, faculty_shift.shift_end)
-
-            time_out_record, created = TimeOut.objects.get_or_create(
-                user=user,
-                faculty_shift=faculty_shift,
-                date=time_out_date,
-                defaults={'time_out': provided_time, 'status': status, 'location': location}
-            )
-            messages.success(request, 'Time Out Successful!')
-            return redirect('attendance_record')
-
-    return render(request, 'faculty_end/time_out.html', {'faculty_shift': faculty_shift, 'shift_start': shift_start, 'shift_end': shift_end})
-
-@login_required(login_url='faculty_login')
-@user_passes_test(is_faculty, login_url='error_400')
-def get_time_status(current_time, faculty_shift):
-    target_time = faculty_shift.shift_start
-
-    # Compare the current time with the target time and determine the status
-    if current_time == target_time:
-        return 'On Time'
-    elif current_time > target_time:
-        return 'Late'
-    else:
-        return 'Early'
-
-    
 @login_required(login_url='faculty_login')
 @user_passes_test(is_faculty, login_url='error_400')  
 def notif(request):
