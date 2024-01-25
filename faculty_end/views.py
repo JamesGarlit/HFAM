@@ -276,7 +276,9 @@ def time_out(request, faculty_shift_id):
 
 @login_required(login_url='faculty_login')
 @user_passes_test(is_faculty, login_url='error_400')
-def get_time_status(current_time, target_time):
+def get_time_status(current_time, faculty_shift):
+    target_time = faculty_shift.shift_start
+
     # Compare the current time with the target time and determine the status
     if current_time == target_time:
         return 'On Time'
@@ -284,6 +286,7 @@ def get_time_status(current_time, target_time):
         return 'Late'
     else:
         return 'Early'
+
     
 @login_required(login_url='faculty_login')
 @user_passes_test(is_faculty, login_url='error_400')  

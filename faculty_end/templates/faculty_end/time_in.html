@@ -113,7 +113,6 @@
 
         // Check if the QR code date is the current date and the username matches the logged-in user
         if (qrDate === currentDateFormatted && qrFirstName === loggedInUser.split(' ')[0] && qrLastName === loggedInUser.split(' ')[1]) {
-            toastr.error('Valid QR code.');
 
             // Get current location and date
             navigator.geolocation.getCurrentPosition(async function (position) {
