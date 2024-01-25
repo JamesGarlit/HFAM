@@ -459,3 +459,39 @@ def attendance_notif(request):
 
     context = {'notifications': notifications}
     return render(request, 'admin_end/attendance_notif.html', context)
+
+def attendance_trends(request):
+    # Your logic to fetch attendance data and prepare it for Highcharts
+    # Example: Get attendance data for the last 30 days
+    attendance_data = TimeIn.objects.filter(date__gte=datetime.date.today() - datetime.timedelta(days=30))
+
+    # Your logic to prepare data for Highcharts
+    # Example: Create a list of dates and corresponding attendance counts
+    dates = [entry.date for entry in attendance_data]
+    
+    # Check if either TimeIn or TimeOut is marked as absent
+    attendance_counts = [
+        entry.user.count()
+        for entry in attendance_data
+        if entry.status == 'Absent' or TimeOut.objects.filter(user=entry.user, date=entry.date, status='Absent').exists()
+    ]
+
+    return render(request, 'admin_end/dashboard.html', {'dates': dates, 'attendance_counts': attendance_counts})
+
+def absenteeism_analysis(request):
+    # Your logic to fetch absenteeism data and prepare it for Highcharts
+    # Example: Get faculty members with frequent absences
+    absenteeism_data = TimeIn.objects.filter(status='Absent')
+
+    # Your logic to prepare data for Highcharts
+    # Example: Create a list of faculty names and corresponding absence counts
+    faculty_names = [entry.user.username for entry in absenteeism_data]
+
+    # Check if either TimeIn or TimeOut is marked as absent
+    absence_counts = [
+        faculty_names.count(faculty)
+        for faculty in faculty_names
+        if TimeOut.objects.filter(user__username=faculty, date__in=[entry.date for entry in absenteeism_data], status='Absent').exists()
+    ]
+
+    return render(request, 'admin_end/dashboard.html', {'faculty_names': faculty_names, 'absence_counts': absence_counts})
