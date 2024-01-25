@@ -54,7 +54,6 @@
                             <th>Full Name</th>
                             <th>Email</th>
                             <th>Role</th>
-                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -64,22 +63,6 @@
                             <td>{{ faculty.FirstName }} {{ faculty.MiddleName }} {{ faculty.LastName }} {{ faculty.NameExtension }}</td>
                             <td>{{ faculty.Email }}</td>
                             <td>{{ faculty.FacultyType }}</td>
-                            <td>
-                                {% if user.is_active %}
-                                <form method="post" action="{% url 'deactivate_user' user.id %}"
-                                    style="display: inline;">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-outline-danger btn-sm">Deactivate</button>
-                                </form>
-                                {% else %}
-                                <form method="post" action="{% url 'activate_user' user.id %}" style="display: inline;">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-outline-success btn-sm">Activate</button>
-                                </form>
-                                {% endif %}
-                                <a href="{% url 'user_update' user.id %}" type="button"
-                                    class="btn btn-outline-info btn-sm">Update</a>
-                            </td>
                         </tr>
                         {% endfor %}
                         {% else %}
