@@ -31,7 +31,7 @@
       <div class="col-lg-6 col-xl-4">
         <div class="card">
           <div class="card-body">
-            <div id="chart-completion-tasks"></div>
+            <div id="absenteeismChart"></div>
           </div>
         </div>
       </div>
@@ -77,6 +77,48 @@
 
 {% block javascript %}
 <script>
+  var absenteeismData = [
+            {% for entry in absent_dates %}
+                { date: "{{ entry.date }}", count: {{ entry.count }} },
+            {% endfor %}
+        ];
+
+        // Process data for Highcharts
+        var chartData = processDataForHighcharts(absenteeismData);
+
+        // Create Highcharts chart
+        Highcharts.chart('absenteeismChart', {
+            chart: {
+                type: 'column'
+            },
+            title: {
+                text: 'Absenteeism Analysis'
+            },
+            xAxis: {
+                categories: chartData.dates,
+                title: {
+                    text: 'Date'
+                }
+            },
+            yAxis: {
+                title: {
+                    text: 'Absentee Count'
+                }
+            },
+            series: [{
+                name: 'Absentee Count',
+                data: chartData.absenteeCounts
+            }]
+        });
+
+        // Function to process data for Highcharts
+        function processDataForHighcharts(data) {
+            // Implement your data processing logic here
+            // This could involve transforming the data or counting absentees for each date
+            // Return an object with dates and corresponding absentee counts
+            // Example: { dates: ['2024-01-01', '2024-01-02'], absenteeCounts: [10, 15] }
+        }
+  
   $(document).ready(function () {
     {% if messages %}
         {% for message in messages %}
