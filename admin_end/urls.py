@@ -1,7 +1,7 @@
 # admin_end/urls.py
 from django.urls import path
 from . import views
-from .views import user_create, user_list, user_update, user_view, shift_list, shift_list, shift_details, shift_create, shift_update, shift_delete, admin_login, login_as, admin_logout, dashboard, deactivate_user, activate_user, admin_notif, leaveappreq_decision, leaveappreq_list, leaveappreq_view, faculty_attendance_record, attendance_notif
+from .views import user_create, user_list, user_list_api, user_update, user_view, shift_list, shift_list, shift_details, shift_create, shift_update, shift_delete, admin_login, login_as, admin_logout, dashboard, deactivate_user, activate_user, admin_notif, leaveappreq_decision, leaveappreq_list, leaveappreq_view, faculty_attendance_record, attendance_notif
 
 
 urlpatterns = [
@@ -9,6 +9,7 @@ urlpatterns = [
     path('admin_notif/', admin_notif, name='admin_notif'),
     path('user_create/', user_create, name='user_create'),
     path('user_list/', user_list, name='user_list'),
+    path('user_list_api/', user_list_api, name='user_list_api'),
     path('user_update/<int:user_id>/', user_update, name='user_update'),
     path('user_view/<int:user_id>/', user_view, name='user_view'),
     path('shift_list/', shift_list, name='shift_list'),

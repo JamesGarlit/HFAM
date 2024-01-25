@@ -70,13 +70,13 @@
                 <li class="nav-item {% if request.path == '/user_list/' %}active{% endif %}">
                     <a class="nav-link" href="{% url 'user_list' %}">
                         <span class="material-symbols-outlined m-1">group</span>
-                        <span class="nav-link-title">Users</span>
+                        <span class="nav-link-title">Accounts</span>
                     </a>
                 </li>
-                <li class="nav-item {% if request.path == '/user_list/' %}active{% endif %}">
-                    <a class="nav-link" href="{% url 'user_list' %}">
+                <li class="nav-item {% if request.path == '/user_list_api/' %}active{% endif %}">
+                    <a class="nav-link" href="{% url 'user_list_api' %}">
                         <span class="material-symbols-outlined m-1">manage_accounts</span>
-                        <span class="nav-link-title">Accounts</span>
+                        <span class="nav-link-title">Users</span>
                     </a>
                 </li>
                 <li class="nav-item {% if request.path == '/shift_list/' %}active{% endif %}">
