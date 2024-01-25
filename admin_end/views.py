@@ -8,8 +8,6 @@ from faculty_end.models import LeaveApplication, TimeIn, TimeOut
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import user_passes_test
 from datetime import datetime, timedelta
-from django.db.models import F, Count
-from django.db.models.functions import ExtractDate
 from django.utils import timezone
 import requests
 
@@ -461,11 +459,3 @@ def attendance_notif(request):
 
     context = {'notifications': notifications}
     return render(request, 'admin_end/attendance_notif.html', context)
-
-def absenteeism_chart(request):
-    # Get the dates where both TimeIn and TimeOut entries are absent
-    absent_dates = TimeIn.objects.filter(status='Absent').exclude(
-        date__in=TimeOut.objects.filter(status='Absent').values('date')
-    ).values('date').annotate(count=Count('date'))
-
-    return render(request, 'dashboard.html', {'absent_dates': absent_dates})
