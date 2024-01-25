@@ -147,7 +147,7 @@ def user_list_api(request):
         # Retrieve local users from the database
         local_users = CustomUser.objects.all()
 
-        return render(request, 'admin_end/user_list.html', {'faculties_from_api': faculties_from_api, 'local_users': local_users})
+        return render(request, 'admin_end/user_list_api.html', {'faculties_from_api': faculties_from_api, 'local_users': local_users})
     
     else:
         print("Failed to fetch data. Status code:", response.status_code)
