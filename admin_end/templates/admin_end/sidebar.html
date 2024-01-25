@@ -55,12 +55,12 @@
                         <span class="nav-link-title">Dashboard</span>
                     </a>
                 </li>
-                <li class="nav-item {% if request.path == '/faculty_attendance_record/' %}active{% endif %}">
+                {% comment %} <li class="nav-item {% if request.path == '/faculty_attendance_record/' %}active{% endif %}">
                     <a class="nav-link" href="{% url 'faculty_attendance_record' %}">
                         <span class="material-symbols-outlined m-1">event_available</span>
                         <span class="nav-link-title">Attendance Records</span>
                     </a>
-                </li>
+                </li> {% endcomment %}
                 <li class="nav-item {% if request.path == '/attendance_notif/' %}active{% endif %}">
                     <a class="nav-link" href="{% url 'attendance_notif' %}">
                         <span class="material-symbols-outlined m-1">notifications</span>

@@ -427,7 +427,7 @@ def faculty_attendance_record(request):
         'faculty_attendance_data': [record for records in faculty_attendance_data.values() for record in records],
     }
 
-    return render(request, 'admin_end/faculty_attendance_record.html', context)
+    return render(request, 'admin_end/dashboard.html', context)
 
 # ---------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
