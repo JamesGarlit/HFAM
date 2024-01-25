@@ -7,12 +7,14 @@ from admin_end.models import CustomUser
 fake = Faker()
 
 class Command(BaseCommand):
-    help = 'Create dummy leave applications for testing purposes.'
+    help = 'Create dummy leave applications for a specific user (ID 1) for testing purposes.'
 
     def handle(self, *args, **options):
+        # Fetch the user with ID 1
+        user = CustomUser.objects.get(id=1)
+
         # Your dummy data creation logic here
-        for _ in range(200):
-            user = CustomUser.objects.order_by('?').first()  # Get a random user
+        for _ in range(20):
             start_date = fake.date_between(start_date='-30d', end_date='today')
             start_time = fake.time()
             end_date = fake.date_between(start_date='today', end_date='+30d')
@@ -37,4 +39,4 @@ class Command(BaseCommand):
             # If you want to add supporting docs, you can do it here
             # leave_application.leave_supporting_docs = ...
 
-        self.stdout.write(self.style.SUCCESS('Successfully created dummy leave applications.'))
+        self.stdout.write(self.style.SUCCESS('Successfully created dummy leave applications for user with ID 1.'))
