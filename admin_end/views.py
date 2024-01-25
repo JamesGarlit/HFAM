@@ -462,8 +462,11 @@ def attendance_notif(request):
 
 def attendance_trends(request):
     # Your logic to fetch attendance data and prepare it for Highcharts
-    # Example: Get attendance data for the last 30 days
-    attendance_data = TimeIn.objects.filter(date__gte=datetime.date.today() - datetime.timedelta(days=30))
+    # Example: Get attendance data for the last 30 days for users with the faculty role
+    attendance_data = TimeIn.objects.filter(
+        date__gte=datetime.date.today() - datetime.timedelta(days=30),
+        user__user_role='faculty'
+    )
 
     # Your logic to prepare data for Highcharts
     # Example: Create a list of dates and corresponding attendance counts
@@ -480,8 +483,11 @@ def attendance_trends(request):
 
 def absenteeism_analysis(request):
     # Your logic to fetch absenteeism data and prepare it for Highcharts
-    # Example: Get faculty members with frequent absences
-    absenteeism_data = TimeIn.objects.filter(status='Absent')
+    # Example: Get faculty members with frequent absences for users with the faculty role
+    absenteeism_data = TimeIn.objects.filter(
+        status='Absent',
+        user__user_role='faculty'
+    )
 
     # Your logic to prepare data for Highcharts
     # Example: Create a list of faculty names and corresponding absence counts
