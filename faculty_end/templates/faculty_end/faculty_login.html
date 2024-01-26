@@ -42,7 +42,7 @@
     <div class="col-12 col-lg-6 col-xl-4 border-top-wide border-primary d-flex flex-column justify-content-center">
       <div class="container container-tight my-5 px-lg-5">
         <div class="text-center mb-4">
-          <a href="." class="navbar-brand navbar-brand-autodark"><img src="{% static '/static/photos/pupqc_logo.png' %}"
+          <a href="." class="navbar-brand navbar-brand-autodark"><img src="{% static 'dist/img/pupqc_logo.png' %}"
               height="100" alt="PUPQC logo"></a>
         </div>
         <h2 class="h3 text-center mb-3 greeting"></h2>
@@ -53,12 +53,12 @@
             <input name="email" type="email" class="form-control" placeholder="your@email.com" autocomplete="off">
           </div>
           <div class="mb-2">
-            <label class="form-label">
+            {% comment %} <label class="form-label">
               Password
               <span class="form-label-description">
                 <a href="./forgot-password.html">I forgot password</a>
               </span>
-            </label>
+            </label> {% endcomment %}
             <div class="input-group input-group-flat">
               <input name="password" type="password" class="form-control" placeholder="Your password"
                 autocomplete="off">
@@ -97,7 +97,7 @@
     </div>
     <div class="col-12 col-lg-6 col-xl-8 d-none d-lg-block">
       <!-- Photo -->
-      <div class="bg-cover h-100 min-vh-100" style="background-image: url({% static './static/photos/pupqc_bg.jpg' %})">
+      <div class="bg-cover h-100 min-vh-100" style="background-image: url({% static '/dist/img/pupqc_bg.jpg' %})">
       </div>
     </div>
   </div>

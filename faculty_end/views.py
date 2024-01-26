@@ -129,9 +129,18 @@ def time_out(request, faculty_shift_id):
 @login_required(login_url='faculty_login')
 @user_passes_test(is_faculty, login_url='error_400')
 def leaveapp_create(request):
+    # Check the number of leave requests made by the user in the current year
+    current_year = datetime.now().year
+    user_leave_count = LeaveApplication.objects.filter(user=request.user, leave_start_date__year=current_year).count()
+
+    # Allow only 5 leave requests per year
+    if user_leave_count >= 3:
+        messages.error(request, 'You have already reached the maximum number of leave requests for this year.')
+        return redirect('leaveapp_list')
+
     if request.method == 'POST':
         # Extract data from the request
-        user = request.user  # Assuming the user is authenticated
+        user = request.user
         leave_start_date = request.POST.get('leave_start_date')
         leave_start_time = request.POST.get('leave_start_time')
         leave_end_date = request.POST.get('leave_end_date')

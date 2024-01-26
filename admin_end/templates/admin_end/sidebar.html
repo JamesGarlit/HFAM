@@ -7,7 +7,7 @@
         </button>
         <h1 class="navbar-brand navbar-brand-autodark">
             <a href=".">
-                <img src="{% static '/static/photos/pupqc_logo.png' %}" width="110" height="32" alt="Tabler"
+                <img src="{% static '/dist/img/pupqc_logo.png' %}" width="110" height="32" alt="Tabler"
                     class="navbar-brand-image">
             </a>
             HFAM
@@ -25,23 +25,21 @@
                 </a> {% endcomment %}
                 {% if request.user.is_authenticated %}
                 <div class="nav-item dropdown">
-                    <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
-                        aria-label="Open user menu">
+                    <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
                         {% if request.user.user_picture %}
-                        <span class="avatar avatar-sm" style="background-image: url()"></span>
+                            <span class="avatar avatar-sm" style="background-image: url({{ request.user.user_picture.url }})"></span>
                         {% else %}
-                        <!-- Provide a default image or placeholder if user_picture is not available -->
-                        <span class="default-avatar border-1"></span>
+                            <!-- Provide a default image or placeholder if user_picture is not available -->
+                            <span class="avatar avatar-sm default-avatar" style="background-image: url({% static '/dist/img/defaultpicture.png' %})"></span>
                         {% endif %}
                         <div class="d-none d-xl-block ps-2">
-                            <div></div>
+                            <div>{{ request.user.get_full_name }}</div>
                         </div>
-                    </a>
+                    </a>                
                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                        <a href="./profile.html" class="dropdown-item">Profile</a>
-                        <a href="./settings.html" class="dropdown-item">Settings</a>
+                        <a href="{% url 'account_settings' %}" class="dropdown-item">Settings</a>
                         <div class="dropdown-divider"></div>
-                        <a href="{% url 'admin_logout' %}" class="dropdown-item">Logout</a>
+                        <a href="{% url 'faculty_logout' %}" class="dropdown-item">Logout</a>
                     </div>
                 </div>
                 {% endif %}

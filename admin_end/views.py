@@ -108,7 +108,6 @@ def user_update(request, user_id):
 @user_passes_test(is_superadmin, login_url='admin_login')
 @login_required(login_url='admin_login')
 def user_list_api(request):
-    # Your API endpoint
     api_url = 'https://pupqcfis-com.onrender.com/api/all/FISFaculty'
 
     # Make a GET request to the API
@@ -370,7 +369,7 @@ def leaveappreq_decision(request, leave_id):
         # Notify faculty about the decision
         # (You may want to implement a notification mechanism)
 
-        messages.success(request, f'Leave application {decision}ed successfully.')
+        messages.success(request, f'Leave application {decision} successfully.')
         return redirect('leaveappreq_list')
 
     # Check if a decision has been made
@@ -501,3 +500,63 @@ def absenteeism_analysis(request):
     ]
 
     return render(request, 'admin_end/dashboard.html', {'faculty_names': faculty_names, 'absence_counts': absence_counts})
+
+def dashboard(request):
+    # Get current date
+    current_date = timezone.now().date()
+
+    # Query TimeIn and TimeOut models for the current day
+    time_in_entries = TimeIn.objects.filter(date=current_date)
+    time_out_entries = TimeOut.objects.filter(date=current_date)
+
+    # Initialize an empty list to store faculty members who marked time
+    faculty_members = []
+
+    # Iterate through TimeIn entries and filter faculty members
+    for time_in_entry in time_in_entries:
+        if time_in_entry.user.user_role == 'faculty':
+            faculty_member = time_in_entry.user
+            if faculty_member not in faculty_members:
+                faculty_members.append(faculty_member)
+
+    # Iterate through TimeOut entries and filter faculty members
+    for time_out_entry in time_out_entries:
+        if time_out_entry.user.user_role == 'faculty':
+            faculty_member = time_out_entry.user
+            if faculty_member not in faculty_members:
+                faculty_members.append(faculty_member)
+
+    # Prepare data to pass to the template
+    data = []
+    for faculty_member in faculty_members:
+        time_in_entry = TimeIn.objects.filter(user=faculty_member, date=current_date).first()
+        time_out_entry = TimeOut.objects.filter(user=faculty_member, date=current_date).first()
+
+        # Separate Time In entry
+        if time_in_entry:
+            data.append({
+                'faculty_member': faculty_member,
+                'user_picture': faculty_member.user_picture.url if faculty_member.user_picture else None,
+                'time_in': time_in_entry.time_in,
+                'time_in_status': time_in_entry.status,
+                'time_in_location': time_in_entry.location,
+                'time_out': None,
+                'time_out_status': None,
+                'time_out_location': None,
+            })
+
+        # Separate Time Out entry
+        if time_out_entry:
+            data.append({
+                'faculty_member': faculty_member,
+                'user_picture': faculty_member.user_picture.url if faculty_member.user_picture else None,
+                'time_in': None,
+                'time_in_status': None,
+                'time_in_location': None,
+                'time_out': time_out_entry.time_out,
+                'time_out_status': time_out_entry.status,
+                'time_out_location': time_out_entry.location,
+            })
+
+    # Render the template with the data
+    return render(request, 'admin_end/dashboard.html', {'data': data, 'current_date': current_date})
