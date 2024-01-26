@@ -7,7 +7,6 @@ from django.contrib.auth import authenticate, login, logout
 from admin_end.models import FacultyShift
 from datetime import datetime, timedelta
 from django.contrib.auth import update_session_auth_hash
-from django.contrib.auth.hashers import make_password
 import requests
 
 def is_faculty(user):
@@ -321,22 +320,29 @@ def notif(request):
 @user_passes_test(is_faculty, login_url='error_400')
 def change_password(request):
     if request.method == 'POST':
-        current_password = request.POST.get('current_password')
-        new_password = request.POST.get('new_password')
-        confirm_current_password = request.POST.get('confirm_current_password')
+        old_password = request.POST.get('old_password')
+        password = request.POST.get('password')
+        repassword = request.POST.get('repassword')
 
-        # Check if the current password is correct
-        if request.user.check_password(current_password):
-            # Update the user's password
-            request.user.set_password(new_password)
-            request.user.save()
-
-            # Update the session to prevent the user from being logged out
-            update_session_auth_hash(request, request.user)
-
-            messages.success(request, 'Your password was successfully updated!')
+        # Check if the old password is correct
+        if not request.user.check_password(old_password):
+            messages.error(request, 'Incorrect old password.')
             return redirect('account_settings')
-        else:
-            messages.error(request, 'Current password is incorrect.')
 
-    return render(request, 'faculty_end/account_settings.html')
+        # Check if the new passwords match
+        if password != repassword:
+            messages.error(request, 'New passwords do not match.')
+            return redirect('account_settings')
+
+        # Update the user's password
+        request.user.set_password(password)
+        request.user.save()
+
+        # Update the session to avoid logout
+        update_session_auth_hash(request, request.user)
+
+        messages.success(request, 'Your password was successfully updated!')
+        return redirect('account_settings')
+    else:
+        messages.error(request, 'Invalid request method.')
+        return redirect('faculty_end/account_settings')

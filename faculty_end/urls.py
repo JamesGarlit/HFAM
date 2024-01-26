@@ -14,7 +14,7 @@ urlpatterns = [
     path('time_out/<int:faculty_shift_id>/', time_out, name='time_out'),
     path('notif/', notif, name='notif'),
     path('account_settings/', account_settings, name='account_settings'),
-    path('account_settings/', change_password, name='change_password'),
+    path('change_password/', change_password, name='change_password'),
     path('error_400/', error_400, name='error_400'),
 
 

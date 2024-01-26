@@ -32,12 +32,12 @@
                                     <span class="avatar avatar-xl" style="background-image: url({% static '/static/photos/defaultpicture.png' %})"></span>
                                 {% endif %}
                             </div>
-                            <div class="col-auto"><a href="#" class="btn">
+                            {% comment %} <div class="col-auto"><a href="#" class="btn">
                                     Change avatar
                                 </a></div>
                             <div class="col-auto"><a href="#" class="btn btn-ghost-danger">
                                     Delete avatar
-                                </a></div>
+                                </a></div> {% endcomment %}
                         </div>
                         <div class="row g-3 mt-4">
                             <div class="col-md">
@@ -64,37 +64,34 @@
                             </div>
                         </div>
                         <h3 class="card-title mt-4">Password</h3>
-                        <p class="card-subtitle">You can set a permanent password if you don't want to use temporary
-                            login codes.</p>
+                        <p class="card-subtitle">If you forgot your password, please contact the administrator.</p>
                         <div>
                             <form method="post" action="{% url 'change_password' %}" onsubmit="validateForm()">
                                 {% csrf_token %}
                                 <div class="row mt-1">
                                     <div class="col-lg-5 col-md-5 col-sm-12">
-                                        <div class="form-label">New Password</div>
-                                        <input name="current_password" type="password" class="form-control" id="" value="">
+                                        <div class="form-label">Current Password</div>
+                                        <input name="old_password" type="password" class="form-control" required>
                                     </div>
                                 </div>
                                 <div class="row mt-1">
                                     <div class="col-lg-5 col-md-5 col-sm-12">
                                         <div class="form-label">New Password</div>
-                                        <input name="new_password" type="password" class="form-control" id="password" value="" required>
+                                        <input name="password" type="password" class="form-control" required>
                                     </div>
                                 </div>
                                 <div class="row mt-1">
                                     <div class="col-lg-5 col-md-5 col-sm-12">
                                         <div class="form-label">Confirm New Password</div>
-                                        <input name="confirm_current_password" type="password" class="form-control" id="confirmPassword" value="" required>
+                                        <input name="repassword" type="password" class="form-control" required>
                                     </div>
                                 </div>
                                 <div class="row mt-1">
                                     <div class="col-lg-5 col-md-5 col-sm-12">
-                                        <button type="submit" class="btn btn-primary">
-                                            Submit
-                                        </button>
+                                        <button type="submit" class="btn btn-primary">Submit</button>
                                     </div>
                                 </div>
-                            </form>
+                            </form>                            
                         </div>
                     </div>
                 </div>
