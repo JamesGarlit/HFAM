@@ -7,8 +7,9 @@ from .forms import FacultyShiftForm
 from faculty_end.models import LeaveApplication, TimeIn, TimeOut
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import user_passes_test
-from datetime import datetime, timedelta
+from datetime import datetime
 from django.utils import timezone
+from django.db.models import Count
 import requests
 
 def is_superadmin(user):
@@ -16,11 +17,6 @@ def is_superadmin(user):
 
 def is_admin(user):
     return user.is_authenticated and user.groups.filter(name='admin').exists()
-
-@user_passes_test(is_superadmin, login_url='admin_login')
-@login_required(login_url='admin_login')
-def dashboard(request):
-    return render(request,'admin_end/dashboard.html')
 
 @user_passes_test(is_superadmin, login_url='admin_login')
 @login_required(login_url='admin_login')
@@ -142,11 +138,8 @@ def user_list_api(request):
             }
 
             faculties_from_api.append(faculty_data)
-        
-        # Retrieve local users from the database
-        local_users = CustomUser.objects.all()
 
-        return render(request, 'admin_end/user_list_api.html', {'faculties_from_api': faculties_from_api, 'local_users': local_users})
+        return render(request, 'admin_end/user_list_api.html', {'faculties_from_api': faculties_from_api})
     
     else:
         print("Failed to fetch data. Status code:", response.status_code)
@@ -560,3 +553,22 @@ def dashboard(request):
 
     # Render the template with the data
     return render(request, 'admin_end/dashboard.html', {'data': data, 'current_date': current_date})
+
+def dashboard(request):
+    # Assuming 'faculty' is the role you are considering for faculty members
+    faculty_users = CustomUser.objects.filter(user_role='faculty')
+
+    # Retrieve top 20 users with the most absent records (both in time in and time out)
+    top_late_users = []
+    for user in faculty_users:
+        absences_count = TimeIn.objects.filter(user=user, status='Absent').count() + TimeOut.objects.filter(user=user, status='Absent').count()
+        top_late_users.append({'user': user, 'absences_count': absences_count})
+
+    # Sort the users based on the number of absences in descending order
+    top_late_users.sort(key=lambda x: x['absences_count'], reverse=True)
+    
+    # Take only the top 20 users
+    top_late_users = top_late_users[:15]
+
+    context = {'top_late_users': top_late_users}
+    return render(request, 'admin_end/dashboard.html', context)

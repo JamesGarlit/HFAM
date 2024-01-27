@@ -21,27 +21,37 @@
 <div class="page-body">
   <div class="container-xl">
     <div class="row row-cards">
-      <div class="col-lg-6 col-xl-4">
+      <div class="col-lg-12 col-md-12 col-sm-12">
         <div class="card">
           <div class="card-body">
-            <div id="chart-demo-pie"></div>
+            <div id="topLateChart"></div>
           </div>
         </div>
       </div>
-      <div class="col-lg-6 col-xl-4">
+      {% comment %} <div class="col-lg-6 col-xl-4">
         <div class="card">
           <div class="card-body">
-            <div id="chart-completion-tasks-2"></div>
+            <div id="datatable" style="display: none;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Absences Count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for user_data in top_late_users %}
+                    <tr>
+                      <td>{{ user_data.user.user_firstname }} {{ user_data.user.user_lastname }}</td>
+                      <td>{{ user_data.absences_count }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="col-lg-6 col-xl-4">
-        <div class="card">
-          <div class="card-body">
-            <div id="chart-completion-tasks"></div>
-          </div>
-        </div>
-      </div>
+      </div> {% endcomment %}
     </div>
     <div class="row mt-2">
       <div class="col-lg-12 col-md-12 col-sm-12">
@@ -65,7 +75,7 @@
                             {% if entry.user_picture %}
                                 <img src="{{ entry.user_picture }}" alt="{{ entry.faculty_member.get_full_name }} Picture" width="50" height="50">
                             {% else %}
-                                No Picture
+                            <span class="material-symbols-outlined">account_circle</span>
                             {% endif %}
                           </td>
                           <td>{{ entry.faculty_member.get_full_name }}</td>
@@ -135,13 +145,6 @@
           dom: 'Bfrtlip',
           buttons: [
               {
-                  extend: 'copy',
-                  title: 'Attendance Record - ' + new Date().toLocaleDateString(),
-                  exportOptions: {
-                      columns: ':visible'
-                  }
-              },
-              {
                   extend: 'print',
                   title: 'Attendance Record - ' + new Date().toLocaleDateString(),
                   exportOptions: {
@@ -194,47 +197,9 @@
                   }
               });
           }
-      });
-    });    
-  document.addEventListener('DOMContentLoaded', function () {
-    Highcharts.chart('attendance-trends-chart', {
-      title: {
-        text: 'Attendance Trends'
-      },
-      xAxis: {
-        categories: {{ dates| safe }}
-        },
-    yAxis: {
-    title: {
-      text: 'Attendance Count'
-    }
-  },
-    series: [{
-      name: 'Attendance',
-      data: {{ attendance_counts| safe }}
-        }]
-    });
-});
+        });
+      });    
 
-  document.addEventListener('DOMContentLoaded', function () {
-    Highcharts.chart('absenteeism-analysis-chart', {
-      title: {
-        text: 'Absenteeism Analysis'
-      },
-      xAxis: {
-        categories: {{ faculty_names| safe }}
-      },
-    yAxis: {
-    title: {
-      text: 'Absence Count'
-    }
-  },
-    series: [{
-      name: 'Absence',
-      data: {{ absence_counts| safe }}
-      }]
-  });
-});
   $(document).ready(function () {
     {% if messages %}
     {% for message in messages %}

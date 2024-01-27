@@ -1,6 +1,6 @@
 # admin_end/urls.py
 from django.urls import path
-from .views import attendance_trends, absenteeism_analysis, user_create, user_list, user_list_api, user_update, user_view, shift_list, shift_list, shift_details, shift_create, shift_update, shift_delete, admin_login, login_as, admin_logout, dashboard, deactivate_user, activate_user, admin_notif, leaveappreq_decision, leaveappreq_list, leaveappreq_view, faculty_attendance_record, attendance_notif
+from .views import absenteeism_analysis, user_create, user_list, user_list_api, user_update, user_view, shift_list, shift_list, shift_details, shift_create, shift_update, shift_delete, admin_login, login_as, admin_logout, dashboard, deactivate_user, activate_user, admin_notif, leaveappreq_decision, leaveappreq_list, leaveappreq_view, faculty_attendance_record, attendance_notif
 
 
 urlpatterns = [
@@ -26,7 +26,5 @@ urlpatterns = [
     path('leaveappreq_decision/<int:leave_id>/', leaveappreq_decision, name='leaveappreq_decision'),
     path('faculty_attendance_record/', faculty_attendance_record, name='faculty_attendance_record'),
     path('attendance_notif/', attendance_notif, name='attendance_notif'),
-    path('dashboard/', attendance_trends, name='attendance_trends'),
     path('dashboard/', absenteeism_analysis, name='absenteeism_analysis'),
-    path('dashboard/', dashboard, name='dashboard'),
 ]
