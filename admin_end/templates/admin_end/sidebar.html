@@ -77,6 +77,12 @@
                         <span class="nav-link-title">Users</span>
                     </a>
                 </li>
+                <li class="nav-item {% if request.path == '/schedule_api/' %}active{% endif %}">
+                    <a class="nav-link" href="{% url 'schedule_api' %}">
+                        <span class="material-symbols-outlined m-1">schedule</span>
+                        <span class="nav-link-title">Schedule</span>
+                    </a>
+                </li>
                 <li class="nav-item {% if request.path == '/shift_list/' %}active{% endif %}">
                     <a class="nav-link" href="{% url 'shift_list' %}">
                         <span class="material-symbols-outlined m-1">schedule</span>

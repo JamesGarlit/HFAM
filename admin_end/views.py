@@ -9,7 +9,9 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import user_passes_test
 from datetime import datetime
 from django.utils import timezone
-from django.db.models import Count
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
 import requests
 
 def is_superadmin(user):
@@ -572,3 +574,49 @@ def dashboard(request):
 
     context = {'top_late_users': top_late_users}
     return render(request, 'admin_end/dashboard.html', context)
+
+def schedule_api(request):
+    api_url = "https://schedulerserver-6e565d991c10.herokuapp.com/facultyloadings/getfacultyloading"
+    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJpbnRlZ3JhdGlvbkBnbWFpbC5jb20iLCJ1c2VydHlwZSI6InN0YWZmIiwiZXhwIjoxNzA4NzA1Mjc5fQ.vBx_831N2vKXv913WShd4TmX_olT-XuHm7DNfTov2bI"
+
+    headers = {
+        'Authorization': f'Bearer {token}',
+        # Add any other headers if required
+    }
+
+    try:
+        response = requests.get(api_url, headers=headers)
+
+        # Check if the request was successful (status code 200)
+        if response.status_code == 200:
+            data = response.json()
+
+            # Process the API response data
+            schedule_data = []
+            for entry in data['data']:
+                schedule_info = {
+                    'Faculty_Name': entry['facultyname'],
+                    'Faculty_Status': entry['facultystatus'],
+                    'Rank': entry['rank'],
+                    'Course_Code': entry['course_code'],
+                    'Course_Description': entry['course_description'],
+                    'Units': entry['units'],
+                    'Lecture': entry['lec'],
+                    'Lab': entry['lab'],
+                    'Class_Name': entry['classname'],
+                    'Schedule': entry['schedule'],
+                    'Room_Name': entry['roomname'],
+                    'Created At': entry['created_at'],
+                    'Created By': entry['created_by'],
+                }
+
+                schedule_data.append(schedule_info)
+
+            return render(request, 'admin_end/schedule_api.html', {'schedule_data': schedule_data})
+        else:
+            # Handle other status codes appropriately
+            return JsonResponse({'error': f'Request failed with status code {response.status_code}'}, status=response.status_code)
+
+    except requests.exceptions.RequestException as e:
+        # Handle any exceptions that may occur during the request
+        return JsonResponse({'error': f'Request failed: {str(e)}'}, status=500)

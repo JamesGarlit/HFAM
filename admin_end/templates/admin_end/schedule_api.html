@@ -22,70 +22,40 @@
     <div class="container-xl">
         <div class="card">
             <div class="card-body">
-                <table id="userList" class="table table-striped display" style="width:100%">
+                <table id="schedule" class="table table-striped display" style="width:100%">
                     <thead>
                         <tr>
-                            <th>Full Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
+                            <th>Faculty Name</th>
+                            <th>Faculty Status</th>
+                            <th>Rank</th>
+                            <th>Course Code</th>
+                            <th>Course Description</th>
+                            <th>Units</th>
+                            <th>Lecture</th>
+                            <th>Lab</th>
+                            <th>Class Name</th>
+                            <th>Schedule</th>
+                            <th>Room Name</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% if faculties_from_api %}
-                        <tr>
-                            {% for faculty in faculties_from_api %}
-                            <td>{{ faculty.FirstName }} {{ faculty.MiddleName }} {{ faculty.LastName }} {{ faculty.NameExtension }}</td>
-                            <td>{{ faculty.Email }}</td>
-                            <td>{{ faculty.FacultyType }}</td>
-                        </tr>
+                        {% for entry in schedule_data %}
+                            <tr>
+                                <td>{{ entry.Faculty_Name }}</td>
+                                <td>{{ entry.Faculty_Status }}</td>
+                                <td>{{ entry.Rank }}</td>
+                                <td>{{ entry.Course_Code }}</td>
+                                <td>{{ entry.Course_Description }}</td>
+                                <td>{{ entry.Units }}</td>
+                                <td>{{ entry.Lecture }}</td>
+                                <td>{{ entry.Lab }}</td>
+                                <td>{{ entry.Class_Name }}</td>
+                                <td>{{ entry.Schedule }}</td>
+                                <td>{{ entry.Room_Name }}</td>
+                            </tr>
                         {% endfor %}
-                        {% else %}
-                            <p>No data from the API.</p>
-                        {% endif %}
                     </tbody>
                 </table>
-                {% if error %}
-    <p>{{ error }}</p>
-{% else %}
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Acadyear ID</th>
-                <th>Semester ID</th>
-                <th>Faculty Name</th>
-                <th>Faculty Status</th>
-                <th>Rank</th>
-                <th>Course Code</th>
-                <th>Course Description</th>
-                <th>Units</th>
-                <th>Lecture</th>
-                <th>Lab</th>
-                <th>Class Name</th>
-                <th>Schedule</th>
-                <th>Room Name</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in data %}
-                <tr>
-                    <td>{{ item.acadyear_id }}</td>
-                    <td>{{ item.semester_id }}</td>
-                    <td>{{ item.facultyname }}</td>
-                    <td>{{ item.facultystatus }}</td>
-                    <td>{{ item.rank }}</td>
-                    <td>{{ item.course_code }}</td>
-                    <td>{{ item.course_description }}</td>
-                    <td>{{ item.units }}</td>
-                    <td>{{ item.lec }}</td>
-                    <td>{{ item.lab }}</td>
-                    <td>{{ item.classname }}</td>
-                    <td>{{ item.schedule }}</td>
-                    <td>{{ item.roomname }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-{% endif %}
             </div>
         </div>
     </div>
@@ -103,9 +73,9 @@
 <script>
     $(document).ready(function() {
         // Setup - add a text input to each footer cell
-        $('#userList thead tr').clone(true).addClass('filters').appendTo('#userList thead');
+        $('#schedule thead tr').clone(true).addClass('filters').appendTo('#schedule thead');
     
-        var table = $('#userList').DataTable({
+        var table = $('#schedule').DataTable({
             scrollCollapse: true,
             orderCellsTop: true,
             fixedHeader: true,
