@@ -1,0 +1,225 @@
+{% extends "admin_end/base.html" %}
+{% load static %}
+{% block content %}
+<!-- Page header -->
+<div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">
+                    Overview
+                </div>
+                <h2 class="page-title">
+                    Users
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Page body -->
+<div class="page-body">
+    <div class="container-xl">
+        <div class="row justify-content-center">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <form class="needs-validation card" novalidate id="userForm" method="post" action="{% url 'create_faculty_account' faculty_id=faculty_id %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="" class="form-label">Picture</label>
+                                    <input name="user_picture" type="file" class="form-control" id="" value="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="" class="form-label required">Faculty ID</label>
+                                    <input name="faculty_id" type="text" class="form-control" id="" value="{{ faculty_id }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="" class="form-label required">First Name</label>
+                                    <input name="user_firstname" type="text" class="form-control" id="" value="{{ user_firstname }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="" class="form-label">Middle Name</label>
+                                    <input name="user_middlename" type="text" class="form-control" id="" value="{{ user_middlename }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="" class="form-label required">Last Name</label>
+                                    <input name="user_lastname" type="text" class="form-control" id="" value="{{ user_lastname }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="" class="form-label">Extension Name</label>
+                                    <input name="extension_name" type="text" class="form-control" id="" value="{{ extension_name }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="" class="form-label required">Employment Status</label>
+                                    <input name="employment_status" type="text" class="form-control" id="" value="{{ employment_status }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label class="form-label required">Role</label>
+                                    <select name="user_role" class="form-select" id="" required>
+                                        <option value="superadmin">Super Admin</option>
+                                        <option value="admin">Admin</option>
+                                        <option selected value="faculty">Faculty</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label required">Email</label>
+                                    <input type="email" name="email" class="form-control" placeholder="name@gmail.com" value="{{ email }}" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="password" class="form-label required">Password</label>
+                                    <div class="input-group input-group-flat">
+                                        <input name="password" type="password" id="password" class="form-control" placeholder="Enter password" data-v-min-length="8" data-v-max-length="18" required>
+                                        <span class="input-group-text">
+                                            <a href="#" class="link-secondary" title="Show password" data-bs-toggle="tooltip">
+                                                <!-- Download SVG icon from http://tabler-icons.io/i/eye -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                                                    stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                                                    <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
+                                                </svg>
+                                            </a>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="confirmPassword" class="form-label required">Confirm Password</label>
+                                    <div class="input-group input-group-flat">
+                                        <input type="password" name="confirmPassword" data-v-equal="#password" class="form-control" id="confirmPassword" placeholder="Enter confirm password" required>
+                                        <span class="input-group-text">
+                                            <a href="#" class="link-secondary" title="Show password" data-bs-toggle="tooltip">
+                                                <!-- Download SVG icon from http://tabler-icons.io/i/eye -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                                                    stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                                                    <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
+                                                </svg>
+                                            </a>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>                        
+                        <div class="card-footer text-center">
+                            <div class="d-flex justify-content-center">
+                                <button type="submit" class="btn btn-primary w-100">Submit</button>
+                            </div>
+                        </div>                        
+                    </div>
+                    <!-- Add the submit button -->
+                    {% comment %} <button type="submit" class="btn btn-primary mt-1">Submit</button> {% endcomment %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% block css %}
+<!-- Include external CSS stylesheets -->
+
+<!-- Additional CSS for the specific page -->
+<style>
+
+</style>
+
+{% comment %} Include external JavaScript libraries {% endcomment %}
+{% endblock %}
+
+{% block javascript %}
+<script src="https://cdn.jsdelivr.net/npm/@emretulek/jbvalidator" defer></script>
+
+{% comment %} specific js {% endcomment %}
+<script>
+    $(function () {
+
+        let validator = $('form.needs-validation').jbvalidator({
+            errorMessage: true,
+            successClass: true,
+            language: "https://emretulek.github.io/jbvalidator/dist/lang/en.json"
+        });
+
+        validator.validator.custom = function(el, event) {
+            if ($(el).is('[name=password]')) {
+              var password = $(el).val();
+          
+              // Check if password length is less than 5
+              if (password.length < 8) {
+                return 'Your password is too weak. It should be at least 8 characters long.';
+              }
+          
+              // Check if the password contains at least one letter and one character
+              var letterRegex = /[a-zA-Z]/;
+              var characterRegex = /[!@#$%^&*(),.?":{}|<>]/;
+          
+              if (!letterRegex.test(password) || !characterRegex.test(password)) {
+                return 'Your password should contain at least one capital letter and one special character.';
+              }
+            }
+          };  
+    })
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var passwordInput = document.querySelector('input[name="password"]');
+        var confirmPasswordInput = document.querySelector('input[name="confirmPassword"]');
+        var showPasswordButtons = document.querySelectorAll('.link-secondary');
+    
+        showPasswordButtons.forEach(function (button) {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+    
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    confirmPasswordInput.type = 'text';
+                } else {
+                    passwordInput.type = 'password';
+                    confirmPasswordInput.type = 'password';
+                }
+            });
+        });
+    });
+    
+</script>
+{% endblock %}
+{% endblock %}

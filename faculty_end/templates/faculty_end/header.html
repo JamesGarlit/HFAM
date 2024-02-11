@@ -43,10 +43,10 @@
                         <span class="avatar avatar-sm" style="background-image: url({{ request.user.user_picture.url }})"></span>
                     {% else %}
                         <!-- Provide a default image or placeholder if user_picture is not available -->
-                        <span class="avatar avatar-sm default-avatar" style="background-image: url({% static '/dist/img/defaultpicture.png' %})"></span>
+                        <span class="avatar avatar-sm default-avatar" style="background-image: url({% static '/dist/img/defaultPicture.png' %})"></span>
                     {% endif %}
                     <div class="d-none d-xl-block ps-2">
-                        <div>{{ request.user.get_full_name }}</div>
+                        <div>{{ request.user.user_firstname }} {{ request.user.user_middlename }} {{ request.user.user_lastname }} {{ request.user.user_extension_name }}</div>
                     </div>
                 </a>                
                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">

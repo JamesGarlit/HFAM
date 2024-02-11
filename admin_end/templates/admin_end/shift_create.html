@@ -20,16 +20,82 @@
 <!-- Page body -->
 <div class="page-body">
     <div class="container-xl">
-        <form method="post" action="{% url 'shift_create' user_id=faculty_user.id %}" class="card">
+        <form class="card" method="post" action="{% url 'shift_create' %}">
             {% csrf_token %}
             <div class="card-header">
-                <h3 class="card-title">Shift Information form</h3>
+                <h3 class="card-title">Basic form</h3>
             </div>
             <div class="card-body">
-                {{ form.as_p }}
+                <div class="row">
+                    <div class="col">
+                        <label class="form-label required">Academic Year Start</label>
+                        <div>
+                            <select name="year_start" class="form-select">
+                                <option value="">Year</option>
+                                <option value="2024">2024</option>
+                                <option value="2023">2023</option>
+                                <option value="2022">2022</option>
+                                <option value="2021">2021</option>
+                                <option value="2020">2020</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label class="form-label required">Academic Year End</label>
+                        <div>
+                            <select name="year_end" class="form-select">
+                                <option value="">Year</option>
+                                <option value="2024">2024</option>
+                                <option value="2023">2023</option>
+                                <option value="2022">2022</option>
+                                <option value="2021">2021</option>
+                                <option value="2020">2020</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label class="form-label required">Semester</label>
+                        <div>
+                            <select name="semester_name" class="form-select">
+                                <option value="">Semester</option>
+                                <option value="First Semester">First Semester</option>
+                                <option value="Second Semester">Second Semester</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col">
+                        <label class="form-label required">Shift Start</label>
+                        <div>
+                            <input name="shift_start" type="time" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label class="form-label required">Shift End</label>
+                        <div>
+                            <input name="shift_end" type="time" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label class="form-label required">Shift Day</label>
+                        <div>
+                            <select name="shift_day" class="form-select">
+                                <option value="">Day</option>
+                                <option value="Monday">Monday</option>
+                                <option value="Tuesday">Tuesday</option>
+                                <option value="Wednesday">Wednesday</option>
+                                <option value="Thursday">Thursday</option>
+                                <option value="Friday">Friday</option>
+                                <option value="Saturday">Saturday</option>
+                                <option value="Sunday">Sunday</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="card-footer text-end">
-                <button type="submit" class="btn btn-primary">Submit</button>
+            <div class="card-footer text-center">
+                <button type="submit" class="btn btn-primary w-100">Submit</button>
             </div>
         </form>
     </div>

@@ -22,83 +22,104 @@
   <div class="container-xl">
     <div class="row justify-content-center">
       <div class="col-lg-12 col-md-12 col-sm-12">
-        <form id="userForm" method="post" action="{% url 'user_update' user.id %}" enctype="multipart/form-data" onsubmit="validateForm()">
+        <form class="card needs-validation" id="userForm" method="post" action="{% url 'user_update' user.id %}" enctype="multipart/form-data" novalidate>
           {% csrf_token %}
-          <div class="row">
-            <div class="col">
-              <div class="form-floating mb-1">
-                <input name="user_picture" type="file" class="form-control" id="" value="">
-                <label for="">Picture</label>
+          <div class="card-body">
+            <div class="row">
+              <div class="col">
+                <div class="mb-3">
+                  <label for="" class="form-label required">Picture</label>
+                  <input name="user_picture" type="file" class="form-control" id="" value="">
+                </div>
               </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              <div class="form-floating mb-1">
-                <input name="user_firstname" type="text" class="form-control" id="" value="{{ user.user_firstname }}" required>
-                <label for="">First Name</label>
+            <div class="row">
+              <div class="col">
+                <div class="mb-3">
+                  <label for="" class="form-label required">First Name</label>
+                  <input name="user_firstname" type="text" class="form-control" id="" value="{{ user.user_firstname }}" required>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              <div class="form-floating mb-1">
-                <input name="user_lastname" type="text" class="form-control" id="" value="{{ user.user_lastname }}" required>
-                <label for="">Last Name</label>
+            <div class="row">
+              <div class="col">
+                <div class="mb-3">
+                  <label for="" class="form-label required">Middle Name</label>
+                  <input name="user_middlename" type="text" class="form-control" id="" value="{{ user.user_lastname }}" required>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              <div class="form-floating mb-1">
-                <select name="employment_status" class="form-select" id="" required>
-                  <option selected disabled>Open this select menu</option>
-                  <option value="Part-Time" {% if user.employment_status == 'Part-Time' %}selected{% endif %}>Part-time</option>
-                  <option value="Full-Time" {% if user.employment_status == 'Full-Time' %}selected{% endif %}>Full-Time</option>
-                </select>
-                <label for="floatingSelect">Employment Status</label>
+            <div class="row">
+              <div class="col">
+                <div class="mb-3">
+                  <label for="" class="form-label required">Last Name</label>
+                  <input name="user_lastname" type="text" class="form-control" id="" value="{{ user.user_firstname }}" required>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              <div class="form-floating mb-1">
-                <select name="user_role" class="form-select" id="" required>
-                  <option selected disabled>Open this select menu</option>
-                  <option value="superadmin" {% if user.user_role == 'superadmin' %}selected{% endif %}>Super Admin</option>
-                  <option value="admin" {% if user.user_role == 'admin' %}selected{% endif %}>Admin</option>
-                  <option value="faculty" {% if user.user_role == 'faculty' %}selected{% endif %}>Faculty</option>
-                </select>
-                <label for="floatingSelect">Role</label>
+            <div class="row">
+              <div class="col">
+                <div class="mb-3">
+                  <label for="" class="form-label required">Extension Name</label>
+                  <input name="extension_name" type="text" class="form-control" id="" value="{{ user.user_firstname }}" required>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              <div class="form-floating mb-1">
-                <input name="email" type="email" class="form-control" id="" value="{{ user.email }}" required>
-                <label for="">Email Address</label>
+            <div class="row">
+              <div class="col">
+                <div class="mb-3">
+                  <labelclass="form-label required">Employment Status</label>
+                  <select name="employment_status" class="form-select" id="" required>
+                    <option selected disabled>Open this select menu</option>
+                    <option value="Part Time" {% if user.employment_status == 'Part Time' %}selected{% endif %}>Part Time</option>
+                    <option value="Full Time" {% if user.employment_status == 'Full Time' %}selected{% endif %}>Full Time</option>
+                  </select>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              <div class="form-floating mb-1">
-                <input name="password" type="password" class="form-control" id="password" value="">
-                <label for="">Password</label>
+            <div class="row">
+              <div class="col">
+                <div class="mb-3">
+                  <label class="form-label required">Role</label>
+                  <select name="user_role" class="form-select" id="" required>
+                    <option selected disabled>Open this select menu</option>
+                    <option value="superadmin" {% if user.user_role == 'superadmin' %}selected{% endif %}>Super Admin</option>
+                    <option value="admin" {% if user.user_role == 'admin' %}selected{% endif %}>Admin</option>
+                    <option value="faculty" {% if user.user_role == 'faculty' %}selected{% endif %}>Faculty</option>
+                  </select>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              <div class="form-floating mb-1">
-                <input name="password" type="password" class="form-control" id="confirmPassword" value="">
-                <label for="">Password</label>
+            <div class="row">
+              <div class="col">
+                <div class="mb-3">
+                  <label for="" class="form-label required">Email Address</label>
+                  <input name="email" type="email" class="form-control" id="" value="{{ user.email }}" required>
+                </div>
               </div>
             </div>
+            <div class="row">
+              <div class="col">
+                <div class="mb-3">
+                  <label for="" class="form-label">Password</label>
+                  <input name="password" type="password" class="form-control" id="password" value="">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="mb-3">
+                  <label for="" class="form-label">Confirm Password</label>
+                  <input name="password" type="password" class="form-control" data-v-equal="#password" value="">
+                </div>
+              </div>
+            </div>
+            <div class="card-footer text-center">
+              <div class="d-flex justify-content-center">
+                  <button type="submit" class="btn btn-primary w-100">Submit</button>
+            </div>
+          </div>   
           </div>
-          <!-- Add the submit button -->
-          <button type="submit" class="btn btn-primary">Submit</button>
         </form>
       </div>
     </div>
@@ -116,18 +137,38 @@
 {% endblock %}
 
 {% block javascript %}
-
+<script src="https://cdn.jsdelivr.net/npm/@emretulek/jbvalidator" defer></script>
 {% comment %} specific js {% endcomment %}
 <script>
-  function validateForm() {
-    var password = document.getElementById("password").value;
-    var confirmPassword = document.getElementById("confirmPassword").value;
+  $(function () {
+      let validator = $('form.needs-validation').jbvalidator({
+          errorMessage: true,
+          successClass: true,
+          language: "https://emretulek.github.io/jbvalidator/dist/lang/en.json"
+      });
 
-    if (password !== confirmPassword) {
-      alert("Passwords do not match. Please try again.");
-      event.preventDefault(); // Prevent form submission
-    }
-  }
+      validator.validator.custom = function(el, event) {
+          if ($(el).is('[name=password]')) {
+              var password = $(el).val();
+
+              // Check if the password is not empty
+              if (password.trim() !== "") {
+                  // Check if password length is less than 8
+                  if (password.length < 8) {
+                      return 'Your password is too weak. It should be at least 8 characters long.';
+                  }
+
+                  // Check if the password contains at least one letter and one special character
+                  var letterRegex = /[a-zA-Z]/;
+                  var characterRegex = /[!@#$%^&*(),.?":{}|<>]/;
+
+                  if (!letterRegex.test(password) || !characterRegex.test(password)) {
+                      return 'Your password should contain at least one letter and one special character.';
+                  }
+              }
+          }
+      };
+  });
 </script>
 {% endblock %}
 {% endblock %}

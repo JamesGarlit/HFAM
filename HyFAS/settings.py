@@ -85,19 +85,19 @@ WSGI_APPLICATION = 'HyFAS.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    'default': dj_database_url.parse(env('DATABASE_URL'))
-}
 # DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'hyfas',
-#         'USER': 'postgres',
-#         'PASSWORD':'attendancesys',
-#         'HOST':'localhost',
-#         'PORT':'5432',
-#     }
-# }  
+#     'default': dj_database_url.parse(env('DATABASE_URL'))
+# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'hyfas',
+        'USER': 'postgres',
+        'PASSWORD':'attendancesys',
+        'HOST':'localhost',
+        'PORT':'5432',
+    }
+}  
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -150,3 +150,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'admin_end.CustomUser'
 
+# Set the session engine
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # You can also use 'django.contrib.sessions.backends.cache' or 'django.contrib.sessions.backends.cached_db' for caching.
+
+# Set the session timeout (in seconds)
+# For example, set it to 15 minutes (15 * 60 seconds)
+SESSION_COOKIE_AGE = 15 * 60
+
+# Optional: Set the session cookie secure flag if using HTTPS
+SESSION_COOKIE_SECURE = True  # Set it to False if not using HTTPS in development
+
+# Optional: Set the session cookie domain for cross-domain cookies
+# SESSION_COOKIE_DOMAIN = '.yourdomain.com'
+
+# Optional: Set the session cookie name
+# SESSION_COOKIE_NAME = 'custom_session_name'

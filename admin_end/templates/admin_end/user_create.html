@@ -22,83 +22,106 @@
     <div class="container-xl">
         <div class="row justify-content-center">
             <div class="col-lg-12 col-md-12 col-sm-12">
-                <form id="userForm" method="post" action="{% url 'user_create' %}" enctype="multipart/form-data" onsubmit="validateForm()">
+                <form class="needs-validation card" novalidate id="userForm" method="post" action="{% url 'user_create' %}" enctype="multipart/form-data">
                     {% csrf_token %}
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-floating mb-1">
-                                <input name="user_picture" type="file" class="form-control" id="" value="">
-                                <label for="">Picture</label>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="" class="form-label">Picture</label>
+                                    <input name="user_picture" type="file" class="form-control" id="" value="">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-floating mb-1">
-                                <input name="user_firstname" type="text" class="form-control" id="" value="" required>
-                                <label for="">First Name</label>
+                        <div class="row">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="" class="form-label required">First Name</label>
+                                    <input name="user_firstname" type="text" class="form-control" id="" value="" required>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-floating mb-1">
-                                <input name="user_lastname" type="text" class="form-control" id="" value="" required>
-                                <label for="">Last Name</label>
+                        <div class="row">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="" class="form-label">Middle Name</label>
+                                    <input name="user_middlename" type="text" class="form-control" id="" value="">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-floating mb-1">
-                                <select name="employment_status" class="form-select" id="">
-                                    <option selected disabled>Open this select menu</option>
-                                    <option value="Part-Time">Part-time</option>
-                                    <option value="Full-Time">Full-Time</option>
-                                </select>
-                                <label for="floatingSelect">Employment Status</label>
+                        <div class="row">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="" class="form-label required">Last Name</label>
+                                    <input name="user_lastname" type="text" class="form-control" id="" value="" required>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-floating mb-1">
-                                <select name="user_role" class="form-select" id="">
-                                    <option selected disabled>Open this select menu</option>
-                                    <option value="superadmin">Super Admin</option>
-                                    <option value="admin">Admin</option>
-                                    <option value="faculty">Faculty</option>
-                                </select>
-                                <label for="floatingSelect">Role</label>
+                        <div class="row">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="" class="form-label">Extension Name</label>
+                                    <input name="extension_name" type="text" class="form-control" id="" value="">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-floating mb-1">
-                                <input name="email" type="email" class="form-control" id="" value="" required>
-                                <label for="">Email Address</label>
+                        <div class="row">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label class="form-label required">Employment Status</label>
+                                    <select name="employment_status" class="form-select" required>
+                                        <option selected disabled></option>
+                                        <option value="Part-Time">Part-time</option>
+                                        <option value="Full-Time">Full-Time</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-floating mb-1">
-                                <input name="password" type="password" class="form-control" id="password" value="" required>
-                                <label for="">Password</label>
+                        <div class="row">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label class="form-label required">Role</label>
+                                    <select name="user_role" class="form-select" id="" required>
+                                        <option selected disabled></option>
+                                        <option value="superadmin">Super Admin</option>
+                                        <option value="admin">Admin</option>
+                                        <option value="faculty">Faculty</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-floating mb-1">
-                                <input name="password" type="password" class="form-control" id="confirmPassword" value="" required>
-                                <label for="">Password</label>
+                        <div class="row">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label required">Email</label>
+                                    <input type="email" name="email" class="form-control" placeholder="name@gmail.com" required>
+                                </div>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="password" class="form-label required">Password</label>
+                                    <input type="password" name="password" id="password" class="form-control" placeholder="Enter password" data-v-min-length="8" data-v-max-length="18" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label for="password" class="form-label required">Confirm Password</label>
+                                    <input type="password" name="password" data-v-equal="#password" class="form-control" placeholder="Enter confirm password" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer text-center">
+                            <div class="d-flex justify-content-center">
+                                <button type="submit" class="btn btn-primary w-100">Submit</button>
+                            </div>
+                        </div>                        
                     </div>
                     <!-- Add the submit button -->
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    {% comment %} <button type="submit" class="btn btn-primary mt-1">Submit</button> {% endcomment %}
                 </form>
             </div>
         </div>
@@ -116,18 +139,37 @@
 {% endblock %}
 
 {% block javascript %}
+<script src="https://cdn.jsdelivr.net/npm/@emretulek/jbvalidator" defer></script>
 
 {% comment %} specific js {% endcomment %}
 <script>
-    function validateForm() {
-        var password = document.getElementById("password").value;
-        var confirmPassword = document.getElementById("confirmPassword").value;
+    $(function () {
 
-        if (password !== confirmPassword) {
-            alert("Passwords do not match. Please try again.");
-            event.preventDefault(); // Prevent form submission
-        }
-    }
+        let validator = $('form.needs-validation').jbvalidator({
+            errorMessage: true,
+            successClass: true,
+            language: "https://emretulek.github.io/jbvalidator/dist/lang/en.json"
+        });
+
+        validator.validator.custom = function(el, event) {
+            if ($(el).is('[name=password]')) {
+              var password = $(el).val();
+          
+              // Check if password length is less than 5
+              if (password.length < 8) {
+                return 'Your password is too weak. It should be at least 8 characters long.';
+              }
+          
+              // Check if the password contains at least one letter and one character
+              var letterRegex = /[a-zA-Z]/;
+              var characterRegex = /[!@#$%^&*(),.?":{}|<>]/;
+          
+              if (!letterRegex.test(password) || !characterRegex.test(password)) {
+                return 'Your password should contain at least one letter and one special character.';
+              }
+            }
+          };  
+    })
 </script>
 {% endblock %}
 {% endblock %}

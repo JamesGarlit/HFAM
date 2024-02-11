@@ -46,21 +46,21 @@
               height="100" alt="PUPQC logo"></a>
         </div>
         <h2 class="h3 text-center mb-3 greeting"></h2>
-        <form method="post" action="{% url 'admin_login' %}" autocomplete="off" novalidate>
+        <form class="needs-validation" novalidate method="post" action="{% url 'admin_login' %}" autocomplete="off" novalidate>
           {% csrf_token %}
           <div class="mb-3">
-            <label class="form-label">Email address</label>
-            <input name="email" type="email" class="form-control" placeholder="your@email.com" autocomplete="off">
+            <label class="form-label required">Email address</label>
+            <input name="email" type="email" class="form-control" placeholder="your@email.com" autocomplete="off" required>
           </div>
           <div class="mb-2">
-            {% comment %} <label class="form-label">
+            <label class="form-label required">
               Password
               <span class="form-label-description">
                 <a href="./forgot-password.html">I forgot password</a>
               </span>
-            </label> {% endcomment %}
+            </label>
             <div class="input-group input-group-flat">
-              <input name="password" type="password" class="form-control" placeholder="Your password"
+              <input name="password" type="password" class="form-control" placeholder="Your password" required
                 autocomplete="off">
               <span class="input-group-text">
                 <a href="#" class="link-secondary" title="Show password" data-bs-toggle="tooltip">
@@ -105,6 +105,7 @@
   <!-- Tabler Core -->
   <script src="{% static '/dist/js/tabler.min.js' %}" defer></script>
   <script src="{% static '/dist/js/demo.min.js' %}" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emretulek/jbvalidator" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
   <script>
@@ -151,6 +152,13 @@
         //additional form validation here if needed
       });
     }); {% endcomment %}
+    $(function () {
+      let validator = $('form.needs-validation').jbvalidator({
+          errorMessage: true,
+          successClass: true,
+          language: "https://emretulek.github.io/jbvalidator/dist/lang/en.json"
+      });
+    });
 
     $(document).ready(function () {
       {% if messages %}

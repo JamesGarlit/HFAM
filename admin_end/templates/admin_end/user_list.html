@@ -67,7 +67,7 @@
                                 {% if user.user_picture %}
                                     <img src="{{ user.user_picture.url }}" alt="{{ user.user_firstname }} {{ user.user_lastname }}" style="max-width: 50px; max-height: 50px;">
                                 {% else %}
-                                    <img src="{% static '/dist/img/defaultpicture.png' %}" alt="Default Picture" style="max-width: 50px; max-height: 50px;">
+                                    <img src="{% static '/dist/img/defaultPicture.png' %}" alt="Default Picture" style="max-width: 50px; max-height: 50px;">
                                 {% endif %}
                             </td>
                             <td>{{ user.user_firstname }} {{ user.user_lastname }}</td>
@@ -78,16 +78,16 @@
                                 <form method="post" action="{% url 'deactivate_user' user.id %}"
                                     style="display: inline;">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-outline-danger btn-sm">Deactivate</button>
+                                    <button type="submit" class="btn btn-danger btn-sm" title="Deactivate"><span class="material-symbols-outlined">switches</span></button>
                                 </form>
                                 {% else %}
                                 <form method="post" action="{% url 'activate_user' user.id %}" style="display: inline;">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-outline-success btn-sm">Activate</button>
+                                    <button type="submit" class="btn btn-success btn-sm" title="Activate"><span class="material-symbols-outlined">switches</span></button>
                                 </form>
                                 {% endif %}
                                 <a href="{% url 'user_update' user.id %}" type="button"
-                                    class="btn btn-outline-info btn-sm">Update</a>
+                                    class="btn btn-info btn-sm" title="Edit"><span class="material-symbols-outlined">edit</span></a>
                             </td>
                         </tr>
                         {% endfor %}
@@ -119,13 +119,6 @@
             scrollX: true, // Add scrollX to enable horizontal scrolling
             dom: 'Bfrtlip', // Include buttons and exclude the search filter ('f')
             buttons: [
-                {
-                    extend: 'copy',
-                    title: 'User List - ' + new Date().toLocaleDateString(),
-                    exportOptions: {
-                        columns: ':visible'
-                    }
-                },
                 {
                     extend: 'print',
                     title: 'User List - ' + new Date().toLocaleDateString(),

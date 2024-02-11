@@ -1,6 +1,7 @@
 # faculty_end/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import LeaveApplication, TimeIn, TimeOut
 from django.contrib.auth import authenticate, login, logout
@@ -12,6 +13,7 @@ import requests
 def is_faculty(user):
     return user.is_authenticated and not user.is_superuser
 
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @login_required(login_url='faculty_login')
 @user_passes_test(is_faculty, login_url='error_400')
 def time_in(request, faculty_shift_id):
@@ -68,6 +70,7 @@ def time_in(request, faculty_shift_id):
 
     return render(request, 'faculty_end/time_in.html', {'faculty_shift': faculty_shift, 'shift_start': shift_start, 'shift_end': shift_end})
 
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @login_required(login_url='faculty_login')
 @user_passes_test(is_faculty, login_url='error_400')
 def time_out(request, faculty_shift_id):
@@ -109,7 +112,7 @@ def time_out(request, faculty_shift_id):
             if provided_time == faculty_shift.shift_end:
                 status = 'On Time'
             elif provided_time > faculty_shift.shift_end:
-                status = 'Late'
+                status = 'Over Time'
             else:
                 status = 'Early'
 
@@ -124,7 +127,7 @@ def time_out(request, faculty_shift_id):
 
     return render(request, 'faculty_end/time_out.html', {'faculty_shift': faculty_shift, 'shift_start': shift_start, 'shift_end': shift_end})
 
-
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @login_required(login_url='faculty_login')
 @user_passes_test(is_faculty, login_url='error_400')
 def leaveapp_create(request):
@@ -179,12 +182,14 @@ def leaveapp_create(request):
     # If the request method is GET, render the template with a form for creating a leave application
     return render(request, 'faculty_end/leaveapp_create.html')
 
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @login_required(login_url='faculty_login')
 @user_passes_test(is_faculty, login_url='error_400')
 def leaveapp_list(request):
     leave_applications = LeaveApplication.objects.filter(user=request.user)
     return render(request, 'faculty_end/leaveapp_list.html', {'leave_applications': leave_applications})
 
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @login_required(login_url='faculty_login')
 @user_passes_test(is_faculty, login_url='error_400')
 def leaveapp_view(request, leave_id):
@@ -235,8 +240,8 @@ def faculty_login(request):
 @user_passes_test(is_faculty, login_url='error_400')
 def faculty_logout(request):
     if request.user.is_authenticated:
-        # Optional: Clear session data
-        request.session.flush()
+        # Clear session data
+        request.session.clear()
 
         # Logout the user
         logout(request)
@@ -250,11 +255,13 @@ def faculty_logout(request):
     # Redirect to the login page
     return redirect('faculty_login')
 
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @login_required(login_url='faculty_login')
 @user_passes_test(is_faculty, login_url='error_400')
 def qrcode_generator(request):
     return render(request,'faculty_end/qrcode_generator.html')
 
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @login_required(login_url='faculty_login')
 @user_passes_test(is_faculty, login_url='error_400')
 def account_settings(request):
@@ -263,6 +270,7 @@ def account_settings(request):
 def error_400(request):
     return render(request,'faculty_end/error_400.html')
 
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @login_required(login_url='faculty_login')
 @user_passes_test(is_faculty, login_url='error_400')
 def attendance_record(request):
@@ -293,6 +301,7 @@ def attendance_record(request):
     # Render the template with the faculty shifts
     return render(request, 'faculty_end/attendance_record.html', {'faculty_shifts': faculty_shifts, 'current_date': current_date})
 
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @login_required(login_url='faculty_login')
 @user_passes_test(is_faculty, login_url='error_400')  
 def notif(request):
@@ -316,6 +325,7 @@ def notif(request):
     # You can pass the list of messages to the template and render it
     return render(request, 'faculty_end/notif.html', {'messages': messages})
 
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @login_required(login_url='faculty_login')
 @user_passes_test(is_faculty, login_url='error_400')
 def change_password(request):

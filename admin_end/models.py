@@ -23,11 +23,11 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
-    user_picture = models.ImageField(upload_to='user_pictures/', null=True, blank=True)
+    user_picture = models.ImageField(upload_to='user_pictures/', null=True)
     user_firstname = models.CharField(max_length=30)
-    user_middlename = models.CharField(max_length=30)
+    user_middlename = models.CharField(max_length=30, blank=True, null=True)
     user_lastname = models.CharField(max_length=30)
-    extension_name = models.CharField(max_length=30)
+    extension_name = models.CharField(max_length=30, blank=True, null=True)
     employment_status = models.CharField(max_length=10)
     user_role = models.CharField(max_length=10)
     email = models.EmailField(unique=True)
@@ -50,31 +50,29 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 
     def get_full_name(self):
-        return f"{self.user_firstname} {self.user_lastname}"
-    
-class FacultyShift(models.Model):
-    SHIFT_DAYS = (
-        ('Monday', 'Monday'),
-        ('Tuesday', 'Tuesday'),
-        ('Wednesday', 'Wednesday'),
-        ('Thursday', 'Thursday'),
-        ('Friday', 'Friday'),
-        ('Saturday', 'Saturday'),
-        ('Sunday', 'Sunday'),
-    )
+        return f"{self.user_firstname} {self.user_middlename} {self.user_lastname} {self.extension_name}"
 
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='faculty_shifts')
+class AcademicYear(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    year_start = models.DateField()
+    year_end = models.DateField()
+
+class Semester(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    academic_year = models.ForeignKey(AcademicYear, on_delete=models.CASCADE)
+    semester_name = models.CharField(max_length=100)
+
+class FacultyShift(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    academic_year = models.ForeignKey(AcademicYear, on_delete=models.CASCADE)
+    semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
     shift_start = models.TimeField()
     shift_end = models.TimeField()
-    shift_day = models.CharField(max_length=10, choices=SHIFT_DAYS)
-
-    def get_schedule_display(self):
-        # Format the time in 12-hour format with AM/PM
-        start_time = self.shift_start.strftime('%I:%M %p')
-        end_time = self.shift_end.strftime('%I:%M %p')
-
-        # Combine the formatted time with other schedule details
-        return f"{self.shift_day}: {start_time} - {end_time}"
+    shift_day = models.CharField(max_length=20)  # Assuming you'll store the day as a string
+    
+class FacultyAccount(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, primary_key=True)
+    faculty_id = models.IntegerField(unique=True)
 
     
 class Approval(models.Model):
@@ -101,3 +99,6 @@ class AttendanceNotification(models.Model):
 
     def __str__(self):
         return f"{self.user.user_firstname} {self.user.user_lastname} - {self.date}"
+    
+
+

@@ -66,7 +66,7 @@
                         <h3 class="card-title mt-4">Password</h3>
                         <p class="card-subtitle">If you forgot your password, please contact the administrator.</p>
                         <div>
-                            <form method="post" action="{% url 'change_password' %}" onsubmit="validateForm()">
+                            <form class="needs-validation" nonvalidate method="post" action="{% url 'change_password' %}">
                                 {% csrf_token %}
                                 <div class="row mt-1">
                                     <div class="col-lg-5 col-md-5 col-sm-12">
@@ -77,13 +77,13 @@
                                 <div class="row mt-1">
                                     <div class="col-lg-5 col-md-5 col-sm-12">
                                         <div class="form-label">New Password</div>
-                                        <input name="password" type="password" class="form-control" required>
+                                        <input name="password" type="password" id="password" class="form-control" required>
                                     </div>
                                 </div>
                                 <div class="row mt-1">
                                     <div class="col-lg-5 col-md-5 col-sm-12">
                                         <div class="form-label">Confirm New Password</div>
-                                        <input name="repassword" type="password" class="form-control" required>
+                                        <input name="repassword" type="password" data-v-equal="#password" class="form-control" required>
                                     </div>
                                 </div>
                                 <div class="row mt-1">
@@ -111,27 +111,36 @@
 {% block javascript %}
 <!-- Include external JavaScript libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/@emretulek/jbvalidator" defer></script>
 <!-- Additional JavaScript for the specific page -->
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        var userRoleInput = document.getElementById("userRoleInput");
-        if (userRoleInput) {
-            var userRole = userRoleInput.value;
-            var capitalizedUserRole = userRole.charAt(0).toUpperCase() + userRole.slice(1);
-            userRoleInput.value = capitalizedUserRole;
-        }
-    });
+    $(function () {
 
-    function validateForm() {
-        var password = document.getElementById("password").value;
-        var confirmPassword = document.getElementById("confirmPassword").value;
-    
-        if (password !== confirmPassword) {
-          alert("Passwords do not match. Please try again.");
-          event.preventDefault(); // Prevent form submission
-        }
-      }
+        let validator = $('form.needs-validation').jbvalidator({
+            errorMessage: true,
+            successClass: true,
+            language: "https://emretulek.github.io/jbvalidator/dist/lang/en.json"
+        });
+
+        validator.validator.custom = function(el, event) {
+            if ($(el).is('[name=password]')) {
+              var password = $(el).val();
+          
+              // Check if password length is less than 5
+              if (password.length < 8) {
+                return 'Your password is too weak. It should be at least 8 characters long.';
+              }
+          
+              // Check if the password contains at least one letter and one character
+              var letterRegex = /[a-zA-Z]/;
+              var characterRegex = /[!@#$%^&*(),.?":{}|<>]/;
+          
+              if (!letterRegex.test(password) || !characterRegex.test(password)) {
+                return 'Your password should contain at least one letter and one special character.';
+              }
+            }
+          };  
+    })
     {% comment %} Alert Message Scripts {% endcomment %}
     $(document).ready(function () {
         {% if messages %}
