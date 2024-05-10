@@ -17,144 +17,52 @@
 <!-- Page body -->
 <div class="page-body">
     <div class="container-xl">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Current Date: {{ current_date }}</h3>
-            </div>
-            <div class="card-body">
-                <div class="row justify-content-center">
-                    <div class="col-lg-6 col-md-5 col-sm-12">
-                        {% for faculty_shift in faculty_shifts %}
-                        <div class="accordion m-1" id="accordion-{{ faculty_shift.id }}">
-                            <div class="accordion-item">
-                                <h2 class="accordion-header" id="heading-{{ faculty_shift.id }}">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ faculty_shift.id }}" aria-expanded="false">
-                                    {{ faculty_shift.shift_day }}: {{ faculty_shift.shift_start|time:"g:i A" }} - {{ faculty_shift.shift_end|time:"g:i A" }}
-                                </button>
-                                </h2>
-                                <div id="collapse-{{ faculty_shift.id }}" class="accordion-collapse collapse" data-bs-parent="#accordion-{{ faculty_shift.id }}">
-                                <div class="accordion-body pt-0">
-                                    <div class="row">
-                                        <div class="col-lg-12 col-md-12 col-sm-12 m-0">
-                                            <div class="h1 m-0 text-success">TIME IN</div>
-                                        </div>
-                                        <div class="col-lg-12 col-md-12 col-sm-12 m-1">
-                                            Time In:
-                                            <strong>
-                                            {% if not faculty_shift.timein_set.all %}
-                                                <a href="{% url 'time_in' faculty_shift.id %}" class="btn btn-block btn-sm btn-outline-success">Time In</a>
-                                            {% else %}
-                                                {{ faculty_shift.timein_set.last.time_in|time:"g:i A" }}
-                                            {% endif %}
-                                            </strong>
-                                        </div>
-                                        <div class="col-lg-12 col-md-12 col-sm-12 m-1">
-                                            Status:
-                                            <strong>
-                                            {% if faculty_shift.timein_set.all %}
-                                                {{ faculty_shift.timein_set.last.status }}
-                                            {% else %}
-                                                N/A
-                                            {% endif %}
-                                            </strong>
-                                        </div>
-                                        <div class="col-lg-12 col-md-12 col-sm-12 m-1">
-                                            Location:
-                                            <strong>
-                                            {% if faculty_shift.timein_set.all %}
-                                                {{ faculty_shift.timein_set.last.location }}
-                                            {% else %}
-                                                N/A
-                                            {% endif %}
-                                            </strong>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-lg-12 col-md-12 col-sm-12 m-0">
-                                            <div class="h1 m-0 text-danger">TIME OUT</div>
-                                        </div>
-                                        <div class="col-lg-12 col-md-12 col-sm-12 m-1">
-                                            Time Out:
-                                            <strong>
-                                                {% if faculty_shift.timein_set.all %}
-                                                {% if not faculty_shift.timeout_set.all %}
-                                                    <a href="{% url 'time_out' faculty_shift.id %}" class="btn btn-block btn-sm btn-outline-danger">Time Out</a>
-                                                {% else %}
-                                                    {{ faculty_shift.timeout_set.last.time_out|time:"g:i A" }}
-                                                {% endif %}
-                                                {% else %}
-                                                    <button class="btn btn-block btn-sm btn-outline-danger" disabled>Time Out</button>
-                                                {% endif %}
-                                            </strong>
-                                        </div>
-                                        <div class="col-lg-12 col-md-12 col-sm-12 m-1">
-                                            Status:
-                                            <strong>
-                                                {% if faculty_shift.timeout_set.all %}
-                                                {{ faculty_shift.timeout_set.last.status }}
-                                                {% else %}
-                                                    N/A
-                                                {% endif %}
-                                            </strong>
-                                        </div>
-                                        <div class="col-lg-12 col-md-12 col-sm-12 m-1">
-                                            Location:
-                                            <strong>
-                                                {% if faculty_shift.timeout_set.all %}
-                                                {{ faculty_shift.timeout_set.last.location }}
-                                                {% else %}
-                                                    N/A
-                                                {% endif %}
-                                            </strong>
-                                        </div>
-                                    </div>
-                                </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>                                       
-            </div>
-        </div>
+        <form method="GET" action="{% url 'attendance_record' %}">
+            <div class="row">
+                <div class="col-lg-2 col-md-2 col-sm-2 mb-1">
+                    <select class="form-select" name="filter" id="filter">
+                        <option value="last_7_days" {% if filter_option == 'last_7_days' %}selected{% endif %}>Last 7 Days</option>
+                        <option value="last_month" {% if filter_option == 'last_month' %}selected{% endif %}>Last Month</option>
+                        <option value="all" {% if filter_option == 'all' %}selected{% endif %}>All</option>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2 mb-1">
+                    <button class="btn btn-primary" type="submit">Apply Filter</button>
+                </div>
+            </div>  
+        </form>
+        
         <div class="card">
             <div class="card-body">
                 <table id="AllFacultyAttendanceRecord" class="table table-striped table-bordered" style="width:100%">
                     <thead>
                         <tr>
                             <th>Date</th>
-                            <th>Shift</th>
-                            <th>Expected Time In</th>
-                            <th>Actual Time In</th>
-                            <th>Location Time In</th>
-                            <th>Expected Time Out</th>
-                            <th>Actual Time Out</th>
-                            <th>Location Time Out</th>
-                            <th>Work Hours</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                            <th>Location</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for entry in faculty_attendance_data %}
-                            <tr>
-                                <td>{{ entry.faculty_name }}</td>
-                                <td>{{ entry.date|date:"F j, Y" }}</td>
-                                <td>{{ entry.time_in|time:"g:i A" }}</td>
-                                <td>{{ entry.time_in_status }}</td>
-                                <td>{{ entry.time_in_location }}</td>
-                                <td>{{ entry.time_out|time:"g:i A" }}</td>
-                                <td>{{ entry.time_out_status }}</td>
-                                <td>{{ entry.time_out_location }}</td>
-                            </tr>
+                        {% for item in merged_data %}
+                        <tr>
+                            <td>{{ item.date }}</td>
+                            <td>{% if item.time_in %}{{ item.time_in }}{% elif item.time_out %}{{ item.time_out }}{% endif %}</td>
+                            <td>{{ item.status }}</td>
+                            <td>{{ item.location }}</td>
+                        </tr>
                         {% endfor %}
                     </tbody>
                 </table>                                                               
             </div>
-        </div>
+        </div>        
     </div>
 </div>
 {% block css %}
 <style>
-    /* Your specific page CSS styles */
+    thead input {
+        width: 100%;
+    }
 </style>
 {% endblock %}
 
@@ -228,7 +136,25 @@
                 });
             }
         });
-    });    
+    });
+    // Get the current date
+    var currentDate = new Date();
+
+    // Get the month name
+    var monthNames = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"];
+    var month = monthNames[currentDate.getMonth()];
+
+    // Get the day and year
+    var day = currentDate.getDate();
+    var year = currentDate.getFullYear();
+
+    // Format the date as Month Day, Year
+    var formattedDate = month + " " + day + ", " + year;
+
+    // Display the formatted date in the specified element
+    document.getElementById("current-date").textContent = formattedDate;
+
     $(document).ready(function () {
         {% if messages %}
         {% for message in messages %}

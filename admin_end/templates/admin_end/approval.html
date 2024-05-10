@@ -1,0 +1,237 @@
+{% extends "admin_end/base.html" %}
+{% load static %}
+{% block content %}
+<!-- Page header -->
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <!-- Page pre-title -->
+        <div class="page-pretitle">
+          Overview
+        </div>
+        <h2 class="page-title">
+          Leave Application
+        </h2>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Page body -->
+<div class="page-body">
+  <div class="container-xl">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Leave Application Details</h3>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col">
+              <div class="mb-3">
+                  <label class="form-label required">1. OFFICE/DEPARTMENT/COLLEGE</label>
+                  <div>
+                    <input name="department" type="text" class="form-control" placeholder="" value="{{ leave_app.department }}" readonly>
+                  </div>
+              </div>
+          </div>
+          <div class="col">
+              <div class="mb-3">
+                  <label class="form-label required">2. NAME</label>
+                  <div>
+                    <input name="full_name" type="text" class="form-control" placeholder="Last Name, First Name, Middle Name" value="{{ leave_app.user.get_full_name }}" readonly>
+                    <small class="form-hint">Example: Garlit, James Sevilla</small>
+                  </div>
+              </div>
+          </div>
+      </div>
+      <div class="row">
+          <div class="col">
+              <div class="mb-3">
+                  <label class="form-label required">3. DATE OF FILING</label>
+                  <input name="filing_date" type="text" class="form-control" id=""
+                      value="{{ leave_app.filing_date }}" readonly>
+              </div>
+          </div>
+          <div class="col">
+              <div class="mb-3">
+                  <label class="form-label required">4. POSITION</label>
+                  <input name="position" type="text" class="form-control" id=""
+                      value="{{ leave_app.position }}" readonly>
+              </div>
+          </div>
+          <div class="col">
+              <div class="mb-3">
+                  <label class="form-label required">5. SALARY</label>
+                  <input name="salary" type="number" class="form-control" id=""
+                      value="{{ leave_app.salary }}" readonly>
+              </div>
+          </div>
+      </div>
+      <div class="row">
+          <div class="col">
+              <div class="mb-3">
+                  <label class="form-label required">6.A TYPE OF LEAVE TO BE AVAILED OF</label>
+                  <select name="leave_type" class="form-select" required readonly>
+                    <option selected>Open this select menu</option>
+                    <option value="Vacation Leave (Sec. 51, Rule XVI, Omnibus Rules Implementing E.O. No. 292)" {% if leave_app.leave_type == 'Vacation Leave (Sec. 51, Rule XVI, Omnibus Rules Implementing E.O. No. 292)' %}selected{% endif %}>Vacation Leave (Sec. 51, Rule XVI, Omnibus Rules Implementing E.O. No. 292)</option>
+                    <option value="Mandatory/Forced Leave (Sec. 25, Rule XVI, Omnibus Rules Implementing E.O. No. 292)" {% if leave_app.leave_type == 'Mandatory/Forced Leave (Sec. 25, Rule XVI, Omnibus Rules Implementing E.O. No. 292)' %}selected{% endif %}>Mandatory/Forced Leave (Sec. 25, Rule XVI, Omnibus Rules Implementing E.O. No. 292)</option>
+                    <option value="Sick Leave (Sec. 43, Rule VXI, Omnibus Rules Implementing E.O. No. 292)" {% if leave_app.leave_type == 'Sick Leave (Sec. 43, Rule VXI, Omnibus Rules Implementing E.O. No. 292)' %}selected{% endif %}>Sick Leave (Sec. 43, Rule VXI, Omnibus Rules Implementing E.O. No. 292)</option>
+                    <option value="Maternity Leave (R.A No. 11210 / IRR issued by CSC, DOLE and SSS)" {% if leave_app.leave_type == 'Maternity Leave (R.A No. 11210 / IRR issued by CSC, DOLE and SSS)' %}selected{% endif %}>Maternity Leave (R.A No. 11210 / IRR issued by CSC, DOLE and SSS)</option>
+                    <option value="Paternity Leave (R.A No. 8187 / CSC MC No. 71, s. 1998, as amended)" {% if leave_app.leave_type == 'Paternity Leave (R.A No. 8187 / CSC MC No. 71, s. 1998, as amended)' %}selected{% endif %}>Paternity Leave (R.A No. 8187 / CSC MC No. 71, s. 1998, as amended)</option>
+                    <option value="Special Privilege Leave (Sec. 21, Rule XVI, Omnibus Rules Implementing E.O. No. 292)" {% if leave_app.leave_type == 'Special Privilege Leave (Sec. 21, Rule XVI, Omnibus Rules Implementing E.O. No. 292)' %}selected{% endif %}>Special Privilege Leave (Sec. 21, Rule XVI, Omnibus Rules Implementing E.O. No. 292)</option>
+                    <option value="Solo Parent Leave (RA No. 8972 / CSC MC No. 8, s. 2004)" {% if leave_app.leave_type == 'Solo Parent Leave (RA No. 8972 / CSC MC No. 8, s. 2004)' %}selected{% endif %}>Solo Parent Leave (RA No. 8972 / CSC MC No. 8, s. 2004)</option>
+                    <option value="Study Leave (Sec. 68, Rule XVI, Omnibus Rules Implementing E.O. No. 292)" {% if leave_app.leave_type == 'Study Leave (Sec. 68, Rule XVI, Omnibus Rules Implementing E.O. No. 292)' %}selected{% endif %}>Study Leave (Sec. 68, Rule XVI, Omnibus Rules Implementing E.O. No. 292)</option>
+                    <option value="10-Day VAWC Leave (RA No. 9262 / CSC MC No. 15, s. 2005)" {% if leave_app.leave_type == '10-Day VAWC Leave (RA No. 9262 / CSC MC No. 15, s. 2005)' %}selected{% endif %}>10-Day VAWC Leave (RA No. 9262 / CSC MC No. 15, s. 2005)</option>
+                    <option value="Rehabilitation Privilege (Sec. 55, Rule XVI, Omnibus Rules Implementing E.O. No. 292)" {% if leave_app.leave_type == 'Rehabilitation Privilege (Sec. 55, Rule XVI, Omnibus Rules Implementing E.O. No. 292)' %}selected{% endif %}>Rehabilitation Privilege (Sec. 55, Rule XVI, Omnibus Rules Implementing E.O. No. 292)</option>
+                    <option value="Special Leave Benefits for Women (RA No. 9710 / CSC MC No. 25, s. 2010)" {% if leave_app.leave_type == 'Special Leave Benefits for Women (RA No. 9710 / CSC MC No. 25, s. 2010)' %}selected{% endif %}>Special Leave Benefits for Women (RA No. 9710 / CSC MC No. 25, s. 2010)</option>
+                    <option value="Special Emergency (Calamity) Leave (CSC MC No. 2, s. 2012, as amended)" {% if leave_app.leave_type == 'Special Emergency (Calamity) Leave (CSC MC No. 2, s. 2012, as amended)' %}selected{% endif %}>Special Emergency (Calamity) Leave (CSC MC No. 2, s. 2012, as amended)</option>
+                    <option value="Adoption Leave (R.A. No. 8552)" {% if leave_app.leave_type == 'Adoption Leave (R.A. No. 8552)' %}selected{% endif %}>Adoption Leave (R.A. No. 8552)</option>
+                    <option value="Others(Specify)" {% if leave_app.leave_type == 'Others(Specify)' %}selected{% endif %}>Others(Specify)</option>
+                </select>                
+              </div>
+          </div>
+          <div class="col">
+              <div class="mb-3">
+                  <label class="form-label required">6.B DETAILS OF LEAVE</label>
+                  <select name="leave_details" type="text" class="form-select" id="select-optgroups" disabled>
+                    <optgroup label="In case of Vacation/Special Privilege Leave">
+                        <option selected>Open this select menu</option>
+                        <option value="Within the Philippines" {% if leave_app.leave_details == 'Within the Philippines' %}selected{% endif %}>Within the Philippines</option>
+                        <option value="Abroad" {% if leave_app.leave_details == 'Abroad' %}selected{% endif %}>Abroad</option>
+                    </optgroup>
+                    <optgroup label="In case of Sick Leave">
+                        <option value="In Hospital" {% if leave_app.leave_details == 'In Hospital' %}selected{% endif %}>In Hospital(Specify Illness)</option>
+                        <option value="Out Patient" {% if leave_app.leave_details == 'Out Patient' %}selected{% endif %}>Out Patient(Specify Illness)</option>
+                    </optgroup>
+                    <optgroup label="In case of Special Leave Benefits for Women">
+                        <option value="(Specify Illness)" {% if leave_app.leave_details == '(Specify Illness)' %}selected{% endif %}>(Specify Illness)</option>
+                    </optgroup>
+                    <optgroup label="In case of Study Leave">
+                        <option value="Completion of Master's Degree" {% if leave_app.leave_details == "Completion of Master's Degree" %}selected{% endif %}>Completion of Master's Degree</option>
+                        <option value="BAR/Board Examination Review" {% if leave_app.leave_details == 'BAR/Board Examination Review' %}selected{% endif %}>BAR/Board Examination Review</option>
+                    </optgroup>
+                    <optgroup label="Other purpose">
+                        <option value="Monetization of Leave Credits" {% if leave_app.leave_details == 'Monetization of Leave Credits' %}selected{% endif %}>Monetization of Leave Credits</option>
+                        <option value="Terminal Leave" {% if leave_app.leave_details == 'Terminal Leave' %}selected{% endif %}>Terminal Leave</option>
+                    </optgroup>
+                  </select>
+              </div>
+          </div>
+      </div>
+      <div class="row">
+          <div class="col">
+              <div class="mb-3">
+                  <label class="form-label">SPECIFY (6.A TYPE OF LEAVE TO BE AVAILED OF)</label>
+                  <input name="specify_leave_type" type="text" class="form-control" id=""
+                      value="{{ leave_app.specify_leave_type }}" readonly>
+              </div>
+          </div>
+          <div class="col">
+              <div class="mb-3">
+                  <label class="form-label">SPECIFY (6.B DETAILS OF LEAVE)</label>
+                  <input name="specify_leavedetails" type="text" class="form-control" id=""
+                      value="{{ leave_app.specify_leavedetails }}">
+              </div>
+          </div>
+      </div>
+      <div class="row">
+          <div class="col-lg-6">
+              <div class="mb-3">
+                  <label class="form-label required">6.C NUMBER OF WORKING DAYS APPLIED FOR</label>
+                  <input name="days_number" type="text" class="form-control" id=""
+                      value="{{ leave_app.days_number }}" readonly>
+                  <small class="form-hint">Example: 2 Days</small>
+              </div>
+          </div>
+          <div class="col-lg-6">
+              <div class="mb-3">
+                  <label class="form-label required">6.D COMMUTATION</label>
+                  <select name="commutation" class="form-select" id="" required disabled>
+                      <option selected>Open this select menu</option>
+                      <option value="Not Requested" {% if leave_app.commutation == 'Not Requested' %}selected{% endif %}>Not Requested</option>
+                      <option value="Requested" {% if leave_app.commutation == 'Requested' %}selected{% endif %}>Requested</option>
+                  </select>
+              </div>
+          </div>
+      </div>
+      <div class="row">
+          <div class="col">
+              <div class="mb-3">
+                  <label class="form-label required">INCLUSIVE DATES</label>
+                  <input name="inclusive_dates" type="text" class="form-control" id=""
+                      value="{{ leave_app.inclusive_dates }}" readonly>
+                  <small class="form-hint">Example: January 23 - 24, 2024</small>
+              </div>
+          </div>
+          <div class="col">
+              <div class="mb-3">
+                  <label class="form-label required">SIGNATURE</label>
+                  <input name="signature" type="file" class="form-control" id=""
+                      value="" required>
+              </div>
+          </div>
+      </div>
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title">Action</h3>
+                <form method="POST" action="{% url 'approval' leave_app.id %}">
+                    {% csrf_token %}
+                        <label class="form-label">Note</label>
+                        <textarea name="comment" id="comment" class="form-control" data-bs-toggle="autosize" placeholder="Type something…"></textarea>
+                    <br>
+                    <div class="card-footer">
+                        <div class="d-flex">
+                            <button class="btn btn-danger" type="submit" name="action" value="reject">Reject</button>
+                            <button class="btn btn-success ms-auto" type="submit" name="action" value="accept">Accept</button>
+                        </div>
+                    </div>
+                </form> 
+            </div>
+        </div>      
+      </div>
+    </div>
+  </div>
+</div>
+{% block css %}
+<style>
+  .custom-justification {
+    text-align: justify;
+  }
+</style>
+
+    {% comment %} Include external JavaScript libraries {% endcomment %}
+{% endblock %}
+
+{% block javascript %}
+
+    {% comment %} specific js {% endcomment %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Check if decision has been made
+    var decisionStatus = "{{ leave_application.approval.decision|default:'' }}";
+
+    // Disable textarea and hide buttons if decision has been made
+    if (decisionStatus === "accepted" || decisionStatus === "rejected") {
+      document.getElementById("commentTextarea").disabled = true;
+
+      var buttons = document.querySelectorAll("#decisionForm button");
+      buttons.forEach(function (button) {
+        button.style.display = "none";
+      });
+    }
+    // If decision has not been made, keep buttons visible
+    else {
+      var buttons = document.querySelectorAll("#decisionForm button");
+      buttons.forEach(function (button) {
+        button.style.display = "inline-block"; // Set to your desired display style
+      });
+    }
+  });
+
+  document.addEventListener("DOMContentLoaded", function() {
+    var selectElement = document.querySelector('select[name="leave_type"]');
+    selectElement.setAttribute('disabled', 'disabled');
+});
+</script>
+{% endblock %}
+{% endblock %}

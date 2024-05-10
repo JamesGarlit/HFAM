@@ -8,60 +8,163 @@
 * Licensed under MIT (https://github.com/tabler/tabler/blob/master/LICENSE)
 -->
 <html lang="en">
-  <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
-    <title>PUPQC | Faculty Attendance System</title>
-    {% load static %}
-    <link rel="icon" href="{% static '/dist/img/pupqc_logo.png' %}" type="image/x-icon" sizes="48x48"/>
-    <!-- CSS files -->
-    <link href="{% static '/dist/css/tabler.min.css' %}" rel="stylesheet"/>
-    <link href="{% static '/dist/css/tabler-flags.min.css' %}" rel="stylesheet"/>
-    <link href="{% static '/dist/css/tabler-payments.min.css' %}" rel="stylesheet"/>
-    <link href="{% static '/dist/css/tabler-vendors.min.css' %}" rel="stylesheet"/>
-    <link href="{% static '/dist/css/demo.min.css' %}" rel="stylesheet"/>
-    <style>
-      @import url('https://rsms.me/inter/inter.css');
-      :root {
-      	--tblr-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
-      }
-      body {
-      	font-feature-settings: "cv03", "cv04", "cv11";
-      }
-    </style>
-  </head>
-  <body  class=" d-flex flex-column bg-white">
-    <script src="{% static '/dist/js/demo-theme.min.js' %}"></script>
-    <div class="row g-0 flex-fill">
-      <div class="col-12 col-lg-6 col-xl-4 border-top-wide border-primary d-flex flex-column justify-content-center">
-        <div class="container container-tight my-5 px-lg-5">
-          <div class="text-center mb-4">
-            <a href="." class="navbar-brand navbar-brand-autodark"><img src="{% static '/dist/img/pupqc_logo.png' %}" height="100" alt="PUPQC logo"></a>
-          </div>
-          <h2 class="h3 text-center mb-3">
-            Please select your destination
-          </h2>
-          <div class="col-6 col-sm-4 col-md-2 col-xl py-3 w-100">
-            <a href="{% url 'admin_login' %}" class="btn w-100 text-white" style="background: #6E260E;">
-              Login as Administrator
-            </a>
-          </div>
-          <div class="col-6 col-sm-4 col-md-2 col-xl py-3 w-100">
-            <a href="{% url 'faculty_login' %}" class="btn w-100 text-white" style="background: #6E260E;">
-              Login as Faculty
-            </a>
-          </div>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>PUPQC | Faculty Attendance System</title>
+  {% load static %}
+  <!-- CSS files -->
+  <link href="{% static '/dist/css/tabler.min.css' %}" rel="stylesheet" />
+  <link href="{% static '/dist/css/tabler-flags.min.css' %}" rel="stylesheet" />
+  <link href="{% static '/dist/css/tabler-payments.min.css' %}" rel="stylesheet" />
+  <link href="{% static '/dist/css/tabler-vendors.min.css' %}" rel="stylesheet" />
+  <link href="{% static '/dist/css/demo.min.css' %}" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <style>
+    @import url('https://rsms.me/inter/inter.css');
+
+    :root {
+      --tblr-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
+    }
+
+    body {
+      font-feature-settings: "cv03", "cv04", "cv11";
+    }
+  </style>
+</head>
+
+<body class=" d-flex flex-column bg-white">
+  <script src="{% static '/dist/js/demo-theme.min.js' %}"></script>
+  <div class="row g-0 flex-fill">
+    <div class="col-12 col-lg-6 col-xl-4 border-top-wide border-primary d-flex flex-column justify-content-center">
+      <div class="container container-tight my-5 px-lg-5">
+        <div class="text-center mb-4">
+          <a href="." class="navbar-brand navbar-brand-autodark"><img src="{% static '/dist/img/pupqc_logo.png' %}"
+              height="100" alt="PUPQC logo"></a>
         </div>
+        <h2 class="h3 text-center mb-3 greeting"></h2>
+        <form class="needs-validation" novalidate method="post" action="{% url 'login_as' %}" autocomplete="off" novalidate>
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label required">Email address</label>
+            <input name="email" type="email" class="form-control" placeholder="your@email.com" autocomplete="off" required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label required">
+              Password
+              <span class="form-label-description">
+                <a href="./forgot-password.html">I forgot password</a>
+              </span>
+            </label>
+            <div class="input-group input-group-flat">
+              <input name="password" type="password" class="form-control" placeholder="Your password" required autocomplete="off">
+              <span class="input-group-text">
+                <a href="#" id="hidepass" class="link-secondary" data-bs-toggle="tooltip">
+                  <!-- Download SVG icon from http://tabler-icons.io/i/eye-off -->
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.585 10.587a2 2 0 0 0 2.829 2.828" /><path d="M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87" /><path d="M3 3l18 18" /></svg>
+                </a>
+              </span>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col d-flex justify-content-center">
+              <div class="g-recaptcha" data-sitekey="6Lc_w1EpAAAAADv41yL8P_qVyHc0XxY7fj5NgoKp"></div>
+            </div>
+          </div>
+          <div class="form-footer">
+            <button type="submit" class="btn btn-primary w-100">Log in</button>
+          </div>
+        </form>
       </div>
-      <div class="col-12 col-lg-6 col-xl-8 d-none d-lg-block">
-        <!-- Photo -->
-        <div class="bg-cover h-100 min-vh-100" style="background-image: url({% static '/dist/img/pupqc_bg.jpg' %})"></div>
+      {% comment %} <div class="text-center text-secondary mt-3 mx-2">
+        By using this service, you understood and agree to the PUP Online Services <a href="https://www.pup.edu.ph/terms/" tabindex="-1">Terms of Use</a> and <a href="https://www.pup.edu.ph/privacy/" tabindex="-1">Privacy Statement</a>
+      </div> {% endcomment %}
+    </div>
+    <div class="col-12 col-lg-6 col-xl-8 d-none d-lg-block">
+      <!-- Photo -->
+      <div class="bg-cover h-100 min-vh-100" style="background-image: url({% static '/dist/img/pupqc_bg.jpg' %})">
       </div>
     </div>
-    <!-- Libs JS -->
-    <!-- Tabler Core -->
-    <script src="{% static '/dist/js/tabler.min.js' %}" defer></script>
-    <script src="{% static '/dist/js/demo.min.js' %}" defer></script>
-  </body>
+  </div>
+  <!-- Libs JS -->
+  <!-- Tabler Core -->
+  <script src="{% static '/dist/js/tabler.min.js' %}" defer></script>
+  <script src="{% static '/dist/js/demo.min.js' %}" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emretulek/jbvalidator" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var greetingElement = document.querySelector('.greeting');
+
+      // Get the current hour
+      var currentHour = new Date().getHours();
+
+      // Set the greeting based on the time of day
+      if (currentHour >= 5 && currentHour < 12) {
+        greetingElement.textContent = 'Hi, Good morning';
+      } else if (currentHour >= 12 && currentHour < 18) {
+        greetingElement.textContent = 'Hi, Good afternoon';
+      } else {
+        greetingElement.textContent = 'Hi, Good evening';
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const passwordInput = document.querySelector('input[name="password"]');
+      const hidePassIcon = document.getElementById('hidepass');
+    
+      hidePassIcon.addEventListener('click', function(event) {
+        event.preventDefault();
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          hidePassIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg>';
+        } else {
+          passwordInput.type = 'password';
+          hidePassIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.585 10.587a2 2 0 0 0 2.829 2.828" /><path d="M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87" /><path d="M3 3l18 18" /></svg>';
+        }
+      });
+    });
+    
+    {% comment %} document.addEventListener('DOMContentLoaded', function () {
+      var form = document.querySelector('form');
+
+      form.addEventListener('submit', function (event) {
+        var recaptchaResponse = grecaptcha.getResponse();
+
+        if (recaptchaResponse.length === 0) {
+          // If reCAPTCHA is not answered, prevent form submission
+          event.preventDefault();
+          toastr.error('Please complete the reCAPTCHA verification.');
+        }
+        //additional form validation here if needed
+      });
+    }); {% endcomment %}
+    $(function () {
+      let validator = $('form.needs-validation').jbvalidator({
+          errorMessage: true,
+          successClass: true,
+          language: "https://emretulek.github.io/jbvalidator/dist/lang/en.json"
+      });
+    });
+
+    $(document).ready(function () {
+      {% if messages %}
+      {% for message in messages %}
+      {% if message.tags == 'success' %}
+      toastr.success('{{ message }}');
+      {% elif message.tags == 'error' %}
+      toastr.error('{{ message }}');
+      {% else %}
+      toastr('{{ message }}');
+      {% endif %}
+      {% endfor %}
+      {% endif %}
+    });
+  </script>
+</body>
+
 </html>

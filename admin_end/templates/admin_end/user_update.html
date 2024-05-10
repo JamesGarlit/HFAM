@@ -20,109 +20,140 @@
 <!-- Page body -->
 <div class="page-body">
   <div class="container-xl">
-    <div class="row justify-content-center">
-      <div class="col-lg-12 col-md-12 col-sm-12">
-        <form class="card needs-validation" id="userForm" method="post" action="{% url 'user_update' user.id %}" enctype="multipart/form-data" novalidate>
-          {% csrf_token %}
-          <div class="card-body">
-            <div class="row">
-              <div class="col">
-                <div class="mb-3">
-                  <label for="" class="form-label required">Picture</label>
-                  <input name="user_picture" type="file" class="form-control" id="" value="">
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col">
-                <div class="mb-3">
-                  <label for="" class="form-label required">First Name</label>
-                  <input name="user_firstname" type="text" class="form-control" id="" value="{{ user.user_firstname }}" required>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col">
-                <div class="mb-3">
-                  <label for="" class="form-label required">Middle Name</label>
-                  <input name="user_middlename" type="text" class="form-control" id="" value="{{ user.user_lastname }}" required>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col">
-                <div class="mb-3">
-                  <label for="" class="form-label required">Last Name</label>
-                  <input name="user_lastname" type="text" class="form-control" id="" value="{{ user.user_firstname }}" required>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col">
-                <div class="mb-3">
-                  <label for="" class="form-label required">Extension Name</label>
-                  <input name="extension_name" type="text" class="form-control" id="" value="{{ user.user_firstname }}" required>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col">
-                <div class="mb-3">
-                  <labelclass="form-label required">Employment Status</label>
-                  <select name="employment_status" class="form-select" id="" required>
-                    <option selected disabled>Open this select menu</option>
-                    <option value="Part Time" {% if user.employment_status == 'Part Time' %}selected{% endif %}>Part Time</option>
-                    <option value="Full Time" {% if user.employment_status == 'Full Time' %}selected{% endif %}>Full Time</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col">
-                <div class="mb-3">
-                  <label class="form-label required">Role</label>
-                  <select name="user_role" class="form-select" id="" required>
-                    <option selected disabled>Open this select menu</option>
-                    <option value="superadmin" {% if user.user_role == 'superadmin' %}selected{% endif %}>Super Admin</option>
-                    <option value="admin" {% if user.user_role == 'admin' %}selected{% endif %}>Admin</option>
-                    <option value="faculty" {% if user.user_role == 'faculty' %}selected{% endif %}>Faculty</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col">
-                <div class="mb-3">
-                  <label for="" class="form-label required">Email Address</label>
-                  <input name="email" type="email" class="form-control" id="" value="{{ user.email }}" required>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col">
-                <div class="mb-3">
-                  <label for="" class="form-label">Password</label>
-                  <input name="password" type="password" class="form-control" id="password" value="">
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col">
-                <div class="mb-3">
-                  <label for="" class="form-label">Confirm Password</label>
-                  <input name="password" type="password" class="form-control" data-v-equal="#password" value="">
-                </div>
-              </div>
-            </div>
-            <div class="card-footer text-center">
-              <div class="d-flex justify-content-center">
-                  <button type="submit" class="btn btn-primary w-100">Submit</button>
-            </div>
-          </div>   
+      <div class="row justify-content-center">
+          <div class="col-lg-12 col-md-12 col-sm-12">
+              <form class="needs-validation card" novalidate id="userForm" method="post" action="{% url 'user_update' user.id %}" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  <div class="card-body">
+                      <div class="row">
+                          <div class="col">
+                              <div class="mb-3">
+                                  <label for="" class="form-label">Picture</label>
+                                  <input name="user_picture" type="file" class="form-control" id="" value="">
+                              </div>
+                          </div>
+                      </div>
+                      <div class="row">
+                          <div class="col">
+                              <div class="mb-3">
+                                  <label for="" class="form-label required">First Name</label>
+                                  <input name="user_firstname" type="text" class="form-control" id="" value="{{ user.user_firstname }}" required>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="row">
+                          <div class="col">
+                              <div class="mb-3">
+                                  <label for="" class="form-label">Middle Name</label>
+                                  <input name="user_middlename" type="text" class="form-control" id="" value="{{ user.user_middlename }}">
+                              </div>
+                          </div>
+                      </div>
+                      <div class="row">
+                          <div class="col">
+                              <div class="mb-3">
+                                  <label for="" class="form-label required">Last Name</label>
+                                  <input name="user_lastname" type="text" class="form-control" id="" value="{{ user.user_lastname }}" required>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="row">
+                          <div class="col">
+                              <div class="mb-3">
+                                  <label for="" class="form-label">Extension Name</label>
+                                  <input name="extension_name" type="text" class="form-control" id="" value="{{ user.extension_name }}">
+                              </div>
+                          </div>
+                      </div>
+                      <div class="row">
+                          <div class="col">
+                              <div class="mb-3">
+                                  <label class="form-label required">Employment Status</label>
+                                  <select name="employment_status" class="form-select" required>
+                                      <option selected disabled></option>
+                                      <option value="Part Time" {% if user.employment_status == 'Part Time' %}selected{% endif %}>Part Time</option>
+                                      <option value="Full Time" {% if user.employment_status == 'Full Time' %}selected{% endif %}>Full Time</option>
+                                  </select>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="row">
+                          <div class="col">
+                              <div class="mb-3">
+                                  <label class="form-label required">Role</label>
+                                  <select name="user_role" class="form-select" id="" required>
+                                      <option selected disabled></option>
+                                      <option value="superadmin" {% if user.user_role == 'superadmin' %}selected{% endif %}>Super Admin</option>
+                                      <option value="admin" {% if user.user_role == 'admin' %}selected{% endif %}>Admin</option>
+                                      <option value="faculty" {% if user.user_role == 'faculty' %}selected{% endif %}>Faculty</option>
+                                  </select>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="row">
+                          <div class="col">
+                              <div class="mb-3">
+                                  <label for="email" class="form-label required">Email</label>
+                                  <input type="email" name="email" class="form-control" placeholder="name@gmail.com" value="{{ user.email }}" required>
+                              </div>
+                          </div>
+                      </div>
+                      {% comment %} <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" name="password" id="password" class="form-control" placeholder="Enter password" data-v-min-length="8" data-v-max-length="18">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                <label for="confirm-password" class="form-label">Confirm Password</label>
+                                <input type="password" name="confirm-password" id="confirm-password" data-v-equal="#password" class="form-control" placeholder="Enter confirm password">
+                            </div>
+                        </div>
+                    </div>    {% endcomment %}
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <div class="input-group input-group-flat">
+                                    <input type="password" name="password" id="password" class="form-control" placeholder="Enter password" data-v-min-length="8" data-v-max-length="18">
+                                    <span class="input-group-text hidepass" data-target="password" data-bs-toggle="tooltip">
+                                        <!-- Download SVG icon from http://tabler-icons.io/i/eye-off -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.585 10.587a2 2 0 0 0 2.829 2.828" /><path d="M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87" /><path d="M3 3l18 18" /></svg>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                <label for="confirm-password" class="form-label">Confirm Password</label>
+                                <div class="input-group input-group-flat">
+                                    <input type="password" name="confirm-password" id="confirm-password" data-v-equal="#password" class="form-control" placeholder="Enter confirm password">
+                                    <span class="input-group-text hidepass" data-target="confirm-password" data-bs-toggle="tooltip">
+                                        <!-- Download SVG icon from http://tabler-icons.io/i/eye-off -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.585 10.587a2 2 0 0 0 2.829 2.828" /><path d="M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87" /><path d="M3 3l18 18" /></svg>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>                                                          
+                      <div class="card-footer text-center">
+                          <div class="d-flex justify-content-center">
+                              <button type="submit" class="btn btn-primary w-100">Submit</button>
+                          </div>
+                      </div>                        
+                  </div>
+                  <!-- Add the submit button -->
+                  {% comment %} <button type="submit" class="btn btn-primary mt-1">Submit</button> {% endcomment %}
+              </form>
           </div>
-        </form>
       </div>
-    </div>
   </div>
 </div>
 {% block css %}
@@ -169,6 +200,27 @@
           }
       };
   });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const hidePassIcons = document.querySelectorAll('.hidepass');
+  
+    hidePassIcons.forEach(icon => {
+      icon.addEventListener('click', function(event) {
+        event.preventDefault();
+        const targetInputId = this.dataset.target;
+        const targetInput = document.getElementById(targetInputId);
+        if (targetInput.type === 'password') {
+          targetInput.type = 'text';
+          this.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg>';
+        } else {
+          targetInput.type = 'password';
+          this.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.585 10.587a2 2 0 0 0 2.829 2.828" /><path d="M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87" /><path d="M3 3l18 18" /></svg>';
+        }
+      });
+    });
+  });
+  
+  
 </script>
 {% endblock %}
 {% endblock %}

@@ -23,11 +23,11 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
-    user_picture = models.ImageField(upload_to='user_pictures/', null=True)
+    user_picture = models.ImageField(upload_to='user_pictures/')
     user_firstname = models.CharField(max_length=30)
-    user_middlename = models.CharField(max_length=30, blank=True, null=True)
+    user_middlename = models.CharField(max_length=30, blank=True)
     user_lastname = models.CharField(max_length=30)
-    extension_name = models.CharField(max_length=30, blank=True, null=True)
+    extension_name = models.CharField(max_length=30, blank=True)
     employment_status = models.CharField(max_length=10)
     user_role = models.CharField(max_length=10)
     email = models.EmailField(unique=True)
@@ -48,14 +48,23 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
             self.is_superuser = True
         super().save(*args, **kwargs)
 
-
     def get_full_name(self):
-        return f"{self.user_firstname} {self.user_middlename} {self.user_lastname} {self.extension_name}"
+        full_name = f"{self.user_firstname}"
+        if self.user_middlename:
+            full_name += f" {self.user_middlename}"
+        full_name += f" {self.user_lastname}"
+        if self.extension_name:
+            full_name += f" {self.extension_name}"
+        return full_name
+
+class FacultyAccount(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, primary_key=True)
+    faculty_id = models.IntegerField(unique=True)
 
 class AcademicYear(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    year_start = models.DateField()
-    year_end = models.DateField()
+    year_start = models.IntegerField()
+    year_end = models.IntegerField()
 
 class Semester(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -68,27 +77,14 @@ class FacultyShift(models.Model):
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
     shift_start = models.TimeField()
     shift_end = models.TimeField()
-    shift_day = models.CharField(max_length=20)  # Assuming you'll store the day as a string
+    shift_day = models.CharField(max_length=20)
     
-class FacultyAccount(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, primary_key=True)
-    faculty_id = models.IntegerField(unique=True)
-
-    
-class Approval(models.Model):
-    DECISION_CHOICES = (
-        ('pending', 'Pending'),
-        ('accepted', 'Accepted'),
-        ('rejected', 'Rejected'),
-    )
-
-    leave_application = models.OneToOneField('faculty_end.LeaveApplication', on_delete=models.CASCADE)
-    decision = models.CharField(max_length=10, choices=DECISION_CHOICES, default='pending')
-    comment = models.CharField(max_length=250, blank=True, null=True)
-    admin_user = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, null=True)
-    approval_datetime = models.DateTimeField(null=True, blank=True)
-    def __str__(self):
-        return f"{self.leave_application} - {self.decision}"
+class LeaveApplicationAction(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    leave_application = models.ForeignKey('faculty_end.LeaveApplication', on_delete=models.CASCADE)
+    status = models.CharField(max_length=10, default='Pending')
+    comment = models.TextField(blank=True)
+    created = models.DateTimeField(auto_now_add=True)
     
 class AttendanceNotification(models.Model):
     user = models.ForeignKey('CustomUser', on_delete=models.CASCADE)

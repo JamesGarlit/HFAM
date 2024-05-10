@@ -36,7 +36,7 @@
                     {% if request.user.user_picture %}
                         <span class="avatar material-symbols-outlined" style="background-image: url({{ request.user.user_picture.url }})"></span>
                     {% else %}
-                        <span class="avatar material-symbols-outlined" style="background-image: url({% static '/dist/img/defaultPicture.png' %})"></span>
+                        <span class="avatar material-symbols-outlined" style="background-image: url({% static '/dist/img/default_img.png' %})"></span>
                     {% endif %}
                     <div class="d-none d-xl-block ps-2">
                         <div>{{ request.user.get_full_name }}</div>

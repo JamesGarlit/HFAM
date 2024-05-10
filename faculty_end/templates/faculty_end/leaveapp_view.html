@@ -4,138 +4,216 @@
 
 <!-- Page header -->
 <div class="page-header d-print-none">
-    <div class="container-xl">
-        <div class="row g-2 align-items-center">
-            <div class="col">
-                <h2 class="page-title">
-                    Leave Application
-                </h2>
-            </div>
-        </div>
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          Leave Application
+        </h2>
+      </div>
     </div>
+  </div>
 </div>
 <!-- Page body -->
 <div class="page-body">
-    <div class="container-xl">
-        <div class="row">
-            <div class="col-lg-12 col-sm-12 mx-auto">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Leave Details</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="card-body">
-                            <div class="row">
-                              <div class="col-lg-2 col-md-2 col-sm-12">
-                                Faculty Name
-                              </div>
-                              <div class="col-lg-10 col-md-10 col-sm-12">
-                                <p><strong>{{ leave_application.user.get_full_name }}</strong></p>
-                              </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-2 col-md-2 col-sm-12">
-                                  Application Status
-                                </div>
-                                <div class="col-lg-10 col-md-10 col-sm-12">
-                                  <p><strong>{{ leave_application.approval.get_decision_display|default:"Pending" }}</strong></p>
-                                </div>
-                            </div>
-                            <div class="row">
-                              <div class="col-lg-2 col-md-2 col-sm-12">
-                                  Approval Date - Time
-                              </div>
-                              <div class="col-lg-10 col-md-10 col-sm-12">
-                                  {% if leave_application.approval.approval_datetime %}
-                                      <p><strong>{{ leave_application.approval.approval_datetime|date:"F j, Y" }}, {{ leave_application.approval.approval_datetime|time:"g:i A" }}</strong></p>
-                                  {% else %}
-                                      <p><strong>N/A</strong></p>
-                                  {% endif %}
-                              </div>
-                            </div>                      
-                            <div class="row">
-                              <div class="col-lg-2 col-md-2 col-sm-12">
-                                Leave Period
-                              </div>
-                              <div class="col-lg-10 col-md-10 col-sm-12">
-                                <p>
-                                  <strong>
-                                    Start from {{ leave_application.leave_start_time|time:"g:i A" }} on {{ leave_application.leave_start_date }} to {{ leave_application.leave_end_time|time:"g:i A" }} on {{ leave_application.leave_end_date }}
-                                  </strong>
-                                </p>
-                              </div>
-                            </div>
-                            <div class="row">
-                              <div class="col-lg-2 col-md-2 col-sm-12">
-                                Leave Type
-                              </div>
-                              <div class="col-lg-10 col-md-10 col-sm-12">
-                                <p>
-                                  <strong>
-                                    {{ leave_application.leave_type }}
-                                  </strong>
-                                </p>
-                              </div>
-                            </div>
-                            <div class="row">
-                              <div class="col-lg-2 col-md-2 col-sm-12">
-                                Leave Reason
-                              </div>
-                              <div class="col-lg-10 col-md-10 col-sm-12">
-                                <p class="custom-justification">
-                                  <strong>
-                                    {{ leave_application.leave_reason }}
-                                  </strong>
-                                </p>
-                              </div>
-                            </div>
-                            <div class="row">
-                              <div class="col-lg-2 col-md-2 col-sm-12">
-                                Supporting Document
-                              </div>
-                              <div class="col-lg-10 col-md-10 col-sm-12">
-                                <p>
-                                  <strong>
-                                    {% if leave_application.leave_supporting_docs %}
-                                    <a href="{{ leave_application.leave_supporting_docs.url }}" target="_blank">View</a>
-                                    {% else %}
-                                    No supporting document
-                                    {% endif %}
-                                  </strong>
-                                </p>
-                              </div>
-                            </div>
-                            <div class="row">
-                              <div class="col-lg-2 col-md-2 col-sm-12">
-                                  Comment
-                              </div>
-                              <div class="col-lg-10 col-md-10 col-sm-12">
-                                  <p>
-                                      <strong>
-                                          {% if leave_application.approval.comment %}
-                                              {{ leave_application.approval.comment }}
-                                          {% else %}
-                                              N/A
-                                          {% endif %}
-                                      </strong>
-                                  </p>
-                              </div>
-                            </div>
-                        </div>
-                    </div>
+  <div class="container-xl">
+    <div class="row">
+      <div class="col-lg-12 col-sm-12 mx-auto">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Leave Application Details</h3>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="mb-3">
+                  <label class="form-label required">1. OFFICE/DEPARTMENT/COLLEGE</label>
+                  <div>
+                    <input name="department" type="text" class="form-control" placeholder=""
+                      value="{{ leave_application.department }}" readonly>
+                  </div>
                 </div>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="mb-3">
+                  <label class="form-label required">2. NAME</label>
+                  <div>
+                    <input name="full_name" type="text" class="form-control"
+                      placeholder="Last Name, First Name, Middle Name" value="{{ leave_application.user.get_full_name }}" readonly>
+                    <small class="form-hint">Example: Garlit, James Sevilla</small>
+                  </div>
+                </div>
+              </div>
             </div>
+            <div class="row">
+              <div class="col-lg-4 col-md-4 col-sm-12">
+                <div class="mb-3">
+                  <label class="form-label required">3. DATE OF FILING</label>
+                  <input name="filing_date" type="text" class="form-control" id="" value="{{ leave_application.filing_date }}"
+                    readonly>
+                </div>
+              </div>
+              <div class="col-lg-4 col-md-4 col-sm-12">
+                <div class="mb-3">
+                  <label class="form-label required">4. POSITION</label>
+                  <input name="position" type="text" class="form-control" id="" value="{{ leave_application.position }}"
+                    readonly>
+                </div>
+              </div>
+              <div class="col-lg-4 col-md-4 col-sm-12">
+                <div class="mb-3">
+                  <label class="form-label required">5. SALARY</label>
+                  <input name="salary" type="number" class="form-control" id="" value="{{ leave_application.salary }}" readonly>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="mb-3">
+                  <label class="form-label required">6.A TYPE OF LEAVE TO BE AVAILED OF</label>
+                  <select name="leave_type" class="form-select" id="" required>
+                    <option selected>Open this select menu</option>
+                    <option value="Vacation Leave (Sec. 51, Rule XVI, Omnibus Rules Implementing E.O. No. 292)">
+                      Vacation Leave (Sec. 51, Rule XVI, Omnibus Rules Implementing E.O. No. 292)
+                    </option>
+                    <option value="Mandatory/Forced Leave (Sec. 25, Rule XVI, Omnibus Rules Implementing E.O. No. 292)">
+                      Mandatory/Forced Leave (Sec. 25, Rule XVI, Omnibus Rules Implementing E.O. No. 292)</option>
+                    <option value="Sick Leave (Sec. 43, Rule VXI, Omnibus Rules Implementing E.O. No. 292)">
+                      Sick Leave (Sec. 43, Rule VXI, Omnibus Rules Implementing E.O. No. 292)</option>
+                    <option value="Maternity Leave (R.A No. 11210 / IRR issued by CSC, DOLE and SSS)">
+                      Maternity Leave (R.A No. 11210 / IRR issued by CSC, DOLE and SSS)</option>
+                    <option value="Paternity Leave (R.A No. 8187 / CSC MC No. 71, s. 1998, as amended)">
+                      Paternity Leave (R.A No. 8187 / CSC MC No. 71, s. 1998, as amended)</option>
+                    <option
+                      value="Special Privilege Leave (Sec. 21, Rule XVI, Omnibus Rules Implementing E.O. No. 292)">
+                      Special Privilege Leave (Sec. 21, Rule XVI, Omnibus Rules Implementing E.O. No. 292)</option>
+                    <option value="Solo Parent Leave (RA No. 8972 / CSC MC No. 8, s. 2004)">
+                      Solo Parent Leave (RA No. 8972 / CSC MC No. 8, s. 2004)</option>
+                    <option value="Study Leave (Sec. 68, Rule XVI, Omnibus Rules Implementing E.O. No. 292)">
+                      Study Leave (Sec. 68, Rule XVI, Omnibus Rules Implementing E.O. No. 292)</option>
+                    <option value="10-Day VAWC Leave (RA No. 9262 / CSC MC No. 15, s. 2005)">
+                      10-Day VAWC Leave (RA No. 9262 / CSC MC No. 15, s. 2005)</option>
+                    <option
+                      value="Rehabilitation Privilege (Sec. 55, Rule XVI, Omnibus Rules Implementing E.O. No. 292)">
+                      Rehabilitation Privilege (Sec. 55, Rule XVI, Omnibus Rules Implementing E.O. No. 292)</option>
+                    <option value="Special Leave Benefits for Women (RA No. 9710 / CSC MC No. 25, s. 2010)">
+                      Special Leave Benefits for Women (RA No. 9710 / CSC MC No. 25, s. 2010)</option>
+                    <option value="Special Leave Benefits for Women (RA No. 9710 / CSC MC No. 25, s. 2010)">
+                      Special Leave Benefits for Women (RA No. 9710 / CSC MC No. 25, s. 2010)</option>
+                    <option value="Special Emergency (Calamity) Leave (CSC MC No. 2, s. 2012, as amended)">
+                      Special Emergency (Calamity) Leave (CSC MC No. 2, s. 2012, as amended)</option>
+                    <option value="Adoption Leave (R.A. No. 8552)">
+                      Adoption Leave (R.A. No. 8552)
+                    </option>
+                    <option value="Others(Specify)">
+                      Others(Specify)
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="mb-3">
+                  <label class="form-label required">6.B DETAILS OF LEAVE</label>
+                  <select name="leave_details" type="text" class="form-select" id="select-optgroups" value="">
+                    <optgroup label="In case of Vacation/Special Privilege Leave">
+                      <option selected>Open this select menu</option>
+                      <option value="Within the Philippines">Within the Philippines(Specify)</option>
+                      <option value="Abroad">Abroad(Specify)</option>
+                    </optgroup>
+                    <optgroup label="In case of Sick Leave">
+                      <option value="In Hospital">In Hospital(Specify Illness)</option>
+                      <option value="Out Patient">Out Patient(Specify Illness)</option>
+                    </optgroup>
+                    <optgroup label="In case of Special Leave Benefits for Women">
+                      <option value="(Specify Illness)">(Specify Illness)</option>
+                    </optgroup>
+                    <optgroup label="In case of Study Leave">
+                      <option value="Completion of Master's Degree">Completion of Master's Degree</option>
+                      <option value="BAR/Board Examination Review">BAR/Board Examination Review</option>
+                    </optgroup>
+                    <optgroup label="Other purpose">
+                      <option value="Monetization of Leave Credits">Monetization of Leave Credits</option>
+                      <option value="Terminal Leave">Terminal Leave</option>
+                    </optgroup>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="mb-3">
+                  <label class="form-label">SPECIFY (6.A TYPE OF LEAVE TO BE AVAILED OF)</label>
+                  <input name="specify_leavetype" type="text" class="form-control" id=""
+                    value="{{ leave_application.specify_leavetype }}">
+                </div>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="mb-3">
+                  <label class="form-label">SPECIFY (6.B DETAILS OF LEAVE)</label>
+                  <input name="specify_leavedetails" type="text" class="form-control" id="" value="{{ leave_application.specify_leavedetails }}" readonly>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="mb-3">
+                  <label class="form-label required">6.C NUMBER OF WORKING DAYS APPLIED FOR</label>
+                  <input name="days_number" type="text" class="form-control" id="" value="{{ leave_application.days_number }}"
+                    readonly>
+                  <small class="form-hint">Example: 2 Days</small>
+                </div>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="mb-3">
+                  <label class="form-label required">6.D COMMUTATION</label>
+                  <select name="commutation" class="form-select" id="" required>
+                    <option selected>Open this select menu</option>
+                    <option value="Not Requested">
+                      Not Requested
+                    </option>
+                    <option value="Requested">
+                      Requested
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="mb-3">
+                  <label class="form-label required">INCLUSIVE DATES</label>
+                  <input name="inclusive_dates" type="text" class="form-control" id=""
+                    value="{{ leave_application.inclusive_dates }}" readonly>
+                  <small class="form-hint">Example: January 23 - 24, 2024</small>
+                </div>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="mb-3">
+                  <label class="form-label required">SIGNATURE</label>
+                  <input name="signature" type="file" class="form-control" id="" value="" required>
+                </div>
+              </div>
+              {% if leave_action %}
+            <strong>Status:</strong> {{ leave_action.status }}<br>
+            <strong>Comment:</strong> {{ leave_action.comment }}<br>
+        {% else %}
+            <p>No action found for this leave application.</p>
+        {% endif %}
+            </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </div>
 {% block css %}
 <!-- Include external CSS stylesheets -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <!-- Additional CSS for the specific page -->
 <style>
-    .custom-justification {
-        text-align: justify;
-      }
+  .custom-justification {
+    text-align: justify;
+  }
 </style>
 {% endblock %}
 
@@ -145,20 +223,20 @@
 
 <!-- Additional JavaScript for the specific page -->
 <script>
-    {% comment %} Alert Message Scripts {% endcomment %}
-    $(document).ready(function () {
-        {% if messages %}
-        {% for message in messages %}
-        {% if message.tags == 'success' %}
-        toastr.success('{{ message }}');
-        {% elif message.tags == 'error' %}
-        toastr.error('{{ message }}');
-        {% else %}
-        toastr('{{ message }}');
-        {% endif %}
-        {% endfor %}
-        {% endif %}
-    });
+  {% comment %} Alert Message Scripts {% endcomment %}
+  $(document).ready(function () {
+    {% if messages %}
+    {% for message in messages %}
+    {% if message.tags == 'success' %}
+    toastr.success('{{ message }}');
+    {% elif message.tags == 'error' %}
+    toastr.error('{{ message }}');
+    {% else %}
+    toastr('{{ message }}');
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+  });
 </script>
 {% endblock %}
 {% endblock %}

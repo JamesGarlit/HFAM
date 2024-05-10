@@ -37,56 +37,32 @@
                     <div class="card-body">
                         <div class="row justify-content-center">
                             <div class="col-lg-6 col-md-5 col-sm-12">
-                                {% for leave_application in leave_applications %}
-                                <div class="accordion m-1" id="accordion-{{ leave_application.id }}">
-                                    <div class="accordion-item">
-                                        <h2 class="accordion-header" id="heading-{{ leave_application.id }}">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ leave_application.id }}" aria-expanded="false">
-                                            {{ leave_application.leave_datetime_submitted|date:"F j, Y" }} - {{ leave_application.leave_datetime_submitted|time:"g:i A" }}
-                                        </button>
-                                        </h2>
-                                        <div id="collapse-{{ leave_application.id }}" class="accordion-collapse collapse" data-bs-parent="#accordion-{{ leave_application.id }}">
-                                        <div class="accordion-body pt-0">
-                                            <div class="row">
-                                                <div class="col-lg-12 col-md-12 col-sm-12 m-1">
-                                                    Leave Period:
-                                                    <strong>
-                                                        Start from {{ leave_application.leave_start_time|time:"g:i A" }} on {{ leave_application.leave_start_date }} to {{ leave_application.leave_end_time|time:"g:i A" }} on {{ leave_application.leave_end_date }}
-                                                    </strong>
+                                <div class="card-body p-0 scrollable" style="max-height: 35rem">
+                                    <div class="nav flex-column nav-pills" role="tablist">
+                                        {% for leave_app in leave_apps %}
+                                            <a href="{% url 'leaveapp_view' leave_app.id %}" class="nav-link text-start mw-100 p-3">
+                                                <div class="row align-items-center flex-fill">
+                                                    <div class="col-auto"><span class="avatar" style="background-image: url({{ leave_app.user.user_picture.url }})"></span></div>
+                                                    <div class="col text-body">
+                                                        <div>Date Submitted: <strong>{{ leave_app.created }}</strong> - Status: <strong>{{ leave_app.status }}</strong></div>
+                                                        <div class="text-secondary text-truncate w-100">Comment: <strong>{{ leave_app.comment }}</strong></div>
+                                                    </div>
                                                 </div>
-                                                <div class="col-lg-12 col-md-12 col-sm-12 m-1">
-                                                    Status:
-                                                    <strong>
-                                                        <span class="
-                                                            {% if leave_application.approval %}
-                                                                {% if leave_application.approval.get_decision_display == 'Pending' %}
-                                                                    badge bg-primary text-white
-                                                                {% elif leave_application.approval.get_decision_display == 'Accepted' %}
-                                                                    badge bg-success text-white
-                                                                {% elif leave_application.approval.get_decision_display == 'Rejected' %}
-                                                                    badge bg-danger text-white
-                                                                {% endif %}
-                                                                ">
-                                                            {{ leave_application.approval.get_decision_display }}
-                                                            {% else %}
-                                                            badge bg-primary text-white">
-                                                            Pending
-                                                            {% endif %}
-                                                        </span>
-                                                    </strong>
+                                            </a>
+                                        {% endfor %}
+                                        {% for action_data in actions_with_date %}
+                                            <a href="{% url 'leaveapp_view' action_data.action.leave_application.id %}" class="nav-link text-start mw-100 p-3">
+                                                <div class="row align-items-center flex-fill">
+                                                    <div class="col-auto"><span class="avatar" style="background-image: url({{ action_data.action.leave_application.user.user_picture.url }})"></span></div>
+                                                    <div class="col text-body">
+                                                        <div>Date Submitted: <strong>{{ action_data.date_submitted }}</strong> - Status: <strong>{{ action_data.status }}</strong></div>
+                                                        <div class="text-secondary text-truncate w-100">Comment: <strong>{{ action_data.action.comment }}</strong></div>
+                                                    </div>
                                                 </div>
-                                                <div class="col-lg-12 col-md-12 col-sm-12 m-1">
-                                                    View:
-                                                    <strong>
-                                                        <a href="{% url 'leaveapp_view' leave_application.id %}" class="btn btn-info btn-sm">View</a>
-                                                    </strong>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        </div>
-                                    </div>
+                                            </a>
+                                        {% endfor %}
+                                    </div>                                    
                                 </div>
-                                {% endfor %}
                             </div>
                         </div>
                     </div>
@@ -100,7 +76,9 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <!-- Additional CSS for the specific page -->
 <style>
-    /* Your specific page CSS styles */
+    .nav-link:hover {
+        background-color: #e9ecef; /* Change to your desired background color */
+    }
 </style>
 {% endblock %}
 

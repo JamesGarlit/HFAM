@@ -34,7 +34,7 @@ SECRET_KEY = 'django-insecure-!8s#p+l^wi3b)0c7vvd%nrcbp5o^ilof79fif-_mc^8ob(71m@
 DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'hfam.onrender.com']
-
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # Application definition
 
@@ -83,21 +83,21 @@ WSGI_APPLICATION = 'HyFAS.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+https://docs.djangoproject.com/en/5.0/ref/settings/
 
-# DATABASES = {
-#     'default': dj_database_url.parse(env('DATABASE_URL'))
-# }
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'hyfas',
-        'USER': 'postgres',
-        'PASSWORD':'attendancesys',
-        'HOST':'localhost',
-        'PORT':'5432',
-    }
-}  
+    'default': dj_database_url.parse(env('DATABASE_URL'))
+}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'hyfas',
+#         'USER': 'postgres',
+#         'PASSWORD':'attendancesys',
+#         'HOST':'localhost',
+#         'PORT':'5432',
+#     }
+# }  
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -155,7 +155,7 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # You can also use 'djan
 
 # Set the session timeout (in seconds)
 # For example, set it to 15 minutes (15 * 60 seconds)
-SESSION_COOKIE_AGE = 15 * 60
+# SESSION_COOKIE_AGE = 15 * 60
 
 # Optional: Set the session cookie secure flag if using HTTPS
 SESSION_COOKIE_SECURE = True  # Set it to False if not using HTTPS in development

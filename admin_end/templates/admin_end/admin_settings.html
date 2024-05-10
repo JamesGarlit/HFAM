@@ -29,7 +29,7 @@
                                     <span class="avatar avatar-xl" style="background-image: url({{ request.user.user_picture.url }})"></span>
                                 {% else %}
                                     <!-- Provide a default image or placeholder if user_picture is not available -->
-                                    <span class="avatar avatar-xl" style="background-image: url({% static '/static/photos/defaultpicture.png' %})"></span>
+                                    <span class="avatar avatar-xl" style="background-image: url({% static '/dist/img/default_img.png' %})"></span>
                                 {% endif %}
                             </div>
                             {% comment %} <div class="col-auto"><a href="#" class="btn">

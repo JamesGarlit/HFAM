@@ -20,17 +20,17 @@
 <!-- Page body -->
 <div class="page-body">
     <div class="container-xl">
-        <form class="card" method="post" action="{% url 'shift_create' %}">
+        <form class="card" method="post" action="{% url 'shift_create' user_id=faculty_user.id %}">
             {% csrf_token %}
             <div class="card-header">
-                <h3 class="card-title">Basic form</h3>
+                <h3 class="card-title">Shift form</h3>
             </div>
-            <div class="card-body">
+            <div class="card-body" id="shiftForm">
                 <div class="row">
                     <div class="col">
                         <label class="form-label required">Academic Year Start</label>
                         <div>
-                            <select name="year_start" class="form-select">
+                            <select name="year_start" class="form-select" required>
                                 <option value="">Year</option>
                                 <option value="2024">2024</option>
                                 <option value="2023">2023</option>
@@ -43,7 +43,7 @@
                     <div class="col">
                         <label class="form-label required">Academic Year End</label>
                         <div>
-                            <select name="year_end" class="form-select">
+                            <select name="year_end" class="form-select" required>
                                 <option value="">Year</option>
                                 <option value="2024">2024</option>
                                 <option value="2023">2023</option>
@@ -56,31 +56,32 @@
                     <div class="col">
                         <label class="form-label required">Semester</label>
                         <div>
-                            <select name="semester_name" class="form-select">
+                            <select name="semester_name" class="form-select" required>
                                 <option value="">Semester</option>
                                 <option value="First Semester">First Semester</option>
                                 <option value="Second Semester">Second Semester</option>
+                                <option value="Summer">Summer</option>
                             </select>
                         </div>
                     </div>
                 </div>
-                <div class="row mb-2">
+                <div class="row mt-2">
                     <div class="col">
                         <label class="form-label required">Shift Start</label>
                         <div>
-                            <input name="shift_start" type="time" class="form-control">
+                            <input name="shift_start[]" type="time" class="form-control" required>
                         </div>
                     </div>
                     <div class="col">
                         <label class="form-label required">Shift End</label>
                         <div>
-                            <input name="shift_end" type="time" class="form-control">
+                            <input name="shift_end[]" type="time" class="form-control" required>
                         </div>
                     </div>
                     <div class="col">
                         <label class="form-label required">Shift Day</label>
                         <div>
-                            <select name="shift_day" class="form-select">
+                            <select name="shift_day[]" class="form-select" required>
                                 <option value="">Day</option>
                                 <option value="Monday">Monday</option>
                                 <option value="Tuesday">Tuesday</option>
@@ -95,6 +96,10 @@
                 </div>
             </div>
             <div class="card-footer text-center">
+                <div class="col-lg-12">
+                    <button type="button" class="btn btn-success mb-2 w-100" onclick="addRow()">Add row</button>
+                    <button type="button" class="btn btn-danger mb-2 w-100" onclick="deleteRow()">Delete row</button>
+                </div>
                 <button type="submit" class="btn btn-primary w-100">Submit</button>
             </div>
         </form>
@@ -115,7 +120,54 @@
 
 {% comment %} specific js {% endcomment %}
 <script>
+    let rowCounter = 1; // Initialize a counter for row IDs
 
+    function addRow() {
+        rowCounter++; // Increment the counter
+        var newRow = `
+        <div class="row mt-2" id="row${rowCounter}"> <!-- Include an ID for the row -->
+            <div class="col">
+                <label class="form-label required">Shift Start</label>
+                <div>
+                    <input name="shift_start[]" type="time" class="form-control" required>
+                </div>
+            </div>
+            <div class="col">
+                <label class="form-label required">Shift End</label>
+                <div>
+                    <input name="shift_end[]" type="time" class="form-control" required>
+                </div>
+            </div>
+            <div class="col">
+                <label class="form-label required">Shift Day</label>
+                <div>
+                    <select name="shift_day[]" class="form-select" required>
+                        <option value="">Day</option>
+                        <option value="Monday">Monday</option>
+                        <option value="Tuesday">Tuesday</option>
+                        <option value="Wednesday">Wednesday</option>
+                        <option value="Thursday">Thursday</option>
+                        <option value="Friday">Friday</option>
+                        <option value="Saturday">Saturday</option>
+                        <option value="Sunday">Sunday</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    `;
+        document.getElementById('shiftForm').insertAdjacentHTML('beforeend', newRow);
+    }
+
+    function deleteRow() {
+        if (rowCounter > 1) { // Ensure there's at least one row
+            let rowId = 'row' + rowCounter; // ID of the last row
+            let rowToRemove = document.getElementById(rowId);
+            if (rowToRemove) { // Check if the row exists
+                rowToRemove.remove(); // Remove the row
+                rowCounter--; // Decrement the counter
+            }
+        }
+    }
 </script>
 {% endblock %}
 {% endblock %}

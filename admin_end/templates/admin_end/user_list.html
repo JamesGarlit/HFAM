@@ -51,7 +51,6 @@
                 <table id="userList" class="table table-striped display" style="width:100%">
                     <thead>
                         <tr>
-                            <th>#</th>
                             <th>Image</th>
                             <th>Full Name</th>
                             <th>Email</th>
@@ -62,18 +61,18 @@
                     <tbody>
                         {% for user in users %}
                         <tr>
-                            <td>{{ user.id }}</td>
                             <td>
                                 {% if user.user_picture %}
                                     <img src="{{ user.user_picture.url }}" alt="{{ user.user_firstname }} {{ user.user_lastname }}" style="max-width: 50px; max-height: 50px;">
                                 {% else %}
-                                    <img src="{% static '/dist/img/defaultPicture.png' %}" alt="Default Picture" style="max-width: 50px; max-height: 50px;">
+                                    <img src="{% static '/dist/img/default_img.png' %}" alt="Default Picture" style="max-width: 40px; max-height: 40px;">
                                 {% endif %}
                             </td>
                             <td>{{ user.user_firstname }} {{ user.user_lastname }}</td>
                             <td>{{ user.email }}</td>
                             <td>{{ user.user_role }}</td>
                             <td>
+                                <a href="{% url 'user_update' user.id %}" type="button" class="btn btn-info btn-sm" title="Edit"><span class="material-symbols-outlined">edit</span></a>
                                 {% if user.is_active %}
                                 <form method="post" action="{% url 'deactivate_user' user.id %}"
                                     style="display: inline;">
@@ -86,8 +85,6 @@
                                     <button type="submit" class="btn btn-success btn-sm" title="Activate"><span class="material-symbols-outlined">switches</span></button>
                                 </form>
                                 {% endif %}
-                                <a href="{% url 'user_update' user.id %}" type="button"
-                                    class="btn btn-info btn-sm" title="Edit"><span class="material-symbols-outlined">edit</span></a>
                             </td>
                         </tr>
                         {% endfor %}

@@ -25,35 +25,59 @@
                 <table id="schedule" class="table table-striped display" style="width:100%">
                     <thead>
                         <tr>
-                            <th>Faculty Name</th>
+                            <th>ID</th>
+                            <th>Academic Year ID</th>
+                            <th>Semester ID</th>
+                            <th>Faculty ID</th>
                             <th>Faculty Status</th>
+                            <th>Total Units</th>
+                            <th>Total Hours</th>
+                            <th>TS</th>
                             <th>Rank</th>
                             <th>Course Code</th>
                             <th>Course Description</th>
                             <th>Units</th>
-                            <th>Lecture</th>
-                            <th>Lab</th>
+                            <th>Lecture Hours</th>
+                            <th>Lab Hours</th>
+                            <th>Tuition Hours</th>
+                            <th>Day</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
                             <th>Class Name</th>
-                            <th>Schedule</th>
                             <th>Room Name</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for entry in schedule_data %}
-                            <tr>
-                                <td>{{ entry.Faculty_Name }}</td>
-                                <td>{{ entry.Faculty_Status }}</td>
-                                <td>{{ entry.Rank }}</td>
-                                <td>{{ entry.Course_Code }}</td>
-                                <td>{{ entry.Course_Description }}</td>
-                                <td>{{ entry.Units }}</td>
-                                <td>{{ entry.Lecture }}</td>
-                                <td>{{ entry.Lab }}</td>
-                                <td>{{ entry.Class_Name }}</td>
-                                <td>{{ entry.Schedule }}</td>
-                                <td>{{ entry.Room_Name }}</td>
-                            </tr>
+                        {% if schedules_from_api %}
+                        {% for schedule in schedules_from_api %}
+                        <tr>
+                            <td>{{ schedule.Id }}</td>
+                            <td>{{ schedule.AcademicYearId }}</td>
+                            <td>{{ schedule.SemesterId }}</td>
+                            <td>{{ schedule.FacultyId }}</td>
+                            <td>{{ schedule.FacultyStatus }}</td>
+                            <td>{{ schedule.TotalUnits }}</td>
+                            <td>{{ schedule.TotalHours }}</td>
+                            <td>{{ schedule.TS }}</td>
+                            <td>{{ schedule.Rank }}</td>
+                            <td>{{ schedule.CourseCode }}</td>
+                            <td>{{ schedule.CourseDescription }}</td>
+                            <td>{{ schedule.Units }}</td>
+                            <td>{{ schedule.LectureHours }}</td>
+                            <td>{{ schedule.LabHours }}</td>
+                            <td>{{ schedule.TuitionHours }}</td>
+                            <td>{{ schedule.Day }}</td>
+                            <td>{{ schedule.StartTime }}</td>
+                            <td>{{ schedule.EndTime }}</td>
+                            <td>{{ schedule.ClassName }}</td>
+                            <td>{{ schedule.RoomName }}</td>
+                        </tr>
                         {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="19">No data available</td>
+                        </tr>
+                        {% endif %}
                     </tbody>
                 </table>
             </div>

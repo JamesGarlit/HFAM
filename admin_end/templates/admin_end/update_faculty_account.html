@@ -77,7 +77,11 @@
                             <div class="col">
                                 <div class="mb-3">
                                     <label for="" class="form-label required">Employment Status</label>
-                                    <input name="employment_status" type="text" class="form-control" id="" value="{{ employment_status }}" required>
+                                    <select name="employment_status" class="form-select" required>
+                                        <option selected disabled></option>
+                                        <option value="Part Time" {% if user.employment_status == 'Part Time' %}selected{% endif %}>Part Time</option>
+                                        <option value="Full Time" {% if user.employment_status == 'Full Time' %}selected{% endif %}>Full Time</option>>
+                                    </select>
                                 </div>
                             </div>
                         </div>

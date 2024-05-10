@@ -22,10 +22,10 @@
     <div class="container-xl">
         <div class="card">
             <div class="card-body">
-                <table id="userList" class="table table-striped display" style="width:100%">
+                <table id="facultyList" class="table table-striped display" style="width:100%">
                     <thead>
                         <tr>
-                            <th>Faculty ID</th>
+                            <th>ID</th>
                             <th>Full Name</th>
                             <th>Email</th>
                             <th>Action</th>
@@ -62,33 +62,32 @@
 <script>
     $(document).ready(function() {
         // Setup - add a text input to each footer cell
-        $('#userList thead tr').clone(true).addClass('filters').appendTo('#userList thead');
+        $('#facultyList thead tr').clone(true).addClass('filters').appendTo('#facultyList thead');
     
-        var table = $('#userList').DataTable({
+        var table = $('#facultyList').DataTable({
             scrollCollapse: true,
             orderCellsTop: true,
             fixedHeader: true,
-            order: [[0, 'desc']],
-            scrollX: true,
-            dom: 'Bfrtlip',
+            scrollX: true, // Add scrollX to enable horizontal scrolling
+            dom: 'Bfrtlip', // Include buttons and exclude the search filter ('f')
             buttons: [
                 {
                     extend: 'print',
-                    title: 'Attendance Record - ' + new Date().toLocaleDateString(),
+                    title: 'Faculty Schedule List - ' + new Date().toLocaleDateString(),
                     exportOptions: {
                         columns: ':visible'
                     }
                 },
                 {
                     extend: 'excel',
-                    title: 'Attendance Record - ' + new Date().toLocaleDateString(),
+                    title: 'Faculty Schedule List - ' + new Date().toLocaleDateString(),
                     exportOptions: {
                         columns: ':visible'
                     }
                 },
                 {
                     extend: 'pdf',
-                    title: 'Attendance Record - ' + new Date().toLocaleDateString(),
+                    title: 'Faculty Schedule List - ' + new Date().toLocaleDateString(),
                     exportOptions: {
                         columns: ':visible'
                     }
@@ -97,36 +96,39 @@
             ],
             initComplete: function() {
                 var api = this.api();
-    
+                // For each column
                 api.columns().eq(0).each(function(colIdx) {
-                    // Set the header cell to contain the input element
-                    var cell = $('.filters th').eq($(api.column(colIdx).header()).index());
-                    var title = $(cell).text();
-                    $(cell).html('<input type="text" placeholder="' + title + '" />');
-    
-                    $('input', $('.filters th').eq($(api.column(colIdx).header()).index()))
-                        .off('keyup change')
-                        .on('keyup change', function(e) {
-                            e.stopPropagation();
-                            $(this).attr('title', $(this).val());
-                            var regexr = '({search})';
-                            var cursorPosition = this.selectionStart;
-    
-                            api
-                                .column(colIdx)
-                                .search((this.value != "") ? regexr.replace('{search}', '(((' + this.value + ')))') : "", this.value != "", this.value == "")
-                                .draw();
-                            $(this).focus()[0].setSelectionRange(cursorPosition, cursorPosition);
-                        });
-    
-                    if (colIdx === api.columns().eq(0).length - 1) {
-                        // Include filter input for the last column
+                    // Exclude input filter for the last column
+                    if (colIdx < api.columns().eq(0).length - 1) {
+                        // Set the header cell to contain the input element
+                        var cell = $('.filters th').eq($(api.column(colIdx).header()).index());
+                        var title = $(cell).text();
                         $(cell).html('<input type="text" placeholder="' + title + '" />');
+                        // On every keypress in this input
+                        $('input', $('.filters th').eq($(api.column(colIdx).header()).index()))
+                            .off('keyup change')
+                            .on('keyup change', function(e) {
+                                e.stopPropagation();
+                                // Get the search value
+                                $(this).attr('title', $(this).val());
+                                var regexr = '({search})'; //$(this).parents('th').find('select').val();
+                                var cursorPosition = this.selectionStart;
+                                // Search the column for that value
+                                api
+                                    .column(colIdx)
+                                    .search((this.value != "") ? regexr.replace('{search}', '(((' + this.value + ')))') : "", this.value != "", this.value == "")
+                                    .draw();
+                                $(this).focus()[0].setSelectionRange(cursorPosition, cursorPosition);
+                            });
+                    } else {
+                        // Remove filter input for the last column
+                        var cell = $('.filters th').eq($(api.column(colIdx).header()).index());
+                        $(cell).html('');
                     }
                 });
             }
         });
-    });    
+    });
           
     {% comment %} Alert Message Scripts {% endcomment %}
     $(document).ready(function () {

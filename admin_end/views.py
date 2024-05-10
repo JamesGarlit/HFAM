@@ -1,17 +1,17 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.views.decorators.cache import cache_control
 from django.contrib import messages
-from .models import CustomUser, FacultyShift, AcademicYear, Semester, Approval, AttendanceNotification, FacultyAccount
-from .forms import FacultyShiftForm
+from .models import CustomUser, FacultyShift, AcademicYear, Semester, AttendanceNotification, FacultyAccount, LeaveApplicationAction
 from faculty_end.models import LeaveApplication, TimeIn, TimeOut
 from django.contrib.auth import get_user_model
-from django.contrib.auth.decorators import user_passes_test
-from datetime import datetime
+from datetime import datetime, timedelta
+import dateutil.parser
 from django.utils import timezone
 from django.http import JsonResponse
 from django.http import HttpResponse
+from django.db import transaction
 
 import requests
 
@@ -22,22 +22,22 @@ def is_admin(user):
     return user.is_authenticated and user.groups.filter(name='admin').exists()
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='admin_login')
-@login_required(login_url='admin_login')
+@user_passes_test(is_superadmin, login_url='error_400')
+@login_required(login_url='login_as')
 def admin_notif(request):
     return render(request,'admin_end/admin_notif.html')
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='admin_login')
-@login_required(login_url='admin_login')
+@user_passes_test(is_superadmin, login_url='error_400')
+@login_required(login_url='login_as')
 def admin_settings(request):
     return render(request,'admin_end/admin_settings.html')
 # ---------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 # USER FUNCTION
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='admin_login')
-@login_required(login_url='admin_login')
+@user_passes_test(is_superadmin, login_url='error_400')
+@login_required(login_url='login_as')
 def user_create(request):
     if request.method == 'POST':
         user_picture = request.FILES.get('user_picture')
@@ -67,22 +67,25 @@ def user_create(request):
         return render(request, 'admin_end/user_create.html')
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='admin_login')
-@login_required(login_url='admin_login')
+@user_passes_test(is_superadmin, login_url='error_400')
+@login_required(login_url='login_as')
 def user_update(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
 
     if request.method == 'POST':
         user_picture = request.FILES.get('user_picture')
         user_firstname = request.POST.get('user_firstname')
+        user_middlename = request.POST.get('user_middlename')
         user_lastname = request.POST.get('user_lastname')
+        extension_name = request.POST.get('extension_name')
         employment_status = request.POST.get('employment_status')
         user_role = request.POST.get('user_role')
         email = request.POST.get('email')
         new_password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm-password')
 
-        if new_password:
-            # Update password only if a new one is provided
+        if new_password and new_password == confirm_password:
+            # Update password only if a new one is provided and matches the confirm password
             user.set_password(new_password)
             user.save(update_fields=['password'])
             # Important: update_session_auth_hash to avoid log out after password change
@@ -90,10 +93,12 @@ def user_update(request, user_id):
 
         if user_picture:
             user.user_picture = user_picture
-            user.user_firstname = user_firstname
-            user.user_lastname = user_lastname
-            user.employment_status = employment_status
-            user.user_role = user_role
+        user.user_firstname = user_firstname
+        user.user_middlename = user_middlename
+        user.user_lastname = user_lastname
+        user.extension_name = extension_name
+        user.employment_status = employment_status
+        user.user_role = user_role
 
         # Check if the new role is 'superadmin' or 'admin' and update is_superuser accordingly
         if user_role in ['superadmin', 'admin']:
@@ -102,7 +107,7 @@ def user_update(request, user_id):
             user.is_superuser = False
 
         user.email = email
-        user.save(update_fields=['user_picture', 'user_firstname', 'user_lastname', 'employment_status', 'user_role', 'is_superuser', 'email'])
+        user.save()
 
         messages.success(request, 'User information updated successfully!')
         return redirect('user_list')
@@ -113,12 +118,18 @@ def user_update(request, user_id):
 # ---------------------------------------------------------------------------------------------------------
 # SHIFT FUNCTION
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='admin_login')
-@login_required(login_url='admin_login')
+@user_passes_test(is_superadmin, login_url='error_400')
+@login_required(login_url='login_as')
 def faculty_members(request):
     api_url = 'https://pupqcfis-com.onrender.com/api/all/FISFaculty'
+    token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJrZXkiOiI1NGY0NzRmMTAxYTc0NWRhYmRiODU1M2I4YzYzMzliMSJ9.hNjCSVI3bsaivK3JlAOqGBlrMkvZxUptUxSqCCD5STs'
 
-    response = requests.get(api_url)
+    headers = {
+        'Authorization': 'API-Key',
+        'token': token,
+    }
+
+    response = requests.get(api_url, headers=headers)
     faculties_from_api = []
 
     if response.status_code == 200:
@@ -146,124 +157,142 @@ def faculty_members(request):
     return render(request, 'admin_end/faculty_members.html', {'faculties_from_api': faculties_from_api} if faculties_from_api else {'error_message': 'Failed to fetch data from the API'})
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)  
-@user_passes_test(is_superadmin, login_url='admin_login')
-@login_required(login_url='admin_login') 
+@user_passes_test(is_superadmin, login_url='error_400')
+@login_required(login_url='login_as') 
 def user_list(request):
     users = CustomUser.objects.all()
     return render(request, 'admin_end/user_list.html', {'users': users})
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='admin_login')
-@login_required(login_url='admin_login')
+@user_passes_test(is_superadmin, login_url='error_400')
+@login_required(login_url='login_as')
 def user_view(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
     return render(request, 'admin_end/user_view.html', {'user': user})
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='admin_login')
-@login_required(login_url='admin_login')
+@user_passes_test(is_superadmin, login_url='error_400')
+@login_required(login_url='login_as')
 def shift_list(request):
-    # Filter out deactivated faculty members
-    faculty_list = CustomUser.objects.filter(user_role='faculty', is_active=True)
-    
-    # Get the schedule for each active faculty member
-    faculty_schedule = []
-    for faculty in faculty_list:
-        shifts = FacultyShift.objects.filter(user=faculty)
-        schedule_display = " / ".join(shift.get_schedule_display() for shift in shifts)
-        faculty_schedule.append({
-            'id': faculty.id,
-            'name': faculty.get_full_name(),
-            'employment_status': faculty.employment_status,
-            'schedule_display': schedule_display,
-        })
+    # Fetch all users with role 'faculty' along with their shifts
+    faculty_shifts = FacultyShift.objects.select_related('user', 'academic_year', 'semester').filter(user__user_role='faculty')
 
-    return render(request, 'admin_end/shift_list.html', {'faculty_schedule': faculty_schedule})
+    # Initialize an empty dictionary to store the data for each faculty member
+    faculty_shift_data = {}
+
+    # Iterate over each faculty member's shifts
+    for shift in faculty_shifts:
+        # If the faculty member is not in the dictionary, add them with their shifts
+        if shift.user not in faculty_shift_data:
+            faculty_shift_data[shift.user] = {
+                'user': shift.user,
+                'academic_year': shift.academic_year if shift.academic_year else 'No Data',
+                'semester': shift.semester if shift.semester else 'No Data',
+                'shifts': f"{shift.shift_day} {shift.shift_start.strftime('%I:%M %p')} - {shift.shift_end.strftime('%I:%M %p')}"
+            }
+        # If the faculty member is already in the dictionary, append the shift details
+        else:
+            faculty_shift_data[shift.user]['shifts'] += f" / {shift.shift_day} {shift.shift_start.strftime('%I:%M %p')} - {shift.shift_end.strftime('%I:%M %p')}"
+
+    # Check for faculty members without shifts and add them to the dictionary with 'No Data'
+    all_faculty_members = CustomUser.objects.filter(user_role='faculty')
+    for faculty_member in all_faculty_members:
+        if faculty_member not in faculty_shift_data:
+            faculty_shift_data[faculty_member] = {
+                'user': faculty_member,
+                'academic_year': 'No Data',
+                'semester': 'No Data',
+                'shifts': 'No shift yet'
+            }
+
+    # Convert the dictionary values to a list for template rendering
+    faculty_shift_data_list = list(faculty_shift_data.values())
+
+    # Pass the data to the template for rendering
+    return render(request, 'admin_end/shift_list.html', {'faculty_shift_data': faculty_shift_data_list})
+
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='admin_login')
-@login_required(login_url='admin_login')
+@user_passes_test(is_superadmin, login_url='error_400')
+@login_required(login_url='login_as')
 def shift_details(request, user_id):
     faculty_user = get_object_or_404(CustomUser, id=user_id, user_role='faculty')
     shifts = FacultyShift.objects.filter(user=faculty_user)
     return render(request, 'admin_end/shift_details.html', {'faculty_user': faculty_user, 'shifts': shifts})
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='admin_login')
-@login_required(login_url='admin_login')
+@user_passes_test(is_superadmin, login_url='error_400')
+@login_required(login_url='login_as')
+@transaction.atomic
 def shift_create(request, user_id):
     faculty_user = get_object_or_404(CustomUser, id=user_id, user_role='faculty')
 
     if request.method == 'POST':
-        # Assuming you receive data for all models in the request.POST dictionary
-
-        # Saving AcademicYear
         academic_year = AcademicYear.objects.create(
             user=faculty_user,
             year_start=request.POST.get('year_start'),
             year_end=request.POST.get('year_end')
         )
 
-        # Saving Semester
         semester = Semester.objects.create(
             user=faculty_user,
             academic_year=academic_year,
             semester_name=request.POST.get('semester_name')
         )
 
-        # Saving FacultyShift
-        faculty_shift = FacultyShift.objects.create(
-            user=faculty_user,
-            academic_year=academic_year,
-            semester=semester,
-            shift_start=request.POST.get('shift_start'),
-            shift_end=request.POST.get('shift_end'),
-            shift_day=request.POST.get('shift_day')
-        )
+        shift_start = request.POST.getlist('shift_start[]')
+        shift_end = request.POST.getlist('shift_end[]')
+        shift_day = request.POST.getlist('shift_day[]')
 
-        # Assuming you have success messages set up
-        messages.success(request, 'Shift Created Successfully!')
+        # Create FacultyShift objects for each shift
+        for start, end, day in zip(shift_start, shift_end, shift_day):
+            FacultyShift.objects.create(
+                user=faculty_user,
+                academic_year=academic_year,
+                semester=semester,
+                shift_start=start,
+                shift_end=end,
+                shift_day=day
+            )
 
+        messages.success(request, 'Shifts Created Successfully!')
         return redirect('shift_details', user_id=user_id)
     else:
-        # Assuming you have a template with the form fields
         return render(request, 'admin_end/shift_create.html', {'faculty_user': faculty_user})
-# def shift_create(request, user_id):
-#     faculty_user = get_object_or_404(CustomUser, id=user_id, user_role='faculty')
-
-#     if request.method == 'POST':
-#         form = FacultyShiftForm(request.POST)
-#         if form.is_valid():
-#             shift = form.save(commit=False)
-#             shift.user = faculty_user
-#             shift.save()
-#             messages.success(request, 'Shift Created Successfully!')
-#             return redirect('shift_details', user_id=user_id)
-#     else:
-#         form = FacultyShiftForm()
-
-#     return render(request, 'admin_end/shift_create.html', {'faculty_user': faculty_user, 'form': form})
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='admin_login')
-@login_required(login_url='admin_login')
-def shift_update(request, shift_id):
+@user_passes_test(is_superadmin, login_url='error_400')
+@login_required(login_url='login_as')
+def shift_update(request, user_id, shift_id):
+    faculty_user = get_object_or_404(CustomUser, id=user_id, user_role='faculty')
     shift = get_object_or_404(FacultyShift, id=shift_id)
+    academic_years = AcademicYear.objects.all()
 
     if request.method == 'POST':
-        form = FacultyShiftForm(request.POST, instance=shift)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Update Successfully!')
-            return redirect('shift_details', user_id=shift.user.id)
-    else:
-        form = FacultyShiftForm(instance=shift)
+        # Assuming you have form fields for updating shift details directly in the HTML
+        shift.shift_start = request.POST.get('shift_start')
+        shift.shift_end = request.POST.get('shift_end')
+        shift.shift_day = request.POST.get('shift_day')
+        shift.save()
 
-    return render(request, 'admin_end/shift_update.html', {'form': form, 'shift': shift})
+        # Update associated AcademicYear and Semester
+        academic_year = shift.academic_year
+        academic_year.year_start = request.POST.get('year_start')
+        academic_year.year_end = request.POST.get('year_end')
+        academic_year.save()
+
+        semester = shift.semester
+        semester.semester_name = request.POST.get('semester_name')
+        semester.save()
+
+        messages.success(request, 'Shift and Associated Details Updated Successfully!')
+        return redirect('shift_details', user_id=user_id)
+    else:
+        return render(request, 'admin_end/shift_update.html', {'shift': shift, 'faculty_user': faculty_user, 'academic_years': academic_years})
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='admin_login')
-@login_required(login_url='admin_login')
+@user_passes_test(is_superadmin, login_url='error_400')
+@login_required(login_url='login_as')
 def shift_delete(request, shift_id):
     print(f"Received shift_id: {shift_id}")
     shift = get_object_or_404(FacultyShift, id=shift_id)
@@ -276,12 +305,9 @@ def shift_delete(request, shift_id):
 
 # ---------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
-# LOGIN FUNCTION
+# # LOGIN FUNCTION
 def login_as(request):
-    return render(request,'admin_end/login_as.html')
-
-def admin_login(request):
-    RECAPTCHA_SECRET_KEY = '6Lc_w1EpAAAAAPtl_6VlzrVSK8ufqIvpsG6MYwDE'  #reCAPTCHA secret key
+    RECAPTCHA_SECRET_KEY = '6Lc_w1EpAAAAAPtl_6VlzrVSK8ufqIvpsG6MYwDE'  # reCAPTCHA secret key
 
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -291,7 +317,7 @@ def admin_login(request):
         # Check if email, password, and reCAPTCHA response are provided
         if not email or not password or not recaptcha_response:
             messages.error(request, 'Please fill out all required fields.')
-            return render(request, 'admin_end/admin_login.html')
+            return render(request, 'admin_end/login_as.html')
 
         # Verify reCAPTCHA
         url = 'https://www.google.com/recaptcha/api/siteverify'
@@ -305,22 +331,54 @@ def admin_login(request):
 
         if not result.get('success', False):
             messages.error(request, 'reCAPTCHA verification failed. Please try again.')
-            return render(request, 'admin_end/admin_login.html')
+            return render(request, 'admin_end/login_as.html')
 
-        # Authenticate user
+        # Check if user has been banned
+        banned_until = request.session.get('banned_until')
+        if banned_until:
+            banned_until = dateutil.parser.parse(banned_until)
+            if banned_until > timezone.now():
+                time_left = (banned_until - timezone.now()).total_seconds() // 60
+                messages.error(request, f'You have been banned. Try again after {time_left} minutes.')
+                return render(request, 'admin_end/login_as.html')
+
+
+        # Attempt to authenticate user
         user = authenticate(request, email=email, password=password)
 
-        if user is not None and user.user_role in ['admin', 'superadmin']:
-            login(request, user)
-            messages.success(request, 'Login Successfully.')
-            return redirect('dashboard')
-        else:
-            messages.error(request, 'Invalid credentials or your credentials are not registered.')
+        if user is not None:
+            # Reset login attempts if successful
+            request.session.pop('login_attempts', None)
 
-    return render(request, 'admin_end/admin_login.html')
+            # Redirect based on user role
+            if user.user_role == 'admin' or user.user_role == 'superadmin':
+                login(request, user)
+                messages.success(request, 'Admin logged in successful.')
+                return redirect('dashboard')  # Redirect to admin dashboard
+            elif user.user_role == 'faculty':
+                login(request, user)
+                messages.success(request, 'Faculty logged in successful.')
+                return redirect('log_attendance')  # Redirect to faculty dashboard
+            else:
+                messages.error(request, 'Invalid user role.')
+        else:
+            # Increase login attempts count
+            login_attempts = request.session.get('login_attempts', 0) + 1
+            request.session['login_attempts'] = login_attempts
+
+            # Check if login attempts exceed limit
+            if login_attempts >= 3:
+                # Ban the user for 3 minutes
+                banned_until = timezone.now() + timedelta(minutes=3)
+                request.session['banned_until'] = str(banned_until)  # Convert to string
+                messages.error(request, 'You have exceeded the login attempts limit. Please try again later.')
+            else:
+                messages.error(request, 'Invalid credentials.')
+
+    return render(request, 'admin_end/login_as.html')
 
 # LOGOUT FUNCTION
-@login_required(login_url='admin_login')
+@login_required(login_url='login_as')
 def admin_logout(request):
     if request.user.is_authenticated:
         # Clear session data
@@ -336,15 +394,15 @@ def admin_logout(request):
         messages.warning(request, 'You are not logged in.')
 
     # Redirect to the login page
-    return redirect('admin_login')
+    return redirect('login_as')
 
 # ---------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 
 # DEACTIVATE USER FUNCTION
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='admin_login')
-@login_required(login_url='admin_login')
+@user_passes_test(is_superadmin, login_url='error_400')
+@login_required(login_url='login_as')
 def deactivate_user(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
     user.is_active = False
@@ -354,8 +412,8 @@ def deactivate_user(request, user_id):
 
 #  ACTIVATE USER FUNCTION
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='admin_login')
-@login_required(login_url='admin_login')
+@user_passes_test(is_superadmin, login_url='error_400')
+@login_required(login_url='login_as')
 def activate_user(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
     user.is_active = True
@@ -367,78 +425,49 @@ def activate_user(request, user_id):
 
 # LEAVE APPLICATION LIST FUNCTION
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='admin_login')
-@login_required(login_url='admin_login')
+@user_passes_test(is_superadmin, login_url='error_400')
+@login_required(login_url='login_as')
 def leaveappreq_list(request):
-    new_leave_applications = LeaveApplication.objects.filter(is_viewed=False)
-    has_new_leave_applications = new_leave_applications.exists()
+    faculty_leave_apps = LeaveApplication.objects.all()  # Get all leave applications
+    return render(request, 'admin_end/leaveappreq_list.html', {'faculty_leave_apps': faculty_leave_apps})
 
-    # Update is_viewed to mark applications as viewed
-    new_leave_applications.update(is_viewed=True)
+def accepted_leaveapp(request):
+    # Fetch all accepted leave applications
+    accepted_leave_apps = LeaveApplication.objects.filter(leaveapplicationaction__status='Accepted')
 
-    all_leave_applications = LeaveApplication.objects.all()
-
-    return render(request, 'admin_end/leaveappreq_list.html', {
-        'leave_applications': all_leave_applications,  # Display all applications in the table
-        'has_new_leave_applications': has_new_leave_applications,
-    })
-
-
-# LEAVE APPLICATION FUNCTION
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='admin_login')
-@login_required(login_url='admin_login')
-def leaveappreq_view(request, leave_id):
-    leave_application = LeaveApplication.objects.get(id=leave_id)
-    return render(request, 'admin_end/leaveappreq_view.html', {'leave_application': leave_application})
+    return render(request, 'admin_end/leaveappreq_list.html', {'accepted_leave_apps': accepted_leave_apps})
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='admin_login')
-@login_required(login_url='admin_login')
-def leaveappreq_decision(request, leave_id):
-    leave_application = LeaveApplication.objects.get(id=leave_id)
-
-    # Check if an associated Approval instance exists
-    if not hasattr(leave_application, 'approval'):
-        # If not, create a new Approval instance
-        approval = Approval.objects.create(leave_application=leave_application)
-
+@user_passes_test(is_superadmin, login_url='error_400')
+@login_required(login_url='login_as')
+def approval(request, leave_app_id):
+    leave_app = LeaveApplication.objects.get(pk=leave_app_id)
     if request.method == 'POST':
-        decision = request.POST.get('decision')
         comment = request.POST.get('comment')
-        admin_user = get_user_model().objects.get(email=request.user.email)
+        action = request.POST.get('action')
 
-        # Check if an associated Approval instance exists
-        if not hasattr(leave_application, 'approval'):
-            # If not, create a new Approval instance
-            approval = Approval.objects.create(leave_application=leave_application)
-        else:
-            approval = leave_application.approval
+        # Get the user ID of the faculty member who filled the leave application
+        faculty_user_id = leave_app.user_id
 
-        # Update the Approval instance
-        approval.decision = decision
-        approval.comment = comment
-        approval.admin_user = admin_user
-        approval.approval_datetime = timezone.now()  # Set the approval_datetime to the current date and time
-        approval.save()
+        # Create a LeaveApplicationAction instance for the faculty member and leave application
+        leave_action = LeaveApplicationAction.objects.create(
+            user_id=faculty_user_id,
+            leave_application=leave_app,
+            status='Accepted' if action == 'accept' else 'Rejected',
+            comment=comment
+        )
+        leave_action.save()
 
-        # Notify faculty about the decision
-        # (You may want to implement a notification mechanism)
-
-        messages.success(request, f'Leave application {decision} successfully.')
+        # Redirect to the leave applications page after processing
         return redirect('leaveappreq_list')
 
-    # Check if a decision has been made
-    decision_made = hasattr(leave_application, 'approval') and leave_application.approval.decision is not None
-
-    return render(request, 'admin_end/leaveappreq_view.html', {'leave_application': leave_application, 'decision_made': decision_made})
-
+    return render(request, 'admin_end/approval.html', {'leave_app': leave_app})
 # ---------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 # ATTENDANCE RECORD FUNCTION
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='admin_login')
-@login_required(login_url='admin_login')
+@user_passes_test(is_superadmin, login_url='error_400')
+@login_required(login_url='login_as')
 def faculty_attendance_record(request):
     all_faculty = CustomUser.objects.filter(user_role='faculty')
 
@@ -490,8 +519,8 @@ def faculty_attendance_record(request):
 # ---------------------------------------------------------------------------------------------------------
 # LATE NOTIFICATION
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='admin_login')
-@login_required(login_url='admin_login')
+@user_passes_test(is_superadmin, login_url='error_400')
+@login_required(login_url='login_as')
 def attendance_notif(request):
     notifications = []
 
@@ -521,8 +550,8 @@ def attendance_notif(request):
     return render(request, 'admin_end/attendance_notif.html', context)
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='admin_login')
-@login_required(login_url='admin_login')
+@user_passes_test(is_superadmin, login_url='error_400')
+@login_required(login_url='login_as')
 def attendance_trends(request):
     # Your logic to fetch attendance data and prepare it for Highcharts
     # Example: Get attendance data for the last 30 days for users with the faculty role
@@ -545,8 +574,8 @@ def attendance_trends(request):
     return render(request, 'admin_end/dashboard.html', {'dates': dates, 'attendance_counts': attendance_counts})
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='admin_login')
-@login_required(login_url='admin_login')
+@user_passes_test(is_superadmin, login_url='error_400')
+@login_required(login_url='login_as')
 def absenteeism_analysis(request):
     # Your logic to fetch absenteeism data and prepare it for Highcharts
     # Example: Get faculty members with frequent absences for users with the faculty role
@@ -569,8 +598,8 @@ def absenteeism_analysis(request):
     return render(request, 'admin_end/dashboard.html', {'faculty_names': faculty_names, 'absence_counts': absence_counts})
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='admin_login')
-@login_required(login_url='admin_login')
+@user_passes_test(is_superadmin, login_url='error_400')
+@login_required(login_url='login_as')
 def dashboard(request):
     # Get current date
     current_date = timezone.now().date()
@@ -632,8 +661,8 @@ def dashboard(request):
     return render(request, 'admin_end/dashboard.html', {'data': data, 'current_date': current_date})
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='admin_login')
-@login_required(login_url='admin_login')
+@user_passes_test(is_superadmin, login_url='error_400')
+@login_required(login_url='login_as')
 def dashboard(request):
     # Assuming 'faculty' is the role you are considering for faculty members
     faculty_users = CustomUser.objects.filter(user_role='faculty')
@@ -657,57 +686,46 @@ def dashboard(request):
 # ---------------------------------------------------------------------------------------------------------
 # SCHEDULE API FROM SCHEDULER
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='admin_login')
-@login_required(login_url='admin_login')
+@user_passes_test(is_superadmin, login_url='error_400')
+@login_required(login_url='login_as')
 def schedule_api(request):
-    api_url = "https://schedulerserver-6e565d991c10.herokuapp.com/facultyloadings/getfacultyloading"
-    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJpbnRlZ3JhdGlvbkBnbWFpbC5jb20iLCJ1c2VydHlwZSI6InN0YWZmIiwiZXhwIjoxNzA4NzA1Mjc5fQ.vBx_831N2vKXv913WShd4TmX_olT-XuHm7DNfTov2bI"
+    api_url = 'https://schedulerserver-6e565d991c10.herokuapp.com/facultyloadings/getfacultyloading'
+    access_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqYW1lc0BzYW5kbG90LnBoIiwidXNlcnR5cGUiOiJzdGFmZiIsImV4cCI6MTcxNzYxMjgzNH0.0NDFuxsVNh40fsIVf8b2H_4OBSdm0LPRPdUDpkf8NxE'
 
     headers = {
-        'Authorization': f'Bearer {token}',
-        # Add any other headers if required
+        'Authorization': f'Bearer {access_token}',
     }
 
-    try:
-        response = requests.get(api_url, headers=headers)
+    response = requests.get(api_url, headers=headers)
 
-        # Check if the request was successful (status code 200)
-        if response.status_code == 200:
-            data = response.json()
+    if response.status_code == 200:
+        api_data = response.json().get('data', [])  # 'data' key holds the list of schedules
+        if not api_data:
+            return JsonResponse({'error_message': 'No data returned from the API'}, status=400)
+        
+        schedules_from_api = []
+        for schedule_info in api_data:
+            start_time_str = schedule_info.get('fstart_time', '')
+            end_time_str = schedule_info.get('fend_time', '')
+            start_time = datetime.strptime(start_time_str, '%H:%M:%S').strftime('%I:%M %p')
+            end_time = datetime.strptime(end_time_str, '%H:%M:%S').strftime('%I:%M %p')
 
-            # Process the API response data
-            schedule_data = []
-            for entry in data['data']:
-                schedule_info = {
-                    'Faculty_Name': entry['facultyname'],
-                    'Faculty_Status': entry['facultystatus'],
-                    'Rank': entry['rank'],
-                    'Course_Code': entry['course_code'],
-                    'Course_Description': entry['course_description'],
-                    'Units': entry['units'],
-                    'Lecture': entry['lec'],
-                    'Lab': entry['lab'],
-                    'Class_Name': entry['classname'],
-                    'Schedule': entry['schedule'],
-                    'Room_Name': entry['roomname'],
-                    'Created At': entry['created_at'],
-                    'Created By': entry['created_by'],
-                }
-
-                schedule_data.append(schedule_info)
-
-            return render(request, 'admin_end/schedule_api.html', {'schedule_data': schedule_data})
+            schedule_data = {
+                'Id': schedule_info.get('id', ''),
+                'FacultyId': schedule_info.get('facultyid', ''),  
+                'Day': schedule_info.get('day', ''),
+                'StartTime': start_time,
+                'EndTime': end_time,
+            }
+            schedules_from_api.append(schedule_data)
         else:
-            # Handle other status codes appropriately
-            return JsonResponse({'error': f'Request failed with status code {response.status_code}'}, status=response.status_code)
+            print("Failed to fetch data. Status code:", response.status_code)
 
-    except requests.exceptions.RequestException as e:
-        # Handle any exceptions that may occur during the request
-        return JsonResponse({'error': f'Request failed: {str(e)}'}, status=500)
+        return render(request, 'admin_end/schedule_api.html', {'schedules_from_api': schedules_from_api} if schedules_from_api else {'error_message': 'Failed to fetch data from the API'})
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='admin_login')
-@login_required(login_url='admin_login')
+@user_passes_test(is_superadmin, login_url='error_400')
+@login_required(login_url='login_as')
 def create_faculty_account(request, faculty_id):
     try:
         existing_faculty_account = FacultyAccount.objects.get(faculty_id=faculty_id)
@@ -756,7 +774,11 @@ def create_faculty_account(request, faculty_id):
 
     # If not a POST request, retrieve data from the API
     api_url = 'https://pupqcfis-com.onrender.com/api/all/FISFaculty'
-    response = requests.get(api_url)
+    headers = {
+        'Authorization': 'API-Key',
+        'token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJrZXkiOiI1NGY0NzRmMTAxYTc0NWRhYmRiODU1M2I4YzYzMzliMSJ9.hNjCSVI3bsaivK3JlAOqGBlrMkvZxUptUxSqCCD5STs',  # Replace ' token ' with the actual token variable
+    }
+    response = requests.get(api_url, headers=headers)
 
     if response.status_code == 200:
         api_data = response.json()
@@ -780,8 +802,8 @@ def create_faculty_account(request, faculty_id):
         return HttpResponse("Failed to fetch data from the API.", status=response.status_code)
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='admin_login')
-@login_required(login_url='admin_login')  
+@user_passes_test(is_superadmin, login_url='error_400')
+@login_required(login_url='login_as')  
 def update_faculty_account(request, faculty_id):
     try:
         faculty_account = FacultyAccount.objects.get(faculty_id=faculty_id)
@@ -815,7 +837,11 @@ def update_faculty_account(request, faculty_id):
 
     # If not a POST request, retrieve data from the API or database
     api_url = 'https://pupqcfis-com.onrender.com/api/all/FISFaculty'
-    response = requests.get(api_url)
+    headers = {
+        'Authorization': 'API-Key',
+        'token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJrZXkiOiI1NGY0NzRmMTAxYTc0NWRhYmRiODU1M2I4YzYzMzliMSJ9.hNjCSVI3bsaivK3JlAOqGBlrMkvZxUptUxSqCCD5STs',  # Replace ' token ' with the actual token variable
+    }
+    response = requests.get(api_url, headers=headers)
 
     if response.status_code == 200:
         api_data = response.json()
@@ -837,3 +863,4 @@ def update_faculty_account(request, faculty_id):
     else:
         print("Failed to fetch data from the API. Status code:", response.status_code)
         return HttpResponse("Failed to fetch data from the API.", status=response.status_code)
+    

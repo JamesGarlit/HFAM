@@ -43,7 +43,7 @@
                         <span class="avatar avatar-sm" style="background-image: url({{ request.user.user_picture.url }})"></span>
                     {% else %}
                         <!-- Provide a default image or placeholder if user_picture is not available -->
-                        <span class="avatar avatar-sm default-avatar" style="background-image: url({% static '/dist/img/defaultPicture.png' %})"></span>
+                        <span class="avatar avatar-sm default-avatar" style="background-image: url({% static '/dist/img/default_img.png' %})"></span>
                     {% endif %}
                     <div class="d-none d-xl-block ps-2">
                         <div>{{ request.user.user_firstname }} {{ request.user.user_middlename }} {{ request.user.user_lastname }} {{ request.user.user_extension_name }}</div>
@@ -64,10 +64,18 @@
             <div class="container-xl">
                 <ul class="navbar-nav">
                     <li class="nav-item">
+                        <a class="nav-link" href="{% url 'log_attendance' %}">
+                            <span class="material-symbols-outlined">event_available</span>
+                            <span class="nav-link-title">
+                                Log Attendance
+                            </span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{% url 'attendance_record' %}">
                             <span class="material-symbols-outlined">event_available</span>
                             <span class="nav-link-title">
-                                Attendance
+                                Attendance Record
                             </span>
                         </a>
                     </li>

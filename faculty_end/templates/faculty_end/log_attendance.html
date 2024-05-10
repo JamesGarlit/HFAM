@@ -1,0 +1,220 @@
+{% extends 'faculty_end/base.html' %}
+{% load static %}
+{% block content %}
+
+<!-- Page header -->
+<div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <h2 class="page-title">
+                    Attendance
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Page body -->
+<div class="page-body">
+    <div class="container-xl">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Current Date: <span id="current-date"></span></h3>
+            </div>
+            <div class="card-body">
+                <div class="row justify-content-center">
+                    <div class="col-lg-6 col-md-5 col-sm-12">
+                        <div class="accordion m-1" id="accordion-">
+                            {% if schedules %}
+                                {% for schedule in schedules %}
+                                    {% if schedule.Day == current_day %}
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="heading-{{ schedule.Id }}">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ schedule.Id }}" aria-expanded="false">
+                                                    {{ schedule.Day }}: {{ schedule.StartTime }} - {{ schedule.EndTime }}
+                                                </button>
+                                            </h2>
+                                            <div id="collapse-{{ schedule.Id }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ schedule.Id }}" data-bs-parent="#accordion-">
+                                                <div class="accordion-body pt-0">
+                                                    <div class="row">
+                                                        <div class="col-lg-12 col-md-12 col-sm-12 m-0">
+                                                            <div class="h1 m-0 text-success text-center">TIME IN</div>
+                                                        </div>
+                                                        <div class="col-lg-12 col-md-12 col-sm-12 m-1">
+                                                            <strong>
+                                                                <a href="{% url 'log_time_in' %}?schedule_id={{ schedule.Id }}" class="btn btn-block btn-md btn-outline-success w-100" id="log_time_in_{{ schedule.Id }}">Log time in</a>
+                                                            </strong>
+                                                        </div>
+                                                        <div class="col-lg-12 col-md-12 col-sm-12 m-1">
+                                                            Time:
+                                                            <strong><!-- Insert Time data here, the default value should be No Data --></strong>
+                                                        </div>
+                                                        <div class="col-lg-12 col-md-12 col-sm-12 m-1">
+                                                            Date:
+                                                            <strong><!-- Insert Date data here, the default value should be No Data --></strong>
+                                                        </div>
+                                                        <div class="col-lg-12 col-md-12 col-sm-12 m-1">
+                                                            Status:
+                                                            <strong><!-- Insert status data here, the default value should be No Data --></strong>
+                                                        </div>
+                                                        <div class="col-lg-12 col-md-12 col-sm-12 m-1">
+                                                            Location:
+                                                            <strong><!-- Insert location data here, the default value should be No Data --></strong>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-lg-12 col-md-12 col-sm-12 m-0">
+                                                            <div class="h1 m-0 text-danger text-center">TIME OUT</div>
+                                                        </div>
+                                                        <div class="col-lg-12 col-md-12 col-sm-12 m-1">
+                                                            <strong>
+                                                                <a href="{% url 'log_time_out' %}?schedule_id={{ schedule.Id }}" class="btn btn-block btn-md btn-outline-danger w-100">Log time out</a>
+                                                            </strong>
+                                                        </div>
+                                                        <div class="col-lg-12 col-md-12 col-sm-12 m-1">
+                                                            Time:
+                                                            <strong><!-- Insert time data here, the default value should be No Data --></strong>
+                                                        </div>
+                                                        <div class="col-lg-12 col-md-12 col-sm-12 m-1">
+                                                            Date:
+                                                            <strong><!-- Insert date data here, the default value should be No Data --></strong>
+                                                        </div>
+                                                        <div class="col-lg-12 col-md-12 col-sm-12 m-1">
+                                                            Status:
+                                                            <strong><!-- Insert status data here, the default value should be No Data --></strong>
+                                                        </div>
+                                                        <div class="col-lg-12 col-md-12 col-sm-12 m-1">
+                                                            Location:
+                                                            <strong><!-- Insert Location data here, the default value should be No Data --></strong>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <div class="alert alert-danger" role="alert">
+                                    No schedules available for today.
+                                </div>
+                            {% endif %}
+                        </div>                                                                    
+                    </div>
+                </div>                                       
+            </div>
+        </div>
+    </div>
+</div>
+{% block css %}
+<style>
+    thead input {
+        width: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block javascript %}
+
+<!-- Additional JavaScript for the specific page -->
+<script>
+    $(document).ready(function() {
+        // Setup - add a text input to each footer cell
+        $('#AllFacultyAttendanceRecord thead tr').clone(true).addClass('filters').appendTo('#AllFacultyAttendanceRecord thead');
+    
+        var table = $('#AllFacultyAttendanceRecord').DataTable({
+            scrollCollapse: true,
+            orderCellsTop: true,
+            fixedHeader: true,
+            order: [[0, 'desc']],
+            scrollX: true,
+            dom: 'Bfrtlip',
+            buttons: [
+                {
+                    extend: 'print',
+                    title: 'Attendance Record - ' + new Date().toLocaleDateString(),
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'excel',
+                    title: 'Attendance Record - ' + new Date().toLocaleDateString(),
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdf',
+                    title: 'Attendance Record - ' + new Date().toLocaleDateString(),
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                'colvis'
+            ],
+            initComplete: function() {
+                var api = this.api();
+    
+                api.columns().eq(0).each(function(colIdx) {
+                    // Set the header cell to contain the input element
+                    var cell = $('.filters th').eq($(api.column(colIdx).header()).index());
+                    var title = $(cell).text();
+                    $(cell).html('<input type="text" placeholder="' + title + '" />');
+    
+                    $('input', $('.filters th').eq($(api.column(colIdx).header()).index()))
+                        .off('keyup change')
+                        .on('keyup change', function(e) {
+                            e.stopPropagation();
+                            $(this).attr('title', $(this).val());
+                            var regexr = '({search})';
+                            var cursorPosition = this.selectionStart;
+    
+                            api
+                                .column(colIdx)
+                                .search((this.value != "") ? regexr.replace('{search}', '(((' + this.value + ')))') : "", this.value != "", this.value == "")
+                                .draw();
+                            $(this).focus()[0].setSelectionRange(cursorPosition, cursorPosition);
+                        });
+    
+                    if (colIdx === api.columns().eq(0).length - 1) {
+                        // Include filter input for the last column
+                        $(cell).html('<input type="text" placeholder="' + title + '" />');
+                    }
+                });
+            }
+        });
+    });
+    // Get the current date
+    var currentDate = new Date();
+
+    // Get the month name
+    var monthNames = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"];
+    var month = monthNames[currentDate.getMonth()];
+
+    // Get the day and year
+    var day = currentDate.getDate();
+    var year = currentDate.getFullYear();
+
+    // Format the date as Month Day, Year
+    var formattedDate = month + " " + day + ", " + year;
+
+    // Display the formatted date in the specified element
+    document.getElementById("current-date").textContent = formattedDate;
+
+    $(document).ready(function () {
+        {% if messages %}
+        {% for message in messages %}
+        {% if message.tags == 'success' %}
+        toastr.success('{{ message }}');
+        {% elif message.tags == 'error' %}
+        toastr.error('{{ message }}');
+        {% else %}
+        toastr('{{ message }}');
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+    });
+</script>
+{% endblock %}
+{% endblock %}
