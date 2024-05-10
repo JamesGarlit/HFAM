@@ -358,7 +358,7 @@ def login_as(request):
             elif user.user_role == 'faculty':
                 login(request, user)
                 messages.success(request, 'Faculty logged in successful.')
-                return redirect('log_attendance')  # Redirect to faculty dashboard
+                return redirect('log_attendance')  # Redirect to faculty home page
             else:
                 messages.error(request, 'Invalid user role.')
         else:
