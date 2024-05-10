@@ -82,8 +82,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'HyFAS.wsgi.application'
 
 
-# Database
-https://docs.djangoproject.com/en/5.0/ref/settings/
+# Database https://docs.djangoproject.com/en/5.0/ref/settings/
 
 DATABASES = {
     'default': dj_database_url.parse(env('DATABASE_URL'))
