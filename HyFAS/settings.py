@@ -14,6 +14,15 @@ from pathlib import Path
 import os
 import dj_database_url
 
+from environ import Env
+env = Env()
+Env.read_env()
+ENVIRONMENT = env('ENVIRONMENT', default='production')
+
+# Feature Toggle
+DEVELOPER = env('DEVELOPER', default='')
+STAGING = env('STAGING', default='False')
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -23,6 +32,25 @@ env = environ.Env()
 
 environ.Env.read_env()
 
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = env('SECRET_KEY')
+
+ENCRYPT_KEY = env('ENCRYPT_KEY')
+
+# SECURITY WARNING: don't run with debug turned on in production!
+if ENVIRONMENT == 'development':
+    DEBUG = True
+else:
+    DEBUG = False
+
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', env('RENDER_EXTERNAL_HOSTNAME')]
+
+CSRF_TRUSTED_ORIGINS = [ 'https://*.onrender.com' ]
+
+INTERNAL_IPS = (
+    '127.0.0.1',
+    'localhost:8000'
+)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -33,8 +61,8 @@ SECRET_KEY = 'django-insecure-!8s#p+l^wi3b)0c7vvd%nrcbp5o^ilof79fif-_mc^8ob(71m@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'hfam.onrender.com']
-
+# ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'hfam.onrender.com']
+ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
@@ -83,19 +111,23 @@ WSGI_APPLICATION = 'HyFAS.wsgi.application'
 
 # Database https://docs.djangoproject.com/en/5.0/ref/settings/
 
-DATABASES = {
-    'default': dj_database_url.parse(env('DATABASE_URL'))
-}
 # DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'hyfas',
-#         'USER': 'postgres',
-#         'PASSWORD':'attendancesys',
-#         'HOST':'localhost',
-#         'PORT':'5432',
-#     }
-# }  
+#     'default': dj_database_url.parse(env('DATABASE_URL'))
+# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'hyfas',
+        'USER': 'postgres',
+        'PASSWORD':'attendancesys',
+        'HOST':'localhost',
+        'PORT':'5432',
+    }
+}  
+
+POSTGRES_LOCALLY = False
+if ENVIRONMENT == 'production' or POSTGRES_LOCALLY == True:
+    DATABASES['default'] = dj_database_url.parse(env('DATABASE_URL'))
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
