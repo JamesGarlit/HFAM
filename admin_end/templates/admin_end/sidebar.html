@@ -53,8 +53,8 @@
                         <span class="nav-link-title">Dashboard</span>
                     </a>
                 </li>
-                <li class="nav-item {% if request.path == '/faculty_attendance_record/' %}active{% endif %}">
-                    <a class="nav-link" href="{% url 'faculty_attendance_record' %}">
+                <li class="nav-item {% if request.path == '/faculty_attendance_records/' %}active{% endif %}">
+                    <a class="nav-link" href="{% url 'faculty_attendance_records' %}">
                         <span class="material-symbols-outlined m-1">event_available</span>
                         <span class="nav-link-title">Attendance Records</span>
                     </a>
@@ -83,12 +83,12 @@
                         <span class="nav-link-title">Schedule</span>
                     </a>
                 </li>
-                <li class="nav-item {% if request.path == '/shift_list/' %}active{% endif %}">
+                {% comment %} <li class="nav-item {% if request.path == '/shift_list/' %}active{% endif %}">
                     <a class="nav-link" href="{% url 'shift_list' %}">
                         <span class="material-symbols-outlined m-1">schedule</span>
                         <span class="nav-link-title">Facutly Shift</span>
                     </a>
-                </li>
+                </li> {% endcomment %}
                 <li class="nav-item {% if request.path == '/leaveappreq_list/' %}active{% endif %}">
                     <a class="nav-link" href="{% url 'leaveappreq_list' %}">
                         <span class="material-symbols-outlined m-1">date_range</span>

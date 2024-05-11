@@ -14,141 +14,141 @@ from django.utils import timezone
 def is_faculty(user):
     return user.is_authenticated and not user.is_superuser
 
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@login_required(login_url='faculty_login')
-@user_passes_test(is_faculty, login_url='error_400')
-def time_in(request, faculty_shift_id):
-    faculty_shift = get_object_or_404(FacultyShift, pk=faculty_shift_id)
-    user = request.user
-    academic_year = faculty_shift.academic_year
-    semester = faculty_shift.semester
+# @cache_control(no_cache=True, must_revalidate=True, no_store=True)
+# @login_required(login_url='faculty_login')
+# @user_passes_test(is_faculty, login_url='error_400')
+# def time_in(request, faculty_shift_id):
+#     faculty_shift = get_object_or_404(FacultyShift, pk=faculty_shift_id)
+#     user = request.user
+#     academic_year = faculty_shift.academic_year
+#     semester = faculty_shift.semester
 
-    # Retrieve shift_start and shift_end for the faculty_shift
-    shift_start = datetime.combine(datetime.today(), faculty_shift.shift_start)
-    shift_end = datetime.combine(datetime.today(), faculty_shift.shift_end)
+#     # Retrieve shift_start and shift_end for the faculty_shift
+#     shift_start = datetime.combine(datetime.today(), faculty_shift.shift_start)
+#     shift_end = datetime.combine(datetime.today(), faculty_shift.shift_end)
 
-    # Check if the faculty member is absent for any schedule (30 minutes after shift_start) and no attendance record is present
-    for schedule in FacultyShift.objects.filter(user=user):
-        schedule_start = datetime.combine(datetime.today(), schedule.shift_start)
-        if datetime.now() > schedule_start + timedelta(minutes=30):
-            try:
-                time_in_record = TimeIn.objects.get(user=user, faculty_shift=schedule, date=datetime.now().date())
-            except TimeIn.DoesNotExist:
-                time_in_record = TimeIn.objects.create(
-                    user=user,
-                    faculty_shift=schedule,
-                    academic_year=academic_year,
-                    semester=semester,
-                    date=datetime.now().date(),
-                    status='Absent'
-                )
-                messages.warning(request, f'Automatically marked as Absent for {schedule} due to no time_in provided after 30 minutes.')
+#     # Check if the faculty member is absent for any schedule (30 minutes after shift_start) and no attendance record is present
+#     for schedule in FacultyShift.objects.filter(user=user):
+#         schedule_start = datetime.combine(datetime.today(), schedule.shift_start)
+#         if datetime.now() > schedule_start + timedelta(minutes=30):
+#             try:
+#                 time_in_record = TimeIn.objects.get(user=user, faculty_shift=schedule, date=datetime.now().date())
+#             except TimeIn.DoesNotExist:
+#                 time_in_record = TimeIn.objects.create(
+#                     user=user,
+#                     faculty_shift=schedule,
+#                     academic_year=academic_year,
+#                     semester=semester,
+#                     date=datetime.now().date(),
+#                     status='Absent'
+#                 )
+#                 messages.warning(request, f'Automatically marked as Absent for {schedule} due to no time_in provided after 30 minutes.')
 
-    if request.method == 'POST':
-        location = request.POST.get('location')
-        time_in_date = request.POST.get('time_in_date')
-        time_in_input = request.POST.get('time_in')
+#     if request.method == 'POST':
+#         location = request.POST.get('location')
+#         time_in_date = request.POST.get('time_in_date')
+#         time_in_input = request.POST.get('time_in')
 
-        if time_in_input is not None:
-            try:
-                provided_time = datetime.strptime(time_in_input, '%H:%M').time()
-            except ValueError:
-                return render(request, 'faculty_end/time_in.html', {'faculty_shift': faculty_shift, 'shift_start': shift_start, 'shift_end': shift_end, 'error_message': 'Invalid time format. Please use HH:MM.'})
+#         if time_in_input is not None:
+#             try:
+#                 provided_time = datetime.strptime(time_in_input, '%H:%M').time()
+#             except ValueError:
+#                 return render(request, 'faculty_end/time_in.html', {'faculty_shift': faculty_shift, 'shift_start': shift_start, 'shift_end': shift_end, 'error_message': 'Invalid time format. Please use HH:MM.'})
 
-            # Compare provided_time with faculty_shift.shift_start
-            if provided_time == faculty_shift.shift_start:
-                status = 'On Time'
-            elif provided_time > faculty_shift.shift_start:
-                status = 'Late'
-            else:
-                status = 'Early'
+#             # Compare provided_time with faculty_shift.shift_start
+#             if provided_time == faculty_shift.shift_start:
+#                 status = 'On Time'
+#             elif provided_time > faculty_shift.shift_start:
+#                 status = 'Late'
+#             else:
+#                 status = 'Early'
 
-            time_in_record, created = TimeIn.objects.get_or_create(
-                user=user,
-                faculty_shift=faculty_shift,
-                academic_year=academic_year,
-                semester=semester,
-                date=time_in_date,
-                defaults={'time_in': provided_time, 'status': status, 'location': location}
-            )
-            if not created:
-                # If the record already exists, update it
-                time_in_record.time_in = provided_time
-                time_in_record.status = status
-                time_in_record.location = location
-                time_in_record.save()
-            messages.success(request, 'Time In Successful!')
-            return redirect('attendance_record')
+#             time_in_record, created = TimeIn.objects.get_or_create(
+#                 user=user,
+#                 faculty_shift=faculty_shift,
+#                 academic_year=academic_year,
+#                 semester=semester,
+#                 date=time_in_date,
+#                 defaults={'time_in': provided_time, 'status': status, 'location': location}
+#             )
+#             if not created:
+#                 # If the record already exists, update it
+#                 time_in_record.time_in = provided_time
+#                 time_in_record.status = status
+#                 time_in_record.location = location
+#                 time_in_record.save()
+#             messages.success(request, 'Time In Successful!')
+#             return redirect('attendance_record')
 
-    return render(request, 'faculty_end/time_in.html', {'faculty_shift': faculty_shift, 'shift_start': shift_start, 'shift_end': shift_end})
+#     return render(request, 'faculty_end/time_in.html', {'faculty_shift': faculty_shift, 'shift_start': shift_start, 'shift_end': shift_end})
 
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@login_required(login_url='faculty_login')
-@user_passes_test(is_faculty, login_url='error_400')
-def time_out(request, faculty_shift_id):
-    faculty_shift = get_object_or_404(FacultyShift, pk=faculty_shift_id)
-    user = request.user
-    academic_year = faculty_shift.academic_year
-    semester = faculty_shift.semester
+# @cache_control(no_cache=True, must_revalidate=True, no_store=True)
+# @login_required(login_url='faculty_login')
+# @user_passes_test(is_faculty, login_url='error_400')
+# def time_out(request, faculty_shift_id):
+#     faculty_shift = get_object_or_404(FacultyShift, pk=faculty_shift_id)
+#     user = request.user
+#     academic_year = faculty_shift.academic_year
+#     semester = faculty_shift.semester
 
-    # Retrieve shift_start and shift_end for the faculty_shift
-    shift_start = datetime.combine(datetime.today(), faculty_shift.shift_start)
-    shift_end = datetime.combine(datetime.today(), faculty_shift.shift_end)
+#     # Retrieve shift_start and shift_end for the faculty_shift
+#     shift_start = datetime.combine(datetime.today(), faculty_shift.shift_start)
+#     shift_end = datetime.combine(datetime.today(), faculty_shift.shift_end)
 
-    # Check if the faculty member is absent for any schedule (30 minutes after shift_end) and no attendance record is present
-    for schedule in FacultyShift.objects.filter(user=user):
-        schedule_end = datetime.combine(datetime.today(), schedule.shift_end)
-        if datetime.now() > schedule_end + timedelta(minutes=30):
-            try:
-                time_out_record = TimeOut.objects.get(user=user, faculty_shift=schedule, date=datetime.now().date())
-            except TimeOut.DoesNotExist:
-                time_out_record = TimeOut.objects.create(
-                    user=user,
-                    faculty_shift=schedule,
-                    academic_year=academic_year,
-                    semester=semester,
-                    date=datetime.now().date(),
-                    status='Absent'
-                )
-                messages.warning(request, f'Automatically marked as Absent for {schedule} due to no time_out provided after 30 minutes.')
+#     # Check if the faculty member is absent for any schedule (30 minutes after shift_end) and no attendance record is present
+#     for schedule in FacultyShift.objects.filter(user=user):
+#         schedule_end = datetime.combine(datetime.today(), schedule.shift_end)
+#         if datetime.now() > schedule_end + timedelta(minutes=30):
+#             try:
+#                 time_out_record = TimeOut.objects.get(user=user, faculty_shift=schedule, date=datetime.now().date())
+#             except TimeOut.DoesNotExist:
+#                 time_out_record = TimeOut.objects.create(
+#                     user=user,
+#                     faculty_shift=schedule,
+#                     academic_year=academic_year,
+#                     semester=semester,
+#                     date=datetime.now().date(),
+#                     status='Absent'
+#                 )
+#                 messages.warning(request, f'Automatically marked as Absent for {schedule} due to no time_out provided after 30 minutes.')
 
-    if request.method == 'POST':
-        location = request.POST.get('location')
-        time_out_date = request.POST.get('time_out_date')
-        time_out_input = request.POST.get('time_out')
+#     if request.method == 'POST':
+#         location = request.POST.get('location')
+#         time_out_date = request.POST.get('time_out_date')
+#         time_out_input = request.POST.get('time_out')
 
-        if time_out_input is not None:
-            try:
-                provided_time = datetime.strptime(time_out_input, '%H:%M').time()
-            except ValueError:
-                return render(request, 'faculty_end/time_out.html', {'faculty_shift': faculty_shift, 'shift_start': shift_start, 'shift_end': shift_end, 'error_message': 'Invalid time format. Please use HH:MM.'})
+#         if time_out_input is not None:
+#             try:
+#                 provided_time = datetime.strptime(time_out_input, '%H:%M').time()
+#             except ValueError:
+#                 return render(request, 'faculty_end/time_out.html', {'faculty_shift': faculty_shift, 'shift_start': shift_start, 'shift_end': shift_end, 'error_message': 'Invalid time format. Please use HH:MM.'})
 
-            # Compare provided_time with faculty_shift.shift_end
-            if provided_time == faculty_shift.shift_end:
-                status = 'On Time'
-            elif provided_time > faculty_shift.shift_end:
-                status = 'Over Time'
-            else:
-                status = 'Early'
+#             # Compare provided_time with faculty_shift.shift_end
+#             if provided_time == faculty_shift.shift_end:
+#                 status = 'On Time'
+#             elif provided_time > faculty_shift.shift_end:
+#                 status = 'Over Time'
+#             else:
+#                 status = 'Early'
 
-            time_out_record, created = TimeOut.objects.get_or_create(
-                user=user,
-                faculty_shift=faculty_shift,
-                academic_year=academic_year,
-                semester=semester,
-                date=time_out_date,
-                defaults={'time_out': provided_time, 'status': status, 'location': location}
-            )
-            if not created:
-                # If the record already exists, update it
-                time_out_record.time_out = provided_time
-                time_out_record.status = status
-                time_out_record.location = location
-                time_out_record.save()
-            messages.success(request, 'Time Out Successful!')
-            return redirect('attendance_record')
+#             time_out_record, created = TimeOut.objects.get_or_create(
+#                 user=user,
+#                 faculty_shift=faculty_shift,
+#                 academic_year=academic_year,
+#                 semester=semester,
+#                 date=time_out_date,
+#                 defaults={'time_out': provided_time, 'status': status, 'location': location}
+#             )
+#             if not created:
+#                 # If the record already exists, update it
+#                 time_out_record.time_out = provided_time
+#                 time_out_record.status = status
+#                 time_out_record.location = location
+#                 time_out_record.save()
+#             messages.success(request, 'Time Out Successful!')
+#             return redirect('attendance_record')
 
-    return render(request, 'faculty_end/time_out.html', {'faculty_shift': faculty_shift, 'shift_start': shift_start, 'shift_end': shift_end})
+#     return render(request, 'faculty_end/time_out.html', {'faculty_shift': faculty_shift, 'shift_start': shift_start, 'shift_end': shift_end})
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @login_required(login_url='faculty_login')
@@ -553,13 +553,13 @@ def log_time_in(request):
                 start_time_datetime = datetime.combine(date, start_time)
 
                 # Compute the difference in minutes
-                time_difference_minutes = int((time_in_datetime - start_time_datetime).total_seconds() / 60)
+                time_difference_seconds = (time_in_datetime - start_time_datetime).total_seconds()
 
                 # Set the status based on the time difference
-                if time_difference_minutes < 0:
-                    status = f'{abs(time_difference_minutes)} minute/s early'
-                elif time_difference_minutes > 0:
-                    status = f'{time_difference_minutes} minute/s late'
+                if time_difference_seconds < 0:
+                    status = 'Early'
+                elif time_difference_seconds > 0:
+                    status = 'Late'
                 else:
                     status = 'On time'
 
@@ -572,6 +572,113 @@ def log_time_in(request):
             return render(request, 'faculty_end/log_time_in.html', {'error_message': 'Failed to fetch start time from API'})
 
     return render(request, 'faculty_end/log_time_in.html')
+
+def log_time_out(request):
+    if request.method == 'POST':
+        location = request.POST.get('location')
+        date = datetime.now().date()
+        time_out = datetime.now().time()
+
+        # Fetch the end time for the faculty's schedule from the API
+        api_url = 'https://schedulerserver-6e565d991c10.herokuapp.com/facultyloadings/getfacultyloading'
+        access_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqYW1lc0BzYW5kbG90LnBoIiwidXNlcnR5cGUiOiJzdGFmZiIsImV4cCI6MTcxNzYxMjgzNH0.0NDFuxsVNh40fsIVf8b2H_4OBSdm0LPRPdUDpkf8NxE'
+
+        headers = {
+            'Authorization': f'Bearer {access_token}',
+        }
+
+        response = requests.get(api_url, headers=headers)
+
+        if response.status_code == 200:
+            api_data = response.json().get('data', [])  # 'data' key holds the schedule end time
+            if not api_data:
+                end_time = None  # No data returned from API
+            else:
+                # Assuming 'fend_time' is the key for end time in API response
+                end_time_str = api_data[0].get('fend_time', '')
+                end_time = datetime.strptime(end_time_str, '%H:%M:%S').time() if end_time_str else None
+
+            # Compute the status based on the end time and current time
+            if end_time is None:
+                status = 'No Schedule'  # If no end time found
+            else:
+                # Convert time_out and end_time to datetime objects
+                time_out_datetime = datetime.combine(date, time_out)
+                end_time_datetime = datetime.combine(date, end_time)
+
+                # Compute the difference in minutes
+                time_difference_minutes = int((time_out_datetime - end_time_datetime).total_seconds() / 60)
+
+                # Set the status based on the time difference
+                if time_difference_minutes < 0:
+                    status = 'Early'
+                elif time_difference_minutes > 0:
+                    status = 'Late'
+                else:
+                    status = 'On time'
+
+            # Save the TimeOut record
+            TimeOut.objects.create(user=request.user, location=location, date=date, time_out=time_out, status=status)
+
+            messages.success(request, 'Time out logged successfully')
+            return redirect('attendance_record')  # Redirect to the attendance record page after logging time out
+        else:
+            return render(request, 'faculty_end/log_time_out.html', {'error_message': 'Failed to fetch end time from API'})
+
+    return render(request, 'faculty_end/log_time_out.html')
+# def log_time_in(request):
+#     if request.method == 'POST':
+#         location = request.POST.get('location')
+#         date = datetime.now().date()
+#         time_in = datetime.now().time()
+
+#         # Fetch the start time for the faculty's schedule from the API
+#         api_url = 'https://schedulerserver-6e565d991c10.herokuapp.com/facultyloadings/getfacultyloading'
+#         access_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqYW1lc0BzYW5kbG90LnBoIiwidXNlcnR5cGUiOiJzdGFmZiIsImV4cCI6MTcxNzYxMjgzNH0.0NDFuxsVNh40fsIVf8b2H_4OBSdm0LPRPdUDpkf8NxE'
+
+#         headers = {
+#             'Authorization': f'Bearer {access_token}',
+#         }
+
+#         response = requests.get(api_url, headers=headers)
+
+#         if response.status_code == 200:
+#             api_data = response.json().get('data', [])  # 'data' key holds the schedule start time
+#             if not api_data:
+#                 start_time = None  # No data returned from API
+#             else:
+#                 # Assuming 'fstart_time' is the key for start time in API response
+#                 start_time_str = api_data[0].get('fstart_time', '')
+#                 start_time = datetime.strptime(start_time_str, '%H:%M:%S').time() if start_time_str else None
+
+#             # Compute the status based on the start time and current time
+#             if start_time is None:
+#                 status = 'No Schedule'  # If no start time found
+#             else:
+#                 # Convert time_in and start_time to datetime objects
+#                 time_in_datetime = datetime.combine(date, time_in)
+#                 start_time_datetime = datetime.combine(date, start_time)
+
+#                 # Compute the difference in minutes
+#                 time_difference_minutes = int((time_in_datetime - start_time_datetime).total_seconds() / 60)
+
+#                 # Set the status based on the time difference
+#                 if time_difference_minutes < 0:
+#                     status = f'{abs(time_difference_minutes)} minute/s early'
+#                 elif time_difference_minutes > 0:
+#                     status = f'{time_difference_minutes} minute/s late'
+#                 else:
+#                     status = 'On time'
+
+#             # Save the TimeIn record
+#             TimeIn.objects.create(user=request.user, location=location, date=date, time_in=time_in, status=status)
+
+#             messages.success(request, 'Time in logged successfully')
+#             return redirect('attendance_record')  # Redirect to the attendance record page after logging time in
+#         else:
+#             return render(request, 'faculty_end/log_time_in.html', {'error_message': 'Failed to fetch start time from API'})
+
+#     return render(request, 'faculty_end/log_time_in.html')
 
 def log_time_out(request):
     if request.method == 'POST':
@@ -648,7 +755,7 @@ def attendance_record(request):
         time_out_data = TimeOut.objects.all()
     
     # Merge TimeIn and TimeOut data
-    merged_data = list(time_in_data) + list(time_out_data)
+    merged_data = sorted(list(time_in_data) + list(time_out_data), key=lambda x: x.date)
     
     context = {
         'merged_data': merged_data,

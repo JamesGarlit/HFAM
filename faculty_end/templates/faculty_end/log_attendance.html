@@ -42,24 +42,12 @@
                                                         </div>
                                                         <div class="col-lg-12 col-md-12 col-sm-12 m-1">
                                                             <strong>
-                                                                <a href="{% url 'log_time_in' %}?schedule_id={{ schedule.Id }}" class="btn btn-block btn-md btn-outline-success w-100" id="log_time_in_{{ schedule.Id }}">Log time in</a>
+                                                                {% if schedule.user_has_logged_time_in %}
+                                                                    <span class="btn btn-block btn-md btn-outline-success w-100" disabled>Already logged time in</span>
+                                                                {% else %}
+                                                                    <a href="{% url 'log_time_in' %}?schedule_id={{ schedule.Id }}" class="btn btn-block btn-md btn-outline-success w-100" id="log_time_in_{{ schedule.Id }}">Log time in</a>
+                                                                {% endif %}
                                                             </strong>
-                                                        </div>
-                                                        <div class="col-lg-12 col-md-12 col-sm-12 m-1">
-                                                            Time:
-                                                            <strong><!-- Insert Time data here, the default value should be No Data --></strong>
-                                                        </div>
-                                                        <div class="col-lg-12 col-md-12 col-sm-12 m-1">
-                                                            Date:
-                                                            <strong><!-- Insert Date data here, the default value should be No Data --></strong>
-                                                        </div>
-                                                        <div class="col-lg-12 col-md-12 col-sm-12 m-1">
-                                                            Status:
-                                                            <strong><!-- Insert status data here, the default value should be No Data --></strong>
-                                                        </div>
-                                                        <div class="col-lg-12 col-md-12 col-sm-12 m-1">
-                                                            Location:
-                                                            <strong><!-- Insert location data here, the default value should be No Data --></strong>
                                                         </div>
                                                     </div>
                                                     <div class="row">
@@ -70,22 +58,6 @@
                                                             <strong>
                                                                 <a href="{% url 'log_time_out' %}?schedule_id={{ schedule.Id }}" class="btn btn-block btn-md btn-outline-danger w-100">Log time out</a>
                                                             </strong>
-                                                        </div>
-                                                        <div class="col-lg-12 col-md-12 col-sm-12 m-1">
-                                                            Time:
-                                                            <strong><!-- Insert time data here, the default value should be No Data --></strong>
-                                                        </div>
-                                                        <div class="col-lg-12 col-md-12 col-sm-12 m-1">
-                                                            Date:
-                                                            <strong><!-- Insert date data here, the default value should be No Data --></strong>
-                                                        </div>
-                                                        <div class="col-lg-12 col-md-12 col-sm-12 m-1">
-                                                            Status:
-                                                            <strong><!-- Insert status data here, the default value should be No Data --></strong>
-                                                        </div>
-                                                        <div class="col-lg-12 col-md-12 col-sm-12 m-1">
-                                                            Location:
-                                                            <strong><!-- Insert Location data here, the default value should be No Data --></strong>
                                                         </div>
                                                     </div>
                                                 </div>

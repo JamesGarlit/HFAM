@@ -37,6 +37,7 @@
                 <table id="AllFacultyAttendanceRecord" class="table table-striped table-bordered" style="width:100%">
                     <thead>
                         <tr>
+                            <th>Time in/Time out</th>
                             <th>Date</th>
                             <th>Time</th>
                             <th>Status</th>
@@ -46,6 +47,7 @@
                     <tbody>
                         {% for item in merged_data %}
                         <tr>
+                            <td>{% if item.time_in %}Time in{% elif item.time_out %}Time out{% endif %}</td>
                             <td>{{ item.date }}</td>
                             <td>{% if item.time_in %}{{ item.time_in }}{% elif item.time_out %}{{ item.time_out }}{% endif %}</td>
                             <td>{{ item.status }}</td>
@@ -53,7 +55,7 @@
                         </tr>
                         {% endfor %}
                     </tbody>
-                </table>                                                               
+                </table>                                                                      
             </div>
         </div>        
     </div>

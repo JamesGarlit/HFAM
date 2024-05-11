@@ -84,44 +84,5 @@
     {% block javascript %}
     
     {% endblock %}
-    <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        Highcharts.chart('topLateChart', {
-          chart: {
-            type: 'pie'
-          },
-          title: {
-            text: 'Top 15 Faculty with Most Absences'
-          },
-          series: [{
-            name: 'Absent',
-            colorByPoint: true,
-            data: [
-              {% for user_data in top_late_users %}
-                {
-                  name: '{{ user_data.user.user_firstname }} {{ user_data.user.user_lastname }}',
-                  y: {{ user_data.absences_count }}
-                },
-              {% endfor %}
-            ]
-          }],
-          exporting: {
-            buttons: {
-              contextButton: {
-                menuItems: [
-                  "downloadPNG", 
-                  "downloadJPEG", 
-                  "downloadPDF", 
-                  "downloadSVG", 
-                  "separator",
-                  "downloadCSV", 
-                  "downloadXLS"
-                ]
-              }
-            }
-          }
-        });
-      });
-    </script>
   </body>
 </html>

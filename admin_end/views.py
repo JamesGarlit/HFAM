@@ -12,7 +12,9 @@ from django.utils import timezone
 from django.http import JsonResponse
 from django.http import HttpResponse
 from django.db import transaction
-
+from django.db.models import Count
+from django.db.models import Q
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import requests
 
 def is_superadmin(user):
@@ -26,6 +28,9 @@ def is_admin(user):
 @login_required(login_url='login_as')
 def admin_notif(request):
     return render(request,'admin_end/admin_notif.html')
+
+def dashboard(request):
+    return render(request,'admin_end/dashboard.html')
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @user_passes_test(is_superadmin, login_url='error_400')
@@ -427,15 +432,23 @@ def activate_user(request, user_id):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @user_passes_test(is_superadmin, login_url='error_400')
 @login_required(login_url='login_as')
+# def leaveappreq_list(request):
+#     faculty_leave_apps = LeaveApplication.objects.all()  # Get all leave applications
+#     return render(request, 'admin_end/leaveappreq_list.html', {'faculty_leave_apps': faculty_leave_apps})
+
 def leaveappreq_list(request):
-    faculty_leave_apps = LeaveApplication.objects.all()  # Get all leave applications
-    return render(request, 'admin_end/leaveappreq_list.html', {'faculty_leave_apps': faculty_leave_apps})
+    # Fetch all leave applications
+    all_leave_apps = LeaveApplication.objects.all()
 
-def accepted_leaveapp(request):
-    # Fetch all accepted leave applications
-    accepted_leave_apps = LeaveApplication.objects.filter(leaveapplicationaction__status='Accepted')
+    # Filter leave applications based on status if a status is selected
+    status_filter = request.GET.get('status')
+    if status_filter == 'Pending':
+        all_leave_apps = all_leave_apps.filter(Q(leaveapplicationaction__status=status_filter) | Q(leaveapplicationaction__status__isnull=True))
+    elif status_filter:
+        all_leave_apps = all_leave_apps.filter(leaveapplicationaction__status=status_filter)
 
-    return render(request, 'admin_end/leaveappreq_list.html', {'accepted_leave_apps': accepted_leave_apps})
+    return render(request, 'admin_end/leaveappreq_list.html', {'all_leave_apps': all_leave_apps})
+
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @user_passes_test(is_superadmin, login_url='error_400')
@@ -445,6 +458,10 @@ def approval(request, leave_app_id):
     if request.method == 'POST':
         comment = request.POST.get('comment')
         action = request.POST.get('action')
+
+        # Check if the leave application has already been approved or rejected
+        if LeaveApplicationAction.objects.filter(leave_application=leave_app).exists():
+            messages.error(request, 'This leave application has already been processed.')
 
         # Get the user ID of the faculty member who filled the leave application
         faculty_user_id = leave_app.user_id
@@ -468,52 +485,53 @@ def approval(request, leave_app_id):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @user_passes_test(is_superadmin, login_url='error_400')
 @login_required(login_url='login_as')
-def faculty_attendance_record(request):
-    all_faculty = CustomUser.objects.filter(user_role='faculty')
+def faculty_attendance_records(request):
+    # Fetch all faculty users with the faculty role
+    faculty_users = CustomUser.objects.filter(user_role='faculty')
 
-    # Get the selected year from the dropdown or use the current year
-    selected_year = int(request.GET.get('selected_year', datetime.now().year))
+    # Initialize an empty dictionary to store attendance records for each faculty member
+    faculty_attendance = {}
 
-    faculty_attendance_data = {}
+    # Iterate over faculty users
+    for faculty_user in faculty_users:
+        # Fetch TimeIn and TimeOut records for the current faculty user
+        time_in_records = TimeIn.objects.filter(user=faculty_user)
+        time_out_records = TimeOut.objects.filter(user=faculty_user)
 
-    for faculty_member in all_faculty:
-        time_in_records = TimeIn.objects.filter(user=faculty_member, date__year=selected_year)
-        time_out_records = TimeOut.objects.filter(user=faculty_member, date__year=selected_year)
-
+        # Combine TimeIn and TimeOut records for display
+        attendance_records = []
         for time_in_record in time_in_records:
-            key = (time_in_record.date, faculty_member, time_in_record.faculty_shift.shift_start, time_in_record.faculty_shift.shift_end)
-
-            if key not in faculty_attendance_data:
-                faculty_attendance_data[key] = []
-
-            faculty_attendance_data[key].append({
-                'faculty_name': faculty_member.get_full_name(),
+            attendance_records.append({
+                'user': faculty_user.get_full_name(),
                 'date': time_in_record.date,
-                'shift_start': time_in_record.faculty_shift.shift_start,
-                'shift_end': time_in_record.faculty_shift.shift_end,
-                'time_in': time_in_record.time_in,
-                'time_in_status': time_in_record.status,
-                'time_in_location': time_in_record.location,
-                'time_out': None,
-                'time_out_status': None,
-                'time_out_location': None,
+                'location': time_in_record.location,
+                'time': time_in_record.time_in,
+                'status': time_in_record.status,
+                'timeintimeout': 'Time In',  # Indicates Time In record
+            })
+        for time_out_record in time_out_records:
+            attendance_records.append({
+                'user': faculty_user.get_full_name(),
+                'date': time_out_record.date,
+                'location': time_out_record.location,
+                'time': time_out_record.time_out,
+                'status': time_out_record.status,
+                'timeintimeout': 'Time Out',  # Indicates Time Out record
             })
 
-        for time_out_record in time_out_records:
-            key = (time_out_record.date, faculty_member, time_out_record.faculty_shift.shift_start, time_out_record.faculty_shift.shift_end)
+        # Sort attendance records based on date and time
+        sorted_records = sorted(attendance_records, key=lambda x: (x['date'], x['time']))
 
-            if key in faculty_attendance_data:
-                faculty_attendance_data[key][-1]['time_out'] = time_out_record.time_out
-                faculty_attendance_data[key][-1]['time_out_status'] = time_out_record.status
-                faculty_attendance_data[key][-1]['time_out_location'] = time_out_record.location
+        # Store the sorted attendance records for the current faculty user in the dictionary
+        faculty_attendance[faculty_user.get_full_name()] = sorted_records
 
+    # Pass the attendance records for each faculty member to the template for rendering
     context = {
-        'faculty_attendance_data': [record for records in faculty_attendance_data.values() for record in records],
-        'selected_year': selected_year,
-        'all_years': range(datetime.now().year, 2020, -1),  # Change 2020 to the earliest year you want to include
+        'faculty_attendance': faculty_attendance,
     }
+    return render(request, 'admin_end/faculty_attendance_records.html', context)
 
-    return render(request, 'admin_end/faculty_attendance_record.html', context)
+
 
 # ---------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
@@ -546,6 +564,18 @@ def attendance_notif(request):
         )
         notifications.append(notification)
 
+    # Paginate notifications
+    paginator = Paginator(notifications, 10)  # 10 items per page
+    page_number = request.GET.get('page')
+    try:
+        notifications = paginator.page(page_number)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        notifications = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range, deliver last page of results.
+        notifications = paginator.page(paginator.num_pages)
+
     context = {'notifications': notifications}
     return render(request, 'admin_end/attendance_notif.html', context)
 
@@ -573,114 +603,59 @@ def attendance_trends(request):
 
     return render(request, 'admin_end/dashboard.html', {'dates': dates, 'attendance_counts': attendance_counts})
 
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='error_400')
-@login_required(login_url='login_as')
-def absenteeism_analysis(request):
-    # Your logic to fetch absenteeism data and prepare it for Highcharts
-    # Example: Get faculty members with frequent absences for users with the faculty role
-    absenteeism_data = TimeIn.objects.filter(
-        status='Absent',
-        user__user_role='faculty'
-    )
+def top_early_faculty(request):
+    top_early_faculty = TimeIn.objects.filter(status='Early').values('user').annotate(total_early=Count('id')).order_by('-total_early')[:20]
+    faculty_data = [{'name': CustomUser.objects.get(pk=entry['user']).get_full_name(), 'y': entry['total_early']} for entry in top_early_faculty]
+    return JsonResponse(faculty_data, safe=False)
 
-    # Your logic to prepare data for Highcharts
-    # Example: Create a list of faculty names and corresponding absence counts
-    faculty_names = [entry.user.username for entry in absenteeism_data]
+def top_late_faculty(request):
+    top_late_faculty = TimeIn.objects.filter(status='Late', user__user_role='faculty').values('user').annotate(total_late=Count('id')).order_by('-total_late')[:20]
+    faculty_data = [{'name': CustomUser.objects.get(pk=entry['user']).get_full_name(), 'y': entry['total_late']} for entry in top_late_faculty]
+    return JsonResponse(faculty_data, safe=False)
 
-    # Check if either TimeIn or TimeOut is marked as absent
-    absence_counts = [
-        faculty_names.count(faculty)
-        for faculty in faculty_names
-        if TimeOut.objects.filter(user__username=faculty, date__in=[entry.date for entry in absenteeism_data], status='Absent').exists()
-    ]
+def top_ontime_faculty(request):
+    top_ontime_faculty = TimeIn.objects.filter(status='On Time', user__user_role='faculty').values('user').annotate(total_ontime=Count('id')).order_by('-total_ontime')[:20]
+    faculty_data = [{'name': CustomUser.objects.get(pk=entry['user']).get_full_name(), 'y': entry['total_ontime']} for entry in top_ontime_faculty]
+    return JsonResponse(faculty_data, safe=False)
 
-    return render(request, 'admin_end/dashboard.html', {'faculty_names': faculty_names, 'absence_counts': absence_counts})
+def top_early_timeout(request):
+    top_early_timeout = TimeOut.objects.filter(status='Early').values('user').annotate(total_early=Count('id')).order_by('-total_early')[:20]
+    faculty_data = [{'name': CustomUser.objects.get(pk=entry['user']).get_full_name(), 'y': entry['total_early']} for entry in top_early_timeout]
+    return JsonResponse(faculty_data, safe=False)
 
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='error_400')
-@login_required(login_url='login_as')
-def dashboard(request):
-    # Get current date
-    current_date = timezone.now().date()
+def top_late_timeout(request):
+    top_late_timeout = TimeOut.objects.filter(status='Late', user__user_role='faculty').values('user').annotate(total_late=Count('id')).order_by('-total_late')[:20]
+    faculty_data = [{'name': CustomUser.objects.get(pk=entry['user']).get_full_name(), 'y': entry['total_late']} for entry in top_late_timeout]
+    return JsonResponse(faculty_data, safe=False)
 
-    # Query TimeIn and TimeOut models for the current day
-    time_in_entries = TimeIn.objects.filter(date=current_date)
-    time_out_entries = TimeOut.objects.filter(date=current_date)
+def top_ontime_timeout(request):
+    top_ontime_timeout = TimeOut.objects.filter(status='On Time', user__user_role='faculty').values('user').annotate(total_ontime=Count('id')).order_by('-total_ontime')[:20]
+    faculty_data = [{'name': CustomUser.objects.get(pk=entry['user']).get_full_name(), 'y': entry['total_ontime']} for entry in top_ontime_timeout]
+    return JsonResponse(faculty_data, safe=False)
 
-    # Initialize an empty list to store faculty members who marked time
-    faculty_members = []
 
-    # Iterate through TimeIn entries and filter faculty members
-    for time_in_entry in time_in_entries:
-        if time_in_entry.user.user_role == 'faculty':
-            faculty_member = time_in_entry.user
-            if faculty_member not in faculty_members:
-                faculty_members.append(faculty_member)
 
-    # Iterate through TimeOut entries and filter faculty members
-    for time_out_entry in time_out_entries:
-        if time_out_entry.user.user_role == 'faculty':
-            faculty_member = time_out_entry.user
-            if faculty_member not in faculty_members:
-                faculty_members.append(faculty_member)
+# @cache_control(no_cache=True, must_revalidate=True, no_store=True)
+# @user_passes_test(is_superadmin, login_url='error_400')
+# @login_required(login_url='login_as')
+# def dashboard(request):
+#     # Assuming 'faculty' is the role you are considering for faculty members
+#     faculty_users = CustomUser.objects.filter(user_role='faculty')
 
-    # Prepare data to pass to the template
-    data = []
-    for faculty_member in faculty_members:
-        time_in_entry = TimeIn.objects.filter(user=faculty_member, date=current_date).first()
-        time_out_entry = TimeOut.objects.filter(user=faculty_member, date=current_date).first()
+#     # Retrieve top 20 users with the most absent records (both in time in and time out)
+#     top_late_users = []
+#     for user in faculty_users:
+#         absences_count = TimeIn.objects.filter(user=user, status='Absent').count() + TimeOut.objects.filter(user=user, status='Absent').count()
+#         top_late_users.append({'user': user, 'absences_count': absences_count})
 
-        # Separate Time In entry
-        if time_in_entry:
-            data.append({
-                'faculty_member': faculty_member,
-                'user_picture': faculty_member.user_picture.url if faculty_member.user_picture else None,
-                'time_in': time_in_entry.time_in,
-                'time_in_status': time_in_entry.status,
-                'time_in_location': time_in_entry.location,
-                'time_out': None,
-                'time_out_status': None,
-                'time_out_location': None,
-            })
-
-        # Separate Time Out entry
-        if time_out_entry:
-            data.append({
-                'faculty_member': faculty_member,
-                'user_picture': faculty_member.user_picture.url if faculty_member.user_picture else None,
-                'time_in': None,
-                'time_in_status': None,
-                'time_in_location': None,
-                'time_out': time_out_entry.time_out,
-                'time_out_status': time_out_entry.status,
-                'time_out_location': time_out_entry.location,
-            })
-
-    # Render the template with the data
-    return render(request, 'admin_end/dashboard.html', {'data': data, 'current_date': current_date})
-
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='error_400')
-@login_required(login_url='login_as')
-def dashboard(request):
-    # Assuming 'faculty' is the role you are considering for faculty members
-    faculty_users = CustomUser.objects.filter(user_role='faculty')
-
-    # Retrieve top 20 users with the most absent records (both in time in and time out)
-    top_late_users = []
-    for user in faculty_users:
-        absences_count = TimeIn.objects.filter(user=user, status='Absent').count() + TimeOut.objects.filter(user=user, status='Absent').count()
-        top_late_users.append({'user': user, 'absences_count': absences_count})
-
-    # Sort the users based on the number of absences in descending order
-    top_late_users.sort(key=lambda x: x['absences_count'], reverse=True)
+#     # Sort the users based on the number of absences in descending order
+#     top_late_users.sort(key=lambda x: x['absences_count'], reverse=True)
     
-    # Take only the top 20 users
-    top_late_users = top_late_users[:15]
+#     # Take only the top 20 users
+#     top_late_users = top_late_users[:15]
 
-    context = {'top_late_users': top_late_users}
-    return render(request, 'admin_end/dashboard.html', context)
+#     context = {'top_late_users': top_late_users}
+#     return render(request, 'admin_end/dashboard.html', context)
 
 # ---------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------

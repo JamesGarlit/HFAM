@@ -19,7 +19,7 @@
     <div class="container-xl">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Schedule: {{ shift_start|time:"g:i A" }} - {{ shift_end|time:"g:i A" }}</h3>
+                <h3 class="card-title">Scan the QR code or upload it to detect the date, time, and location.</h3>
             </div>
             <div class="card-body">
                 <div class="row justify-content-center">
@@ -40,7 +40,7 @@
                                 <div class="row">
                                     <div class="col">
                                         <div class="form-floating mb-1">
-                                            <input name="location" type="text" class="form-control" id="location" value="" readonly>
+                                            <input name="location" type="text" class="form-control" id="location" value="" readonly required>
                                             <label for="location">Location</label>
                                         </div>
                                     </div>
@@ -48,13 +48,13 @@
                                 <div class="row">
                                     <div class="col">
                                         <div class="form-floating mb-1">
-                                            <input name="time_out_date" type="date" class="form-control" id="date" value="" readonly>
+                                            <input name="time_out_date" type="date" class="form-control" id="date" value="" readonly required>
                                             <label for="date">Date</label>
                                         </div>
                                     </div>
                                     <div class="col">
                                         <div class="form-floating mb-1">
-                                            <input name="time_out" type="time" class="form-control" id="time_out" value="" readonly>
+                                            <input name="time_out" type="time" class="form-control" id="time_out" value="" readonly required>
                                             <label for="time_out">Time</label>
                                         </div>
                                     </div>

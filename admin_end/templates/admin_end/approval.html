@@ -171,23 +171,24 @@
               </div>
           </div>
       </div>
-        <div class="card">
-            <div class="card-body">
-                <h3 class="card-title">Action</h3>
-                <form method="POST" action="{% url 'approval' leave_app.id %}">
-                    {% csrf_token %}
-                        <label class="form-label">Note</label>
-                        <textarea name="comment" id="comment" class="form-control" data-bs-toggle="autosize" placeholder="Type something…"></textarea>
-                    <br>
-                    <div class="card-footer">
-                        <div class="d-flex">
-                            <button class="btn btn-danger" type="submit" name="action" value="reject">Reject</button>
-                            <button class="btn btn-success ms-auto" type="submit" name="action" value="accept">Accept</button>
-                        </div>
+      <div class="card">
+        <div class="card-body">
+            <h3 class="card-title">Action</h3>
+            <form method="POST" action="{% url 'approval' leave_app.id %}">
+                {% csrf_token %}
+                <label class="form-label">Note</label>
+                <textarea name="comment" id="comment" class="form-control" data-bs-toggle="autosize" placeholder="Type something…" {% if leave_app.leaveapplicationaction_set.exists %}disabled{% endif %}></textarea>
+                <br>
+                <div class="card-footer">
+                    <div class="d-flex">
+                        <button class="btn btn-danger {% if leave_app.leaveapplicationaction_set.exists %}d-none{% endif %}" type="submit" name="action" value="reject">Reject</button>
+                        <button class="btn btn-success ms-auto {% if leave_app.leaveapplicationaction_set.exists %}d-none{% endif %}" type="submit" name="action" value="accept">Accept</button>
                     </div>
-                </form> 
-            </div>
-        </div>      
+                </div>
+            </form> 
+        </div>
+      </div>
+    
       </div>
     </div>
   </div>
