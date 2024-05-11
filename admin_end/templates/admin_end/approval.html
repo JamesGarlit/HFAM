@@ -173,7 +173,6 @@
       </div>
       <div class="card">
         <div class="card-body">
-            <h3 class="card-title">Action</h3>
             <form method="POST" action="{% url 'approval' leave_app.id %}">
                 {% csrf_token %}
                 <label class="form-label">Note</label>

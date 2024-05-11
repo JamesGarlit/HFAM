@@ -42,7 +42,11 @@
                                         {% for leave_app in leave_apps %}
                                             <a href="{% url 'leaveapp_view' leave_app.id %}" class="nav-link text-start mw-100 p-3">
                                                 <div class="row align-items-center flex-fill">
-                                                    <div class="col-auto"><span class="avatar" style="background-image: url({{ leave_app.user.user_picture.url }})"></span></div>
+                                                    {% if leave_app.user.user_picture %}
+                                                        <div class="col-auto"><span class="avatar" style="background-image: url({{ leave_app.user.user_picture.url }})"></span></div>
+                                                    {% else %}
+                                                        <img src="{% static '/dist/img/default_img.png' %}" alt="Default Picture" style="max-width: 40px; max-height: 40px;">
+                                                    {% endif %}
                                                     <div class="col text-body">
                                                         <div>Date Submitted: <strong>{{ leave_app.created }}</strong> - Status: <strong>{{ leave_app.status }}</strong></div>
                                                         <div class="text-secondary text-truncate w-100">Comment: <strong>{{ leave_app.comment }}</strong></div>
