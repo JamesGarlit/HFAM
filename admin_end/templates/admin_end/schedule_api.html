@@ -26,25 +26,10 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Academic Year ID</th>
-                            <th>Semester ID</th>
                             <th>Faculty ID</th>
-                            <th>Faculty Status</th>
-                            <th>Total Units</th>
-                            <th>Total Hours</th>
-                            <th>TS</th>
-                            <th>Rank</th>
-                            <th>Course Code</th>
-                            <th>Course Description</th>
-                            <th>Units</th>
-                            <th>Lecture Hours</th>
-                            <th>Lab Hours</th>
-                            <th>Tuition Hours</th>
                             <th>Day</th>
                             <th>Start Time</th>
                             <th>End Time</th>
-                            <th>Class Name</th>
-                            <th>Room Name</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -52,25 +37,10 @@
                         {% for schedule in schedules_from_api %}
                         <tr>
                             <td>{{ schedule.Id }}</td>
-                            <td>{{ schedule.AcademicYearId }}</td>
-                            <td>{{ schedule.SemesterId }}</td>
                             <td>{{ schedule.FacultyId }}</td>
-                            <td>{{ schedule.FacultyStatus }}</td>
-                            <td>{{ schedule.TotalUnits }}</td>
-                            <td>{{ schedule.TotalHours }}</td>
-                            <td>{{ schedule.TS }}</td>
-                            <td>{{ schedule.Rank }}</td>
-                            <td>{{ schedule.CourseCode }}</td>
-                            <td>{{ schedule.CourseDescription }}</td>
-                            <td>{{ schedule.Units }}</td>
-                            <td>{{ schedule.LectureHours }}</td>
-                            <td>{{ schedule.LabHours }}</td>
-                            <td>{{ schedule.TuitionHours }}</td>
                             <td>{{ schedule.Day }}</td>
                             <td>{{ schedule.StartTime }}</td>
                             <td>{{ schedule.EndTime }}</td>
-                            <td>{{ schedule.ClassName }}</td>
-                            <td>{{ schedule.RoomName }}</td>
                         </tr>
                         {% endfor %}
                         {% else %}
