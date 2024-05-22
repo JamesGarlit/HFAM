@@ -221,7 +221,9 @@ def error_400(request):
 #         return render(request, 'faculty_end/log_time_in.html', {
 #             'error_message': 'Failed to fetch room name from API.'
 #         })
-
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@login_required(login_url='login_as')
+@user_passes_test(is_faculty, login_url='error_400')
 def log_time_in(request):
     if request.method == 'POST':
         # Handle form submission
@@ -309,6 +311,9 @@ def log_time_in(request):
         else:
             return render(request, 'faculty_end/log_time_in.html', {'error_message': 'Failed to fetch data from the API'})
         
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@login_required(login_url='login_as')
+@user_passes_test(is_faculty, login_url='error_400')  
 def online_time_in(request):
     if request.method == 'POST':
         # Handle form submission
