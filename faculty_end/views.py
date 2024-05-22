@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import LeaveApplication, TimeIn, TimeOut
+from .models import LeaveApplication, TimeIn, TimeOut, Online
 from django.contrib.auth import authenticate, login, logout
 from admin_end.models import FacultyShift, CustomUser, LeaveApplicationAction
 from datetime import datetime, timedelta
@@ -308,6 +308,93 @@ def log_time_in(request):
             })
         else:
             return render(request, 'faculty_end/log_time_in.html', {'error_message': 'Failed to fetch data from the API'})
+        
+def online_time_in(request):
+    if request.method == 'POST':
+        # Handle form submission
+        day = request.POST.get('day')
+        time_in = request.POST.get('time_in')
+        time_out = request.POST.get('time_out')
+        room_name = request.POST.get('room_name')
+        date = request.POST.get('date')
+        month = request.POST.get('month')
+
+        # Save the data to the database
+        Online.objects.create(
+            user = request.user,
+            day=day,
+            time_in=time_in,
+            time_out=time_out,
+            room_name=room_name,
+            date=date,
+            month=month
+        )
+
+        messages.success(request, 'Logged in successfully')
+        return redirect('faculty_end/attendance_record')
+    else:
+        # Get faculty ID and current day
+        faculty_id = request.user.facultyaccount.faculty_id
+        current_day = datetime.now().strftime('%A')
+
+        # Fetch data from the API
+        api_url = 'https://schedulerserver-6e565d991c10.herokuapp.com/facultyloadings/getfacultyloading'
+        access_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqYW1lc0BzYW5kbG90LnBoIiwidXNlcnR5cGUiOiJzdGFmZiIsImV4cCI6MTcxNzYxMjgzNH0.0NDFuxsVNh40fsIVf8b2H_4OBSdm0LPRPdUDpkf8NxE'
+
+        headers = {
+            'Authorization': f'Bearer {access_token}',
+        }
+
+        response = requests.get(api_url, headers=headers)
+
+        if response.status_code == 200:
+            api_data = response.json().get('data', [])
+            if not api_data:
+                return render(request, 'faculty_end/online_time_in.html', {'error_message': 'No data returned from the API'})
+
+            # Filter schedules based on the matching faculty ID and current day
+            schedules_from_api = [schedule for schedule in api_data if schedule.get('facultyid') == faculty_id and schedule.get('day') == current_day]
+
+            # Process the schedules to display StartTime and EndTime
+            processed_schedules = []
+            for schedule_info in schedules_from_api:
+                start_time_str = schedule_info.get('fstart_time', '')
+                end_time_str = schedule_info.get('fend_time', '')
+                start_time = datetime.strptime(start_time_str, '%H:%M:%S').strftime('%I:%M %p')
+                end_time = datetime.strptime(end_time_str, '%H:%M:%S').strftime('%I:%M %p')
+
+                schedule_data = {
+                    'Id': schedule_info.get('id', ''),
+                    'FacultyId': schedule_info.get('facultyid', ''),
+                    'Day': schedule_info.get('day', ''),
+                    'StartTime': start_time,
+                    'EndTime': end_time,
+                    'RoomName': schedule_info.get('roomname', '')
+                }
+                processed_schedules.append(schedule_data)
+
+            # Pass the schedules and the current date info to the template
+            current_time = datetime.now().strftime('%H:%M')
+            current_date = datetime.now().strftime('%Y-%m-%d')
+            current_month = datetime.now().strftime('%B')
+
+            # Extract the end_time from the first schedule (if any) for the initial time_out value
+            initial_end_time_str = schedules_from_api[0].get('fend_time', '') if schedules_from_api else ''
+            if initial_end_time_str:
+                initial_time_out = datetime.strptime(initial_end_time_str, '%H:%M:%S').strftime('%H:%M')
+            else:
+                initial_time_out = ''
+
+            return render(request, 'faculty_end/online_time_in.html', {
+                'schedules': processed_schedules,
+                'current_day': current_day,
+                'current_time': current_time,
+                'current_date': current_date,
+                'current_month': current_month,
+                'initial_time_out': initial_time_out  # Pass the initial time_out value to the template
+            })
+        else:
+            return render(request, 'faculty_end/online_time_in.html', {'error_message': 'Failed to fetch data from the API'})
         
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @login_required(login_url='faculty_login')
