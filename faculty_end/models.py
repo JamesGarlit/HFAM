@@ -4,10 +4,26 @@ from django.utils import timezone
 
 class TimeIn(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    location = models.CharField(max_length=255)
-    date = models.DateField()
+    room_name = models.CharField(max_length=255)
     time_in = models.TimeField(blank=True, null=True)
-    status = models.CharField(max_length=50) # Early, Late, On Time
+    time_out = models.TimeField(blank=True, null=True)
+    day = models.CharField(max_length=50)
+    date = models.DateField()
+    month = models.CharField(max_length=255)
+    delay = models.CharField(max_length=255)
+    status = models.CharField(max_length=50)
+    created_at = models.DateTimeField(default=timezone.now) 
+
+class Online(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    room_name = models.CharField(max_length=255)
+    time_in = models.TimeField(blank=True, null=True)
+    time_out = models.TimeField(blank=True, null=True)
+    day = models.CharField(max_length=50)
+    date = models.DateField()
+    month = models.CharField(max_length=255)
+    delay = models.CharField(max_length=255)
+    status = models.CharField(max_length=50)
     created_at = models.DateTimeField(default=timezone.now) 
 
 class TimeOut(models.Model):

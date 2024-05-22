@@ -32,6 +32,9 @@ def admin_notif(request):
 def dashboard(request):
     return render(request,'admin_end/dashboard.html')
 
+def generate_qr(request):
+    return render(request,'admin_end/generate_qr.html')
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @user_passes_test(is_superadmin, login_url='error_400')
 @login_required(login_url='login_as')
@@ -363,7 +366,7 @@ def login_as(request):
             elif user.user_role == 'faculty':
                 login(request, user)
                 messages.success(request, 'Faculty logged in successful.')
-                return redirect('log_attendance')  # Redirect to faculty home page
+                return redirect('log_time_in')  # Redirect to faculty home page
             else:
                 messages.error(request, 'Invalid user role.')
         else:
@@ -633,30 +636,6 @@ def top_ontime_timeout(request):
     faculty_data = [{'name': CustomUser.objects.get(pk=entry['user']).get_full_name(), 'y': entry['total_ontime']} for entry in top_ontime_timeout]
     return JsonResponse(faculty_data, safe=False)
 
-
-
-# @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-# @user_passes_test(is_superadmin, login_url='error_400')
-# @login_required(login_url='login_as')
-# def dashboard(request):
-#     # Assuming 'faculty' is the role you are considering for faculty members
-#     faculty_users = CustomUser.objects.filter(user_role='faculty')
-
-#     # Retrieve top 20 users with the most absent records (both in time in and time out)
-#     top_late_users = []
-#     for user in faculty_users:
-#         absences_count = TimeIn.objects.filter(user=user, status='Absent').count() + TimeOut.objects.filter(user=user, status='Absent').count()
-#         top_late_users.append({'user': user, 'absences_count': absences_count})
-
-#     # Sort the users based on the number of absences in descending order
-#     top_late_users.sort(key=lambda x: x['absences_count'], reverse=True)
-    
-#     # Take only the top 20 users
-#     top_late_users = top_late_users[:15]
-
-#     context = {'top_late_users': top_late_users}
-#     return render(request, 'admin_end/dashboard.html', context)
-
 # ---------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 # SCHEDULE API FROM SCHEDULER
@@ -689,6 +668,7 @@ def schedule_api(request):
                 'Id': schedule_info.get('id', ''),
                 'FacultyId': schedule_info.get('facultyid', ''),  
                 'Day': schedule_info.get('day', ''),
+                'RoomName': schedule_info.get('roomname', ''),
                 'StartTime': start_time,
                 'EndTime': end_time,
             }

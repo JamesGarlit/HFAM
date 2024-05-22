@@ -1,0 +1,128 @@
+{% extends "admin_end/base.html" %}
+{% load static %}
+{% block content %}
+<!-- Page header -->
+<div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">
+                    Overview
+                </div>
+                <h2 class="page-title">
+                    QR Code Generator
+                </h2>
+            </div>
+            <!-- Page title actions -->
+        </div>
+    </div>
+</div>
+<!-- Page body -->
+<div class="page-body">
+    <div class="container-xl">
+        <div class="card">
+            <div class="card-body">
+                <div class="card">
+                    <div class="card-body">
+                            <table id="shiftDetails" class="table table-striped table-bordered" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th>Room Number</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="table-tbody">
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% block css %}
+<style>
+    thead input {
+        width: 100%;
+    }
+</style>
+{% endblock %}
+{% block javascript %}
+<script>
+    $(document).ready(function() {
+        // Setup - add a text input to each footer cell
+        $('#leaveApp thead tr').clone(true).addClass('filters').appendTo('#leaveApp thead');
+    
+        var table = $('#leaveApp').DataTable({
+            scrollCollapse: true,
+            orderCellsTop: true,
+            fixedHeader: true,
+            order: [[0, 'desc']],
+            scrollX: true, // Add scrollX to enable horizontal scrolling
+            dom: 'Bfrtlip', // Include buttons and exclude the search filter ('f')
+            buttons: [
+                {
+                    extend: 'print',
+                    title: 'Faculty Schedule List - ' + new Date().toLocaleDateString(),
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'excel',
+                    title: 'Faculty Schedule List - ' + new Date().toLocaleDateString(),
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdf',
+                    title: 'Faculty Schedule List - ' + new Date().toLocaleDateString(),
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                'colvis'
+            ],
+            initComplete: function() {
+                var api = this.api();
+                // For each column
+                api.columns().eq(0).each(function(colIdx) {
+                    // Exclude input filter for the last column
+                    if (colIdx < api.columns().eq(0).length - 1) {
+                        // Set the header cell to contain the input element
+                        var cell = $('.filters th').eq($(api.column(colIdx).header()).index());
+                        var title = $(cell).text();
+                        $(cell).html('<input type="text" placeholder="' + title + '" />');
+                        // On every keypress in this input
+                        $('input', $('.filters th').eq($(api.column(colIdx).header()).index()))
+                            .off('keyup change')
+                            .on('keyup change', function(e) {
+                                e.stopPropagation();
+                                // Get the search value
+                                $(this).attr('title', $(this).val());
+                                var regexr = '({search})'; //$(this).parents('th').find('select').val();
+                                var cursorPosition = this.selectionStart;
+                                // Search the column for that value
+                                api
+                                    .column(colIdx)
+                                    .search((this.value != "") ? regexr.replace('{search}', '(((' + this.value + ')))') : "", this.value != "", this.value == "")
+                                    .draw();
+                                $(this).focus()[0].setSelectionRange(cursorPosition, cursorPosition);
+                            });
+                    } else {
+                        // Remove filter input for the last column
+                        var cell = $('.filters th').eq($(api.column(colIdx).header()).index());
+                        $(cell).html('');
+                    }
+                });
+            }
+        });
+    });
+{% endblock %}
+{% endblock %}

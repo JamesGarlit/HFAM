@@ -1,0 +1,108 @@
+{% extends 'faculty_end/base.html' %}
+{% load static %}
+{% block content %}
+
+<!-- Page header -->
+<div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <h2 class="page-title">
+                    Time In
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Page body -->
+<div class="page-body">
+    <div class="container-xl">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Please scan the QR code to log your attendance.</h3>
+            </div>
+            <div class="card-body">
+                <div class="row justify-content-center">
+                    <div class="col-lg-5 col-md-5 col-sm-12">
+                        <div class="card">
+                            <div class="m-1 embed-responsive embed-responsive-16by9">
+                                <video id="preview" class="embed-responsive-item w-100" playsinline></video>
+                            </div>
+                        </div>
+                        {% comment %} <div class="mb-1">
+                            <!-- Place the file input outside the form -->
+                            <div class="form-floating mb-1">
+                                <input name="qrcode" type="file" class="form-control" id="qrcode">
+                                <label for="qrcode">Upload QR Code</label>
+                            </div>
+                            <form id="timeInForm" method="post" action="{% url 'log_time_in' %}">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="form-floating mb-1">
+                                            <input name="location" type="text" class="form-control" id="location" value="" readonly required>
+                                            <label for="location">Location</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="form-floating mb-1">
+                                            <input name="time_in_date" type="date" class="form-control" id="date" value="" readonly required>
+                                            <label for="date">Date</label>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-floating mb-1">
+                                            <input name="time_in" type="time" class="form-control" id="time_in" value="" readonly required>
+                                            <label for="time_in">Time</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Add the submit button -->
+                                <div class="row justify-content-center">
+                                    <div class="col-lg-12 col-md-12 col-sm-12">
+                                        <div class="d-grid text-center w-100">
+                                            <button type="submit" class="btn btn-primary">Submit</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>                {% endcomment %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% block css %}
+<style>
+</style>
+{% endblock %}
+
+{% block javascript %}
+<script src="https://cdn.rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
+        
+        scanner.addListener('scan', function (content) {
+            console.log('Scanned content: ' + content);
+            alert('Scanned content: ' + content);
+        });
+
+        Instascan.Camera.getCameras().then(function (cameras) {
+            if (cameras.length > 0) {
+                scanner.start(cameras[0]);
+            } else {
+                console.error('No cameras found.');
+                alert('No cameras found.');
+            }
+        }).catch(function (e) {
+            console.error(e);
+            alert(e);
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

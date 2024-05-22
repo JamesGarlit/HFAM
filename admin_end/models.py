@@ -2,6 +2,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group, Permission
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -56,6 +57,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         if self.extension_name:
             full_name += f" {self.extension_name}"
         return full_name
+    
+class QRCodeGenerator(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, primary_key=True)
+    created_at = models.DateTimeField(default=timezone.now) 
 
 class FacultyAccount(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, primary_key=True)
