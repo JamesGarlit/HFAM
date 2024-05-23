@@ -254,10 +254,15 @@ def log_time_in(request):
         month = request.POST.get('month')
     
         # Check if the user already timed in
-        try:
-            TimeIn.objects.filter(user=request.user, date=date, room_name = room_name)
-        except TimeIn.DoesNotExist:
+        # try:
+        is_TimedIn = TimeIn.objects.filter(user=request.user, date=date, room_name = room_name).exists()
+        # except TimeIn.DoesNotExist:
             # Save the data to the database
+        
+        if is_TimedIn:
+            return render(request, 'faculty_end/log_time_in.html', {'error_message': 'You are already time logged!'})
+
+        else:
             TimeIn.objects.create(
                 user = request.user,
                 day=day,
