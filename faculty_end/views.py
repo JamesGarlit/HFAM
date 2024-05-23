@@ -221,6 +221,24 @@ def error_400(request):
 #         return render(request, 'faculty_end/log_time_in.html', {
 #             'error_message': 'Failed to fetch room name from API.'
 #         })
+def attendance_record(request):
+    try:
+        # Fetch all time data
+        faculty_data = TimeIn.objects.all().values(
+            'room_name', 'time_in', 'time_out', 'day', 'date', 'month', 'delay', 'status', 'is_absent'
+        ).union(
+            Online.objects.all().values(
+                'room_name', 'time_in', 'time_out', 'day', 'date', 'month', 'delay', 'status', 'is_absent'
+            )
+        )
+
+        print("Faculty Data:", faculty_data)  # Print fetched data for debugging
+        
+        return render(request, 'attendance_record.html', {'faculty_data': faculty_data})
+    except Exception as e:
+        print("Error fetching data:", e)  # Print any errors for debugging
+        return render(request, 'empty.html')  # Render an empty page for simplicity
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @login_required(login_url='login_as')
 @user_passes_test(is_faculty, login_url='error_400')
@@ -318,25 +336,35 @@ def online_time_in(request):
     if request.method == 'POST':
         # Handle form submission
         day = request.POST.get('day')
-        time_in = request.POST.get('time_in')
+        time_in_str = request.POST.get('time_in')
         time_out = request.POST.get('time_out')
         room_name = request.POST.get('room_name')
         date = request.POST.get('date')
         month = request.POST.get('month')
+        evidence = request.FILES.get('evidence')  # Handle file upload
+
+        # Status should be "Present" when time_in is logged
+        status = 'Present'
+
+        # Set is_absent to False when status is Present
+        is_absent = False
 
         # Save the data to the database
         Online.objects.create(
-            user = request.user,
+            user=request.user,
             day=day,
-            time_in=time_in,
+            time_in=time_in_str,
             time_out=time_out,
             room_name=room_name,
             date=date,
-            month=month
+            month=month,
+            status=status,  # Set status to "Present"
+            is_absent=is_absent,  # Set is_absent to False
+            evidence=evidence,
         )
 
-        messages.success(request, 'Logged in successfully')
-        return redirect('faculty_end/attendance_record')
+        # Redirect to the online_time_in view
+        return redirect('online_time_in')  # Replace 'online_time_in' with the actual URL name of your view
     else:
         # Get faculty ID and current day
         faculty_id = request.user.facultyaccount.faculty_id

@@ -59,6 +59,12 @@
                         <span class="nav-link-title">Attendance Records</span>
                     </a>
                 </li>
+                <li class="nav-item {% if request.path == '/generate_qr/' %}active{% endif %}">
+                    <a class="nav-link" href="{% url 'generate_qr' %}">
+                        <span class="material-symbols-outlined m-1">notifications</span>
+                        <span class="nav-link-title">QR Code</span>
+                    </a>
+                </li>
                 <li class="nav-item {% if request.path == '/attendance_notif/' %}active{% endif %}">
                     <a class="nav-link" href="{% url 'attendance_notif' %}">
                         <span class="material-symbols-outlined m-1">notifications</span>

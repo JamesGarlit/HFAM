@@ -25,20 +25,41 @@
             <div class="card-body">
                 <div class="card">
                     <div class="card-body">
-                            <table id="shiftDetails" class="table table-striped table-bordered" style="width:100%">
-                                <thead>
-                                    <tr>
-                                        <th>Room Number</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="table-tbody">
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="row">
+                            <div class="col">
+                                <div class="page-body">
+                                    <div class="container-xl">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h3 class="card-title">Generate Your QR Code</h3>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col d-flex justify-content-center">
+                                                        <div class="border m-2" id="qrcode_online"></div>
+                                                        <div class="border m-2" id="qrcode_log"></div>
+                                                        <!-- Container for the second QR code -->
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col text-center">
+                                                        <button class="btn btn-sm btn-primary m-1"
+                                                            onclick="generateQRCode('online_time_in')"
+                                                            id="generateOnlineBtn">Generate Online QR Code</button>
+                                                        <button class="btn btn-sm btn-primary m-1"
+                                                            onclick="generateQRCode('log_time_in')"
+                                                            id="generateLogBtn">Generate Log QR Code</button>
+                                                        <button class="btn btn-sm btn-primary m-1" id="downloadBtn"
+                                                            onclick="downloadQRCode()" disabled>Download QR
+                                                            Code</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -47,82 +68,111 @@
 </div>
 {% block css %}
 <style>
-    thead input {
-        width: 100%;
-    }
 </style>
 {% endblock %}
 {% block javascript %}
+<script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
 <script>
-    $(document).ready(function() {
-        // Setup - add a text input to each footer cell
-        $('#leaveApp thead tr').clone(true).addClass('filters').appendTo('#leaveApp thead');
-    
-        var table = $('#leaveApp').DataTable({
-            scrollCollapse: true,
-            orderCellsTop: true,
-            fixedHeader: true,
-            order: [[0, 'desc']],
-            scrollX: true, // Add scrollX to enable horizontal scrolling
-            dom: 'Bfrtlip', // Include buttons and exclude the search filter ('f')
-            buttons: [
-                {
-                    extend: 'print',
-                    title: 'Faculty Schedule List - ' + new Date().toLocaleDateString(),
-                    exportOptions: {
-                        columns: ':visible'
-                    }
-                },
-                {
-                    extend: 'excel',
-                    title: 'Faculty Schedule List - ' + new Date().toLocaleDateString(),
-                    exportOptions: {
-                        columns: ':visible'
-                    }
-                },
-                {
-                    extend: 'pdf',
-                    title: 'Faculty Schedule List - ' + new Date().toLocaleDateString(),
-                    exportOptions: {
-                        columns: ':visible'
-                    }
-                },
-                'colvis'
-            ],
-            initComplete: function() {
-                var api = this.api();
-                // For each column
-                api.columns().eq(0).each(function(colIdx) {
-                    // Exclude input filter for the last column
-                    if (colIdx < api.columns().eq(0).length - 1) {
-                        // Set the header cell to contain the input element
-                        var cell = $('.filters th').eq($(api.column(colIdx).header()).index());
-                        var title = $(cell).text();
-                        $(cell).html('<input type="text" placeholder="' + title + '" />');
-                        // On every keypress in this input
-                        $('input', $('.filters th').eq($(api.column(colIdx).header()).index()))
-                            .off('keyup change')
-                            .on('keyup change', function(e) {
-                                e.stopPropagation();
-                                // Get the search value
-                                $(this).attr('title', $(this).val());
-                                var regexr = '({search})'; //$(this).parents('th').find('select').val();
-                                var cursorPosition = this.selectionStart;
-                                // Search the column for that value
-                                api
-                                    .column(colIdx)
-                                    .search((this.value != "") ? regexr.replace('{search}', '(((' + this.value + ')))') : "", this.value != "", this.value == "")
-                                    .draw();
-                                $(this).focus()[0].setSelectionRange(cursorPosition, cursorPosition);
-                            });
-                    } else {
-                        // Remove filter input for the last column
-                        var cell = $('.filters th').eq($(api.column(colIdx).header()).index());
-                        $(cell).html('');
-                    }
-                });
-            }
-        });
+    // Alert Message Scripts
+    $(document).ready(function () {
+        {% if messages %}
+        {% for message in messages %}
+        {% if message.tags == 'success' %}
+        toastr.success('{{ message }}');
+        {% elif message.tags == 'error' %}
+        toastr.error('{{ message }}');
+        {% else %}
+        toastr('{{ message }}');
+        {% endif %}
+        {% endfor %}
+        {% endif %}
     });
+
+    // Function to check if a QR code should be displayed
+    function shouldDisplayQRCode() {
+        const storedData = localStorage.getItem('generatedQRCode');
+        return storedData && new Date(storedData).getDate() === new Date().getDate();
+    }
+
+    function generateQRCode(type) {
+        // Check if a QR code should be displayed
+        if (!shouldDisplayQRCode()) {
+            const currentDate = new Date();
+            localStorage.setItem('generatedQRCode', currentDate.toString());
+        }
+
+        let qrText = '';
+        if (type === 'online_time_in') {
+            qrText = 'online_time_in';
+        } else if (type === 'log_time_in') {
+            qrText = 'log_time_in';
+        }
+
+        // Clear previous QR codes
+        if (type === 'online_time_in') {
+            document.getElementById('qrcode_online').innerHTML = '';
+        } else if (type === 'log_time_in') {
+            document.getElementById('qrcode_log').innerHTML = '';
+        }
+
+        // Generate new QR code with white border
+        const qrcode = new QRCode(document.getElementById(type === 'online_time_in' ? 'qrcode_online' : 'qrcode_log'), {
+            text: qrText,
+            width: 400,
+            height: 400,
+            colorDark: "#000000",  // Dark color of QR code
+            colorLight: "#ffffff", // Light color of QR code (white border)
+            correctLevel: QRCode.CorrectLevel.H
+        });
+
+        // Enable download button if both QR codes are generated
+        if (document.getElementById('qrcode_online').innerHTML && document.getElementById('qrcode_log').innerHTML) {
+            document.getElementById('downloadBtn').disabled = false;
+        }
+
+        // Disable generate button for the generated QR code
+        document.getElementById(type === 'online_time_in' ? 'generateOnlineBtn' : 'generateLogBtn').disabled = true;
+    }
+
+    function downloadQRCode() {
+        // Get the canvas elements generated by qrcode.min.js
+        const canvas_online = document.getElementById('qrcode_online').querySelector('canvas');
+        const canvas_log = document.getElementById('qrcode_log').querySelector('canvas');
+
+        // Create temporary link elements
+        const downloadLink_online = document.createElement('a');
+        const downloadLink_log = document.createElement('a');
+
+        // Convert the canvas to data URLs
+        const dataUrl_online = canvas_online.toDataURL('image/png');
+        const dataUrl_log = canvas_log.toDataURL('image/png');
+
+        // Create the file names
+        const fileName_online = `online_time_in.png`;
+        const fileName_log = `log_time_in.png`;
+
+        // Set the data URLs as the href attributes
+        downloadLink_online.href = dataUrl_online;
+        downloadLink_online.download = fileName_online;
+        downloadLink_log.href = dataUrl_log;
+        downloadLink_log.download = fileName_log;
+
+        // Append the links to the body and trigger the downloads
+        document.body.appendChild(downloadLink_online);
+        document.body.appendChild(downloadLink_log);
+
+        downloadLink_online.click();
+        downloadLink_log.click();
+
+        document.body.removeChild(downloadLink_online);
+        document.body.removeChild(downloadLink_log);
+    }
+
+    // Check if a QR code should be displayed on page load
+    if (shouldDisplayQRCode()) {
+        generateQRCode('online_time_in');
+        generateQRCode('log_time_in');
+    }
+</script>
 {% endblock %}
 {% endblock %}

@@ -13,6 +13,7 @@ class TimeIn(models.Model):
     delay = models.CharField(max_length=255)
     status = models.CharField(max_length=50)
     created_at = models.DateTimeField(default=timezone.now) 
+    is_absent = models.BooleanField(default=False)
 
 class Online(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -24,7 +25,9 @@ class Online(models.Model):
     month = models.CharField(max_length=255)
     delay = models.CharField(max_length=255)
     status = models.CharField(max_length=50)
-    created_at = models.DateTimeField(default=timezone.now) 
+    evidence = models.ImageField(upload_to='evidence_images/', blank=True, null=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    is_absent = models.BooleanField(default=False)
 
 class TimeOut(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
