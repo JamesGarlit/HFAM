@@ -28,7 +28,6 @@ def faculty_attendance(request):
     time_in_records = TimeIn.objects.filter(user=user)
     online_records = Online.objects.filter(user=user)
 
-    # Combine records with an identifier for their source
     attendance_records = [
         {'type': 'TimeIn', 'record': record} for record in time_in_records
     ] + [
@@ -413,7 +412,6 @@ def log_time_in(request):
                 time_logged = False
 
             # If the user already timed in, just make the time_logged true for front end purposes
-
 
             return render(request, 'faculty_end/log_time_in.html', {
                 'schedules': processed_schedules,

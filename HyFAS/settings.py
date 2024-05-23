@@ -14,7 +14,7 @@ from pathlib import Path
 import os
 import dj_database_url
 
-from environ import Env
+from environ import Env # type: ignore
 env = Env()
 Env.read_env()
 ENVIRONMENT = env('ENVIRONMENT', default='production')
@@ -114,20 +114,16 @@ WSGI_APPLICATION = 'HyFAS.wsgi.application'
 # DATABASES = {
 #     'default': dj_database_url.parse(env('DATABASE_URL'))
 # }
-
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'hyfas',
         'USER': 'postgres',
-        'PASSWORD':'331212',
+        'PASSWORD':'attendancesys',
         'HOST':'localhost',
         'PORT':'5432',
     }
 }  
-
-
 
 # POSTGRES_LOCALLY = False
 # if ENVIRONMENT == 'production' or POSTGRES_LOCALLY == True:
