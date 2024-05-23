@@ -158,7 +158,7 @@ def faculty_login(request):
         if user is not None and user.user_role == 'faculty':
             login(request, user)
             messages.success(request, 'Logged In Successfully!')
-            return redirect('attendance_record')
+            return redirect('faculty_attendance')
         else:
             messages.error(request, 'Incorrect credentials or user is not a faculty member.')
             return render(request, 'faculty_end/faculty_login.html')

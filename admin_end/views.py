@@ -35,6 +35,9 @@ def dashboard(request):
 def generate_qr(request):
     return render(request,'admin_end/generate_qr.html')
 
+def onlineqrcode(request):
+    return render(request,'admin_end/onlineqrcode.html')
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @user_passes_test(is_superadmin, login_url='error_400')
 @login_required(login_url='login_as')

@@ -62,7 +62,13 @@
                 <li class="nav-item {% if request.path == '/generate_qr/' %}active{% endif %}">
                     <a class="nav-link" href="{% url 'generate_qr' %}">
                         <span class="material-symbols-outlined m-1">notifications</span>
-                        <span class="nav-link-title">QR Code</span>
+                        <span class="nav-link-title">FacetoFace QR Code</span>
+                    </a>
+                </li>
+                <li class="nav-item {% if request.path == '/onlineqrcode/' %}active{% endif %}">
+                    <a class="nav-link" href="{% url 'onlineqrcode' %}">
+                        <span class="material-symbols-outlined m-1">notifications</span>
+                        <span class="nav-link-title">Contactless Attendance</span>
                     </a>
                 </li>
                 <li class="nav-item {% if request.path == '/attendance_notif/' %}active{% endif %}">
