@@ -281,70 +281,71 @@ def log_time_in(request):
 
         if is_TimedIn:
             return render(request, 'faculty_end/log_time_in.html', {'error_message': 'You are already time logged!'})
-
-        # Convert time_in to datetime object
-        time_in = datetime.strptime(time_in_str, '%H:%M')
-
-        # Get faculty's fstart_time from the API
-        faculty_id = request.user.facultyaccount.faculty_id
-        current_day = datetime.now().strftime('%A')
-
-        api_url = 'https://schedulerserver-6e565d991c10.herokuapp.com/facultyloadings/getfacultyloading'
-        access_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqYW1lc0BzYW5kbG90LnBoIiwidXNlcnR5cGUiOiJzdGFmZiIsImV4cCI6MTcxNzYxMjgzNH0.0NDFuxsVNh40fsIVf8b2H_4OBSdm0LPRPdUDpkf8NxE'
-
-        headers = {
-            'Authorization': f'Bearer {access_token}',
-        }
-
-        response = requests.get(api_url, headers=headers)
-
-        if response.status_code == 200:
-            api_data = response.json().get('data', [])
-            if not api_data:
-                return render(request, 'faculty_end/log_time_in.html', {'error_message': 'No data returned from the API'})
-
-            # Find the matching schedule
-            matching_schedule = None
-            for schedule in api_data:
-                if schedule.get('facultyid') == faculty_id and schedule.get('day') == current_day:
-                    matching_schedule = schedule
-                    break
-            
-            if matching_schedule:
-                fstart_time_str = matching_schedule.get('fstart_time')
-                fstart_time = datetime.strptime(fstart_time_str, '%H:%M:%S')
-
-                # Compute the difference between time_in and fstart_time
-                time_difference = time_in - fstart_time
-                delay_minutes = max(time_difference.total_seconds() / 60, 0)
-
-                # Determine if the user is late
-                if delay_minutes > 0:
-                    delay = f"{int(delay_minutes)} minute{'s' if delay_minutes > 1 else ''} Late"
-                else:
-                    delay = None
-            else:
-                # If there's no matching schedule, consider the user as on time
-                delay = None
-
-            # Save the data to the database with status "Present"
-            TimeIn.objects.create(
-                user=request.user,
-                day=day,
-                time_in=time_in_str,
-                time_out=time_out,
-                room_name=room_name,
-                date=date,
-                month=month,
-                delay=delay,
-                status="Present",
-                is_absent = False,
-            )
-
-            messages.success(request, 'Logged in successfully')
-            return redirect('faculty_attendance')
+        
         else:
-            return render(request, 'faculty_end/log_time_in.html', {'error_message': 'Failed to fetch data from the API'})
+            # Convert time_in to datetime object
+            time_in = datetime.strptime(time_in_str, '%H:%M')
+
+            # Get faculty's fstart_time from the API
+            faculty_id = request.user.facultyaccount.faculty_id
+            current_day = datetime.now().strftime('%A')
+
+            api_url = 'https://schedulerserver-6e565d991c10.herokuapp.com/facultyloadings/getfacultyloading'
+            access_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqYW1lc0BzYW5kbG90LnBoIiwidXNlcnR5cGUiOiJzdGFmZiIsImV4cCI6MTcxNzYxMjgzNH0.0NDFuxsVNh40fsIVf8b2H_4OBSdm0LPRPdUDpkf8NxE'
+
+            headers = {
+                'Authorization': f'Bearer {access_token}',
+            }
+
+            response = requests.get(api_url, headers=headers)
+
+            if response.status_code == 200:
+                api_data = response.json().get('data', [])
+                if not api_data:
+                    return render(request, 'faculty_end/log_time_in.html', {'error_message': 'No data returned from the API'})
+
+                # Find the matching schedule
+                matching_schedule = None
+                for schedule in api_data:
+                    if schedule.get('facultyid') == faculty_id and schedule.get('day') == current_day:
+                        matching_schedule = schedule
+                        break
+                
+                if matching_schedule:
+                    fstart_time_str = matching_schedule.get('fstart_time')
+                    fstart_time = datetime.strptime(fstart_time_str, '%H:%M:%S')
+
+                    # Compute the difference between time_in and fstart_time
+                    time_difference = time_in - fstart_time
+                    delay_minutes = max(time_difference.total_seconds() / 60, 0)
+
+                    # Determine if the user is late
+                    if delay_minutes > 0:
+                        delay = f"{int(delay_minutes)} minute{'s' if delay_minutes > 1 else ''} Late"
+                    else:
+                        delay = None
+                else:
+                    # If there's no matching schedule, consider the user as on time
+                    delay = None
+
+                # Save the data to the database with status "Present"
+                TimeIn.objects.create(
+                    user=request.user,
+                    day=day,
+                    time_in=time_in_str,
+                    time_out=time_out,
+                    room_name=room_name,
+                    date=date,
+                    month=month,
+                    delay=delay,
+                    status="Present",
+                    is_absent = False,
+                )
+
+                messages.success(request, 'Logged in successfully')
+                return redirect('faculty_attendance')
+            else:
+                return render(request, 'faculty_end/log_time_in.html', {'error_message': 'Failed to fetch data from the API'})
 
     else:
         # Get faculty ID and current day
@@ -403,16 +404,21 @@ def log_time_in(request):
             else:
                 initial_time_out = ''
 
-            # Check if the user already timed in
-            is_TimeLogged = TimeIn.objects.filter(user=request.user, date=timezone.now().date(), room_name = room_name).exists()
-        
-            if is_TimeLogged:
-                time_logged = True
+            # If the api has contents, then it will run the below code.
+            if schedules_from_api:
+                # Check if the user already timed in
+                is_TimeLogged = TimeIn.objects.get(user=request.user, date=timezone.now().date(), room_name = room_name)
+            
+                if is_TimeLogged:
+                    time_logged = True
+
+                else:
+                    time_logged = False
 
             else:
-                time_logged = False
+                time_logged = None
 
-            # If the user already timed in, just make the time_logged true for front end purposes
+                # If the user already timed in, just make the time_logged true for front end purposes
 
 
             return render(request, 'faculty_end/log_time_in.html', {

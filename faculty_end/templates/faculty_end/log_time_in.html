@@ -24,7 +24,7 @@
             <div class="card">
                 <div class="container-tight py-4">
                     <div class="empty">
-                    <div class="empty-header">You have Already Submitted your Time In!</div>
+                    <div class="empty-header"> {{ time_logged}} You have Already Submitted your Time In!</div>
                     {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
                     <p class="empty-subtitle text-muted">
                         Time in could only be process once a day.
@@ -34,10 +34,8 @@
                 </div>
             </div>
 
-
-
         
-        {% else %}
+        {% elif time_logged == False %}
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Please scan the QR code to log your attendance.</h3>
@@ -108,13 +106,30 @@
                     </div>
                 </div>
             </div>
+
+        
+        {% elif time_logged == None %}
+            <div class="card">
+                <div class="container-tight py-4">
+                    <div class="empty">
+                    <div class="empty-header">You have no Schedules for to day.</div>
+                    {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
+                    {% comment %} <p class="empty-subtitle text-muted">
+                        
+                    </p> {% endcomment %}
+                
+                    </div>
+                </div>
+            </div>
+
+        {% endif %}
     </div>
 
 
 
 
 
-    {% endif %}
+  
 
 
 </div>

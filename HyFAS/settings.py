@@ -119,14 +119,13 @@ WSGI_APPLICATION = 'HyFAS.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'hyfas',
+        'NAME': 'hfam',
         'USER': 'postgres',
         'PASSWORD':'331212',
         'HOST':'localhost',
         'PORT':'5432',
     }
 }  
-
 
 
 # POSTGRES_LOCALLY = False
