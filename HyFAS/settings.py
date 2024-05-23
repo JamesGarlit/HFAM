@@ -114,28 +114,24 @@ WSGI_APPLICATION = 'HyFAS.wsgi.application'
 # DATABASES = {
 #     'default': dj_database_url.parse(env('DATABASE_URL'))
 # }
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'hyfas',
-#         'USER': 'postgres',
-#         'PASSWORD':'attendancesys',
-#         'HOST':'localhost',
-#         'PORT':'5432',
-#     }
-# }  
 
-# Database settings for render deployment
+
 DATABASES = {
-    'default': dj_database_url.config(
-        default='postgresql://hfam_owner:V9q5AQKvJGRF@ep-cool-frog-a1vcnry3.ap-southeast-1.aws.neon.tech/hfam-database?sslmode=require',
-    )
-}
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'hyfas',
+        'USER': 'postgres',
+        'PASSWORD':'331212',
+        'HOST':'localhost',
+        'PORT':'5432',
+    }
+}  
+
 
 
 # POSTGRES_LOCALLY = False
 # if ENVIRONMENT == 'production' or POSTGRES_LOCALLY == True:
-# DATABASES['default'] = dj_database_url.parse(env('DATABASE_URL'))
+DATABASES['default'] = dj_database_url.parse(env('DATABASE_URL'))
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

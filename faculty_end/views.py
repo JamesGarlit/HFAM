@@ -270,7 +270,9 @@ def log_time_in(request):
                 time_out=time_out,
                 room_name=room_name,
                 date=date,
-                month=month
+                month=month,
+                is_absent = False,
+                status = "Present"
             )
 
             messages.success(request, 'Logged in successfully')
@@ -333,12 +335,9 @@ def log_time_in(request):
                 initial_time_out = ''
 
             # Check if the user already timed in
-            try:
-                is_TimeLogged = TimeIn.objects.filter(user=request.user, date=timezone.now().date(), room_name = room_name)
+       
+            is_TimeLogged = TimeIn.objects.filter(user=request.user, date=timezone.now().date(), room_name = room_name).exists()
         
-            except TimeIn.DoesNotExist:
-                is_TimeLogged = None
-
             if is_TimeLogged:
                 time_logged = True
 
