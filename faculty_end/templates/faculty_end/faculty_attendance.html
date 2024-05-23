@@ -32,7 +32,7 @@
                                 <th>Delay</th>
                                 <th>Status</th>
                                 <th>Evidence</th>
-                                <th>Evidence</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -46,7 +46,6 @@
                                     <td>{{ item.record.month }}</td>
                                     <td>{{ item.record.delay }}</td>
                                     <td>{{ item.record.status }}</td>
-                                    <td>{{ item.record.is_absent }}</td>
                                     <td>
                                         {% if item.type == 'Online' and item.record.evidence %}
                                             <img src="{{ item.record.evidence.url }}" alt="Evidence Image" width="100">
@@ -54,6 +53,7 @@
                                             N/A
                                         {% endif %}
                                     </td>
+                                    <td>{{ item.record.status }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
