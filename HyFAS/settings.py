@@ -117,7 +117,7 @@ WSGI_APPLICATION = 'HyFAS.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'hyfas',
+        'NAME': 'hfam',
         'USER': 'postgres',
         'PASSWORD':'attendancesys',
         'HOST':'localhost',
