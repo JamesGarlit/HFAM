@@ -36,25 +36,17 @@
                                             <div class="card-body">
                                                 <div class="row">
                                                     <div class="col d-flex justify-content-center">
-                                                        <div class="border m-2" id="qrcode_online"></div>
-                                                        <div class="border m-2" id="qrcode_log"></div>
-                                                        <!-- Container for the second QR code -->
+                                                        <div class="border m-2" id="qrcode1"></div>
+                                                        <div class="border m-2" id="qrcode2"></div>
                                                     </div>
                                                 </div>
                                                 <div class="row">
                                                     <div class="col text-center">
-                                                        <button class="btn btn-sm btn-primary m-1"
-                                                            onclick="generateQRCode('online_time_in')"
-                                                            id="generateOnlineBtn">Generate Online QR Code</button>
-                                                        <button class="btn btn-sm btn-primary m-1"
-                                                            onclick="generateQRCode('log_time_in')"
-                                                            id="generateLogBtn">Generate Log QR Code</button>
-                                                        <button class="btn btn-sm btn-primary m-1" id="downloadBtn"
-                                                            onclick="downloadQRCode()" disabled>Download QR
-                                                            Code</button>
+                                                        <button class="btn btn-sm btn-primary m-1" onclick="generateQRCode()" id="generateBtn">Generate QR Code</button>
+                                                        <button class="btn btn-sm btn-primary m-1" id="downloadBtn" onclick="downloadQRCode()" disabled>Download QR Code</button>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div>            
                                         </div>
                                     </div>
                                 </div>
@@ -73,50 +65,29 @@
 {% block javascript %}
 <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
 <script>
-    // Alert Message Scripts
-    $(document).ready(function () {
-        {% if messages %}
-        {% for message in messages %}
-        {% if message.tags == 'success' %}
-        toastr.success('{{ message }}');
-        {% elif message.tags == 'error' %}
-        toastr.error('{{ message }}');
-        {% else %}
-        toastr('{{ message }}');
-        {% endif %}
-        {% endfor %}
-        {% endif %}
-    });
+    function generateQRCode() {
+        // Remove the existing QR codes
+        document.getElementById('qrcode1').innerHTML = '';
+        document.getElementById('qrcode2').innerHTML = '';
 
-    // Function to check if a QR code should be displayed
-    function shouldDisplayQRCode() {
-        const storedData = localStorage.getItem('generatedQRCode');
-        return storedData && new Date(storedData).getDate() === new Date().getDate();
+        // Generate QR code for "log_time_in"
+        generateQRCodeForText('https://hfam-mdf2.onrender.com/log_time_in/', 'qrcode1');
+
+        // Generate QR code for "online_time_in"
+        generateQRCodeForText('https://hfam-mdf2.onrender.com/online_time_in/', 'qrcode2');
+
+        // Enable download button
+        document.getElementById('downloadBtn').disabled = false;
+
+        // Disable generate button
+        document.getElementById('generateBtn').disabled = true;
     }
 
-    function generateQRCode(type) {
-        // Check if a QR code should be displayed
-        if (!shouldDisplayQRCode()) {
-            const currentDate = new Date();
-            localStorage.setItem('generatedQRCode', currentDate.toString());
-        }
-
-        let qrText = '';
-        if (type === 'online_time_in') {
-            qrText = 'online_time_in';
-        } else if (type === 'log_time_in') {
-            qrText = 'log_time_in';
-        }
-
-        // Clear previous QR codes
-        if (type === 'online_time_in') {
-            document.getElementById('qrcode_online').innerHTML = '';
-        } else if (type === 'log_time_in') {
-            document.getElementById('qrcode_log').innerHTML = '';
-        }
+    function generateQRCodeForText(text, elementId) {
+        const qrText = text;
 
         // Generate new QR code with white border
-        const qrcode = new QRCode(document.getElementById(type === 'online_time_in' ? 'qrcode_online' : 'qrcode_log'), {
+        const qrcode = new QRCode(document.getElementById(elementId), {
             text: qrText,
             width: 400,
             height: 400,
@@ -124,55 +95,42 @@
             colorLight: "#ffffff", // Light color of QR code (white border)
             correctLevel: QRCode.CorrectLevel.H
         });
-
-        // Enable download button if both QR codes are generated
-        if (document.getElementById('qrcode_online').innerHTML && document.getElementById('qrcode_log').innerHTML) {
-            document.getElementById('downloadBtn').disabled = false;
-        }
-
-        // Disable generate button for the generated QR code
-        document.getElementById(type === 'online_time_in' ? 'generateOnlineBtn' : 'generateLogBtn').disabled = true;
     }
 
     function downloadQRCode() {
         // Get the canvas elements generated by qrcode.min.js
-        const canvas_online = document.getElementById('qrcode_online').querySelector('canvas');
-        const canvas_log = document.getElementById('qrcode_log').querySelector('canvas');
+        const canvas1 = document.getElementById('qrcode1').querySelector('canvas');
+        const canvas2 = document.getElementById('qrcode2').querySelector('canvas');
 
         // Create temporary link elements
-        const downloadLink_online = document.createElement('a');
-        const downloadLink_log = document.createElement('a');
+        const downloadLink1 = document.createElement('a');
+        const downloadLink2 = document.createElement('a');
 
         // Convert the canvas to data URLs
-        const dataUrl_online = canvas_online.toDataURL('image/png');
-        const dataUrl_log = canvas_log.toDataURL('image/png');
+        const dataUrl1 = canvas1.toDataURL('image/png');
+        const dataUrl2 = canvas2.toDataURL('image/png');
 
         // Create the file names
-        const fileName_online = `online_time_in.png`;
-        const fileName_log = `log_time_in.png`;
+        const fileName1 = 'log_time_in.png';
+        const fileName2 = 'online_time_in.png';
 
         // Set the data URLs as the href attributes
-        downloadLink_online.href = dataUrl_online;
-        downloadLink_online.download = fileName_online;
-        downloadLink_log.href = dataUrl_log;
-        downloadLink_log.download = fileName_log;
+        downloadLink1.href = dataUrl1;
+        downloadLink1.download = fileName1;
+        downloadLink2.href = dataUrl2;
+        downloadLink2.download = fileName2;
 
         // Append the links to the body and trigger the downloads
-        document.body.appendChild(downloadLink_online);
-        document.body.appendChild(downloadLink_log);
+        document.body.appendChild(downloadLink1);
+        downloadLink1.click();
+        document.body.appendChild(downloadLink2);
+        downloadLink2.click();
 
-        downloadLink_online.click();
-        downloadLink_log.click();
-
-        document.body.removeChild(downloadLink_online);
-        document.body.removeChild(downloadLink_log);
+        // Remove the links from the body
+        document.body.removeChild(downloadLink1);
+        document.body.removeChild(downloadLink2);
     }
 
-    // Check if a QR code should be displayed on page load
-    if (shouldDisplayQRCode()) {
-        generateQRCode('online_time_in');
-        generateQRCode('log_time_in');
-    }
 </script>
 {% endblock %}
 {% endblock %}

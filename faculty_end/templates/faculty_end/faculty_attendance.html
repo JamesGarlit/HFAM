@@ -17,53 +17,48 @@
 <!-- Page body -->
 <div class="page-body">
     <div class="container-xl">
-        <form method="GET" action="{% url 'attendance_record' %}">
-            <div class="row">
-                <div class="col-lg-2 col-md-2 col-sm-2 mb-1">
-                    <select class="form-select" name="filter" id="filter">
-                        <option value="last_7_days" {% if filter_option == 'last_7_days' %}selected{% endif %}>Last 7 Days</option>
-                        <option value="last_month" {% if filter_option == 'last_month' %}selected{% endif %}>Last Month</option>
-                        <option value="all" {% if filter_option == 'all' %}selected{% endif %}>All</option>
-                    </select>
-                </div>
-                <div class="col-lg-2 col-md-2 col-sm-2 mb-1">
-                    <button class="btn btn-primary" type="submit">Apply Filter</button>
-                </div>
-            </div>  
-        </form>
-        
         <div class="card">
             <div class="card-body">
-                <table id="AllFacultyAttendanceRecord" class="table table-striped table-bordered" style="width:100%">
-                    <thead>
-                        <tr>
-                            <th>Room Name</th>
-                            <th>Time In</th>
-                            <th>Time Out</th>
-                            <th>Day</th>
-                            <th>Date</th>
-                            <th>Month</th>
-                            <th>Delay</th>
-                            <th>Status</th>
-                            <th>Absent</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for data in faculty_data %}
-                        <tr>
-                            <td>{{ data.room_name }}</td>
-                            <td>{{ data.time_in }}</td>
-                            <td>{{ data.time_out }}</td>
-                            <td>{{ data.day }}</td>
-                            <td>{{ data.date }}</td>
-                            <td>{{ data.month }}</td>
-                            <td>{{ data.delay }}</td>
-                            <td>{{ data.status }}</td>
-                            <td>{{ data.is_absent }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>                                                                      
+                {% if attendance_records %}
+                    <table id="facultyattendance" class="table table-striped display" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Room Name</th>
+                                <th>Time In</th>
+                                <th>Time Out</th>
+                                <th>Day</th>
+                                <th>Date</th>
+                                <th>Month</th>
+                                <th>Delay</th>
+                                <th>Status</th>
+                                <th>Evidence</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in attendance_records %}
+                                <tr>
+                                    <td>{{ item.record.room_name }}</td>
+                                    <td>{{ item.record.time_in }}</td>
+                                    <td>{{ item.record.time_out }}</td>
+                                    <td>{{ item.record.day }}</td>
+                                    <td>{{ item.record.date }}</td>
+                                    <td>{{ item.record.month }}</td>
+                                    <td>{{ item.record.delay }}</td>
+                                    <td>{{ item.record.status }}</td>
+                                    <td>
+                                        {% if item.type == 'Online' and item.record.evidence %}
+                                            <img src="{{ item.record.evidence.url }}" alt="Evidence Image" width="100">
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No attendance records found.</p>
+                {% endif %}                                                                      
             </div>
         </div>        
     </div>
@@ -82,9 +77,9 @@
 <script>
     $(document).ready(function() {
         // Setup - add a text input to each footer cell
-        $('#AllFacultyAttendanceRecord thead tr').clone(true).addClass('filters').appendTo('#AllFacultyAttendanceRecord thead');
+        $('#facultyattendance thead tr').clone(true).addClass('filters').appendTo('#facultyattendance thead');
     
-        var table = $('#AllFacultyAttendanceRecord').DataTable({
+        var table = $('#facultyattendance').DataTable({
             scrollCollapse: true,
             orderCellsTop: true,
             fixedHeader: true,

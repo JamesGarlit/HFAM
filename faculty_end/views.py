@@ -18,6 +18,28 @@ def is_faculty(user):
 def log_time_in(request):
     return render(request,'faculty_end/log_time_in.html')
 
+@login_required
+def faculty_attendance(request):
+    user = request.user
+    if user.user_role != 'faculty':
+        return render(request, 'not_authorized.html')
+
+    time_in_records = TimeIn.objects.filter(user=user)
+    online_records = Online.objects.filter(user=user)
+
+    # Combine records with an identifier for their source
+    attendance_records = [
+        {'type': 'TimeIn', 'record': record} for record in time_in_records
+    ] + [
+        {'type': 'Online', 'record': record} for record in online_records
+    ]
+
+    context = {
+        'attendance_records': attendance_records,
+    }
+
+    return render(request, 'faculty_end/faculty_attendance.html', context)
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @login_required(login_url='faculty_login')
 @user_passes_test(is_faculty, login_url='error_400')
@@ -246,25 +268,75 @@ def log_time_in(request):
     if request.method == 'POST':
         # Handle form submission
         day = request.POST.get('day')
-        time_in = request.POST.get('time_in')
+        time_in_str = request.POST.get('time_in')
         time_out = request.POST.get('time_out')
         room_name = request.POST.get('room_name')
         date = request.POST.get('date')
         month = request.POST.get('month')
 
-        # Save the data to the database
-        TimeIn.objects.create(
-            user = request.user,
-            day=day,
-            time_in=time_in,
-            time_out=time_out,
-            room_name=room_name,
-            date=date,
-            month=month
-        )
+        # Convert time_in to datetime object
+        time_in = datetime.strptime(time_in_str, '%H:%M')
 
-        messages.success(request, 'Logged in successfully')
-        return redirect('faculty_end/attendance_record')
+        # Get faculty's fstart_time from the API
+        faculty_id = request.user.facultyaccount.faculty_id
+        current_day = datetime.now().strftime('%A')
+
+        api_url = 'https://schedulerserver-6e565d991c10.herokuapp.com/facultyloadings/getfacultyloading'
+        access_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqYW1lc0BzYW5kbG90LnBoIiwidXNlcnR5cGUiOiJzdGFmZiIsImV4cCI6MTcxNzYxMjgzNH0.0NDFuxsVNh40fsIVf8b2H_4OBSdm0LPRPdUDpkf8NxE'
+
+        headers = {
+            'Authorization': f'Bearer {access_token}',
+        }
+
+        response = requests.get(api_url, headers=headers)
+
+        if response.status_code == 200:
+            api_data = response.json().get('data', [])
+            if not api_data:
+                return render(request, 'faculty_end/log_time_in.html', {'error_message': 'No data returned from the API'})
+
+            # Find the matching schedule
+            matching_schedule = None
+            for schedule in api_data:
+                if schedule.get('facultyid') == faculty_id and schedule.get('day') == current_day:
+                    matching_schedule = schedule
+                    break
+            
+            if matching_schedule:
+                fstart_time_str = matching_schedule.get('fstart_time')
+                fstart_time = datetime.strptime(fstart_time_str, '%H:%M:%S')
+
+                # Compute the difference between time_in and fstart_time
+                time_difference = time_in - fstart_time
+                delay_minutes = max(time_difference.total_seconds() / 60, 0)
+
+                # Determine if the user is late
+                if delay_minutes > 0:
+                    delay = f"{int(delay_minutes)} minute{'s' if delay_minutes > 1 else ''} Late"
+                else:
+                    delay = None
+            else:
+                # If there's no matching schedule, consider the user as on time
+                delay = None
+
+            # Save the data to the database with status "Present"
+            TimeIn.objects.create(
+                user=request.user,
+                day=day,
+                time_in=time_in_str,
+                time_out=time_out,
+                room_name=room_name,
+                date=date,
+                month=month,
+                delay=delay,
+                status="Present"
+            )
+
+            messages.success(request, 'Logged in successfully')
+            return redirect('faculty_attendance')
+        else:
+            return render(request, 'faculty_end/log_time_in.html', {'error_message': 'Failed to fetch data from the API'})
+
     else:
         # Get faculty ID and current day
         faculty_id = request.user.facultyaccount.faculty_id
@@ -324,7 +396,7 @@ def log_time_in(request):
                 'current_time': current_time,
                 'current_date': current_date,
                 'current_month': current_month,
-                'initial_time_out': initial_time_out  # Pass the initial time_out value to the template
+                'initial_time_out': initial_time_out,  # Pass the initial time_out value to the template
             })
         else:
             return render(request, 'faculty_end/log_time_in.html', {'error_message': 'Failed to fetch data from the API'})
@@ -341,7 +413,41 @@ def online_time_in(request):
         room_name = request.POST.get('room_name')
         date = request.POST.get('date')
         month = request.POST.get('month')
-        evidence = request.FILES.get('evidence')  # Handle file upload
+        
+        # Parse time_in to datetime object
+        time_in = datetime.strptime(time_in_str, '%H:%M').time()
+
+        # Fetch faculty's fstart_time from the API
+        faculty_id = request.user.facultyaccount.faculty_id
+        current_day = datetime.now().strftime('%A')
+        api_url = 'https://schedulerserver-6e565d991c10.herokuapp.com/facultyloadings/getfacultyloading'
+        access_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqYW1lc0BzYW5kbG90LnBoIiwidXNlcnR5cGUiOiJzdGFmZiIsImV4cCI6MTcxNzYxMjgzNH0.0NDFuxsVNh40fsIVf8b2H_4OBSdm0LPRPdUDpkf8NxE'
+        headers = {
+            'Authorization': f'Bearer {access_token}',
+        }
+        response = requests.get(api_url, headers=headers)
+        
+        if response.status_code == 200:
+            api_data = response.json().get('data', [])
+            if not api_data:
+                return render(request, 'faculty_end/online_time_in.html', {'error_message': 'No data returned from the API'})
+
+            # Find the faculty's schedule for the current day
+            faculty_schedule = next((schedule for schedule in api_data if schedule.get('facultyid') == faculty_id and schedule.get('day') == current_day), None)
+            if faculty_schedule:
+                fstart_time_str = faculty_schedule.get('fstart_time', '')
+                fstart_time = datetime.strptime(fstart_time_str, '%H:%M:%S').time()
+
+                # Compute the delay
+                delay_minutes = (datetime.combine(datetime.min, time_in) - datetime.combine(datetime.min, fstart_time)).seconds // 60
+                if delay_minutes > 0:
+                    delay = f"{delay_minutes} minute{'s' if delay_minutes > 1 else ''} Late"
+                else:
+                    delay = None
+            else:
+                delay = None
+        else:
+            return render(request, 'faculty_end/online_time_in.html', {'error_message': 'Failed to fetch data from the API'})
 
         # Status should be "Present" when time_in is logged
         status = 'Present'
@@ -358,15 +464,17 @@ def online_time_in(request):
             room_name=room_name,
             date=date,
             month=month,
-            status=status,  # Set status to "Present"
-            is_absent=is_absent,  # Set is_absent to False
-            evidence=evidence,
+            delay=delay,
+            status=status, 
+            is_absent=is_absent, 
+            evidence=request.FILES.get('evidence'),  # Handle file upload
         )
 
         # Redirect to the online_time_in view
-        return redirect('online_time_in')  # Replace 'online_time_in' with the actual URL name of your view
+        messages.success(request, 'Logged in successfully')
+        return redirect('faculty_attendance')  # Replace 'online_time_in' with the actual URL name of your view
     else:
-        # Get faculty ID and current day
+        # Retrieve the faculty ID and current day
         faculty_id = request.user.facultyaccount.faculty_id
         current_day = datetime.now().strftime('%A')
 
@@ -424,7 +532,7 @@ def online_time_in(request):
                 'current_time': current_time,
                 'current_date': current_date,
                 'current_month': current_month,
-                'initial_time_out': initial_time_out  # Pass the initial time_out value to the template
+                'initial_time_out': initial_time_out,  # Pass the initial time_out value to the template
             })
         else:
             return render(request, 'faculty_end/online_time_in.html', {'error_message': 'Failed to fetch data from the API'})

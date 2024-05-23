@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import log_attendance, online_time_in, attendance_record, log_time_in, log_time_out, time_in_out_records, leaveapp_create, leaveapp_list, leaveapp_view, faculty_login, faculty_logout, qrcode_generator, faculty_login, attendance_record1, notif, account_settings, change_password, error_400
+from .views import log_attendance, online_time_in, faculty_attendance, log_time_in, log_time_out, time_in_out_records, leaveapp_create, leaveapp_list, leaveapp_view, faculty_login, faculty_logout, qrcode_generator, faculty_login, attendance_record1, notif, account_settings, change_password, error_400
 
 urlpatterns = [
     path('leaveapp_create/', leaveapp_create, name='leaveapp_create'),
@@ -20,7 +20,7 @@ urlpatterns = [
     path('log_time_in/', log_time_in, name='log_time_in'),
     path('online_time_in/', online_time_in, name='online_time_in'),
     path('log_time_out/', log_time_out, name='log_time_out'),
-    path('attendance_record/', attendance_record, name='attendance_record'),
+    path('faculty_attendance/', faculty_attendance, name='faculty_attendance'),
 
 
 ]
