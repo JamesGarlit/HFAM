@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 from django.contrib.auth import update_session_auth_hash
 import requests
 from django.utils import timezone
+from datetime import date
 from django.http import HttpResponse
 
 def is_faculty(user):
@@ -251,12 +252,10 @@ def log_time_in(request):
         room_name = request.POST.get('room_name')
         date = request.POST.get('date')
         month = request.POST.get('month')
-
-
-        time_logged = False
+    
         # Check if the user already timed in
         try:
-            is_TimedIn = TimeIn.objects.filter(user=request.user, date=date, room_name = room_name)
+            TimeIn.objects.filter(user=request.user, date=date, room_name = room_name)
         except TimeIn.DoesNotExist:
             # Save the data to the database
             TimeIn.objects.create(
@@ -328,18 +327,21 @@ def log_time_in(request):
             else:
                 initial_time_out = ''
 
-
-            time_logged = False
             # Check if the user already timed in
             try:
-                is_TimedIn = TimeIn.objects.filter(user=request.user, date=date.today(), room_name = room_name)
-                time_logged = True
+                is_TimeLogged = TimeIn.objects.filter(user=request.user, date=timezone.now().date(), room_name = room_name)
+        
             except TimeIn.DoesNotExist:
+                is_TimeLogged = None
+
+            if is_TimeLogged:
+                time_logged = True
+
+            else:
                 time_logged = False
 
             # If the user already timed in, just make the time_logged true for front end purposes
-   
-          
+
 
             return render(request, 'faculty_end/log_time_in.html', {
                 'schedules': processed_schedules,
@@ -348,7 +350,7 @@ def log_time_in(request):
                 'current_date': current_date,
                 'current_month': current_month,
                 'initial_time_out': initial_time_out,
-                'time_logged': time_logged 
+                'time_logged': time_logged, 
                                             # Pass the initial time_out value to the template
             })
         else:
