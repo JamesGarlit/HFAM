@@ -40,8 +40,6 @@ urlpatterns = [
     path('dashboard/timeout/late/', top_late_timeout, name='dashboard_timeout_late'),
     path('dashboard/timeout/ontime/', top_ontime_timeout, name='dashboard_timeout_ontime'),
 
-
-
     # These are the paths for all the reports
     path('reports/dtr/', DTRReport, name='report-dtr'),
 
