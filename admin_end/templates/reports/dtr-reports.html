@@ -17,15 +17,16 @@
             }
             
             table {
-                width: 5%; /* Or set a fixed width */
+                width: 80%; /* Or set a fixed width */
                 margin: 0 auto; /* Center the table on the page */
                 border-collapse: collapse;
             }
-
             th{
                 border: .1rem solid !important;
                 border-color: lightgrey !important;
-                text-align: center;
+                vertical-align: center;
+                text-align:center;
+                padding-top: 3px;
                 
          
 
@@ -34,7 +35,9 @@
             td {
                 border: .1rem solid !important;
                 border-color: lightgrey !important;
-                text-align: center;
+                vertical-align: center;
+                text-align:center;
+                padding-top: 3px;
               
             } 
 
@@ -77,22 +80,21 @@
         
             
             <div id="" class="">
-                <table id="" class="" style="width: 20px !important">
+                <table id="" class="">
              
-                        {% comment %} <tr>
-                            <th>Days</th>
-                            <th>A.M.</th>
-                            <th>P.M.</th>
-                            <th>Under Time</th>
-                        </tr> {% endcomment %}
+                        <tr>
+                            <th rowspan="2">Days</th>
+                            <th colspan="2">A.M.</th>
+                            <th colspan="2">P.M.</th>
+                            {% comment %} <th colspan="2">Under Time</th> {% endcomment %}
+                        </tr>
                         <tr>
                             <th>Arrival</th>
                             <th>Departure</th>
                             <th>Arrival</th>
                             <th>Departure</th>
-                            <th>Hours</th>
-                            <th>Minutes</th>
-                            <th>Minutes</th>
+                            {% comment %} <th>Hours</th>
+                            <th>Minutes</th> {% endcomment %}
                         </tr>
               
              
@@ -102,8 +104,8 @@
                             <td>12:00 PM</td>
                             <td></td>
                             <td></td>
-                            <td>0</td>
-                            <td>15</td>
+                            {% comment %} <td>0</td>
+                            <td>15</td> {% endcomment %}
                         </tr>
                         <tr>
                             <td>2</td>
@@ -111,8 +113,8 @@
                             <td></td>
                             <td>01:00 PM</td>
                             <td>05:00 PM</td>
-                            <td>0</td>
-                            <td>0</td> 
+                            {% comment %} <td>0</td>
+                            <td>0</td>  {% endcomment %}
                         </tr>
               
                 </table>
