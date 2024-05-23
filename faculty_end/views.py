@@ -322,10 +322,10 @@ def log_time_in(request):
                     if delay_minutes > 0:
                         delay = f"{int(delay_minutes)} minute{'s' if delay_minutes > 1 else ''} Late"
                     else:
-                        delay = None
+                        delay = 'N/A'
                 else:
                     # If there's no matching schedule, consider the user as on time
-                    delay = None
+                    delay = 'N/A'
 
                 # Save the data to the database with status "Present"
                 TimeIn.objects.create(
@@ -406,7 +406,7 @@ def log_time_in(request):
             # If the api has contents, then it will run the below code.
             if schedules_from_api:
                 # Check if the user already timed in
-                is_TimeLogged = TimeIn.objects.get(user=request.user, date=timezone.now().date(), room_name = room_name)
+                is_TimeLogged = TimeIn.objects.filter(user=request.user, date=timezone.now().date(), room_name = room_name)
             
                 if is_TimeLogged:
                     time_logged = True
@@ -474,9 +474,9 @@ def online_time_in(request):
                 if delay_minutes > 0:
                     delay = f"{delay_minutes} minute{'s' if delay_minutes > 1 else ''} Late"
                 else:
-                    delay = None
+                    delay = 'N/A'
             else:
-                delay = None
+                delay = 'N/A'
         else:
             return render(request, 'faculty_end/online_time_in.html', {'error_message': 'Failed to fetch data from the API'})
 

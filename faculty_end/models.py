@@ -10,7 +10,7 @@ class TimeIn(models.Model):
     day = models.CharField(max_length=50)
     date = models.DateField()
     month = models.CharField(max_length=255)
-    delay = models.CharField(max_length=255,blank=True, null=True)
+    delay = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(max_length=50)
     created_at = models.DateTimeField(default=timezone.now) 
     is_absent = models.BooleanField(default=False)
