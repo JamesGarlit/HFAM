@@ -72,6 +72,31 @@
     <script src="{% static "/dist/js/tabler.min.js" %}" defer></script>
     <script src="{% static "/dist/js/demo.min.js" %}" defer></script>
     <script src="https://kit.fontawesome.com/e4a39c8978.js" crossorigin="anonymous"></script>
+
+    <script> 
+      // This code will automatically run every one hour to check the user's attendance. 
+        function pollCheckAttendance() {
+          console.log('Checking Attendance...');
+          fetch("/automate/time-in/absent/")
+            .then(response => {
+              if (!response.ok) {
+                throw new Error("Network response was not ok.");
+              }
+              return response.json(); 
+            })
+            .then(response => {
+              return response.json(); 
+            })
+            .catch(error => {
+              console.error("There was a problem fetching data:", error);
+            });
+        }
+        
+        //setInterval(pollCheckAttendance, 60 * 60 * 1000); // Poll every hour
+
+        setInterval(pollCheckAttendance, 5 * 1000); // Poll every 5 seconds
+      
+    </script>
     {% block javascript %}
     
     {% endblock %}
