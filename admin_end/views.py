@@ -510,7 +510,7 @@ def faculty_attendance_records(request):
             attendance_records.append({
                 'user': faculty_user.get_full_name(),
                 'date': time_in_record.date,
-                'location': time_in_record.location,
+                # 'location': time_in_record.location,
                 'time': time_in_record.time_in,
                 'status': time_in_record.status,
                 'timeintimeout': 'Time In',  # Indicates Time In record

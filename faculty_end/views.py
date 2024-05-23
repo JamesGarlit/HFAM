@@ -473,15 +473,21 @@ def online_time_in(request):
             if faculty_schedule:
                 fstart_time_str = faculty_schedule.get('fstart_time', '')
                 fstart_time = datetime.strptime(fstart_time_str, '%H:%M:%S').time()
+                current_time = datetime.now().time()
 
-                # Compute the delay
-                delay_minutes = (datetime.combine(datetime.min, time_in) - datetime.combine(datetime.min, fstart_time)).seconds // 60
-                if delay_minutes > 0:
-                    delay = f"{delay_minutes} minute{'s' if delay_minutes > 1 else ''} Late"
+                if current_time > datetime.strptime("15:30:00", '%H:%M:%S').time():
+                    # Compute the delay
+                    delay_minutes = (datetime.combine(datetime.min, time_in) - datetime.combine(datetime.min, fstart_time)).seconds // 60
+                    if delay_minutes > 0:
+                        delay = f"{delay_minutes} minute{'s' if delay_minutes > 1 else ''} Late"
+                    else:
+                        delay = ''
+
                 else:
-                    delay = 'N/A'
+                    delay = ''
+
             else:
-                delay = 'N/A'
+                delay = ''
         else:
             return render(request, 'faculty_end/online_time_in.html', {'error_message': 'Failed to fetch data from the API'})
 
@@ -496,6 +502,7 @@ def online_time_in(request):
             user=request.user,
             day=day,
             time_in=time_in_str,
+            time_start = fstart_time,
             time_out=time_out,
             room_name=room_name,
             date=date,
