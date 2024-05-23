@@ -1,7 +1,7 @@
 # admin_end/urls.py
 from django.urls import path
 from .views import onlineqrcode, generate_qr, top_early_timeout, top_late_timeout, top_ontime_timeout, dashboard, top_ontime_faculty, top_early_faculty, top_late_faculty, faculty_attendance_records, leaveappreq_list, update_faculty_account, create_faculty_account, admin_settings, schedule_api, user_create, user_list, faculty_members, user_update, user_view, shift_list, shift_list, shift_details, shift_create, shift_update, shift_delete, login, login_as, admin_logout, deactivate_user, activate_user, admin_notif, leaveappreq_list, approval, attendance_notif
-
+from .views_reports import DTRReport
 
 urlpatterns = [
     path('admin_notif/', admin_notif, name='admin_notif'),
@@ -39,5 +39,10 @@ urlpatterns = [
     path('dashboard/timeout/early/', top_early_timeout, name='dashboard_timeout_early'),
     path('dashboard/timeout/late/', top_late_timeout, name='dashboard_timeout_late'),
     path('dashboard/timeout/ontime/', top_ontime_timeout, name='dashboard_timeout_ontime'),
+
+
+
+    # These are the paths for all the reports
+    path('reports/dtr/', DTRReport, name='report-dtr'),
 
 ]

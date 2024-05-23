@@ -1,0 +1,132 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Daily Time Record</title>
+
+
+    </head>
+    <body>
+        <style>
+            img{
+                width: 60px !important;
+                height: auto !important;
+                text-align: center !important;
+            }
+            
+            table {
+                width: 80%; /* Or set a fixed width */
+                margin: 0 auto; /* Center the table on the page */
+                border-collapse: collapse;
+            }
+            th{
+                border: .1rem solid !important;
+                border-color: lightgrey !important;
+                vertical-align: center;
+                text-align:center;
+                padding-top: 3px;
+                
+         
+
+            }
+
+            td {
+                border: .1rem solid !important;
+                border-color: lightgrey !important;
+                vertical-align: center;
+                text-align:center;
+                padding-top: 3px;
+              
+            } 
+
+
+            /* In your CSS file */
+            .container-fluid {
+            text-align: center; /* Centers content within a fluid container */
+            }
+
+            .custom-style {
+                text-align: right; /* Centers content within a fluid container */
+                }
+
+            .content { 
+            display: inline-block; /* Allows the image to be centered within its container */
+            }
+
+        </style>
+        <section class="m-4 p-4">
+            <div class="container-fluid">
+                <div class="content text-center">
+                    <img src="https://www.pngkey.com/png/detail/52-528919_the-pup-logo-polytechnic-university-of-the-philippines.png" alt="The Pup Logo - Polytechnic University Of The Philippines Logo@pngkey.com">
+                </div>
+                <div class="text-center">
+                    <p style="margin: 0 !important;">Republic of the Philippines</p>
+                </div>
+                <div class="text-center">
+                    <h3>Polytechnic University of the Philippines <br> Quezon City Campus</h3>
+                </div>
+            
+                <div class="mt-4 pt-3 text-center">
+                    <h4>Daily Time Record</h4>
+                    <h6></h6>
+                    <p style="font-style: italic;">
+    
+                    </p>
+                </div>
+            </div>
+            
+        
+            
+            <div id="" class="">
+                <table id="" class="">
+             
+                        <tr>
+                            <th rowspan="2">Days</th>
+                            <th colspan="2">A.M.</th>
+                            <th colspan="2">P.M.</th>
+                            {% comment %} <th colspan="2">Under Time</th> {% endcomment %}
+                        </tr>
+                        <tr>
+                            <th>Arrival</th>
+                            <th>Departure</th>
+                            <th>Arrival</th>
+                            <th>Departure</th>
+                            {% comment %} <th>Hours</th>
+                            <th>Minutes</th> {% endcomment %}
+                        </tr>
+              
+             
+                        <tr>
+                            <td>1</td>
+                            <td>08:30 AM</td>
+                            <td>12:00 PM</td>
+                            <td></td>
+                            <td></td>
+                            {% comment %} <td>0</td>
+                            <td>15</td> {% endcomment %}
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td></td>
+                            <td></td>
+                            <td>01:00 PM</td>
+                            <td>05:00 PM</td>
+                            {% comment %} <td>0</td>
+                            <td>0</td>  {% endcomment %}
+                        </tr>
+              
+                </table>
+                
+            </div>
+
+   
+          
+
+        </section>
+        
+    </body>
+</html>
+
+
