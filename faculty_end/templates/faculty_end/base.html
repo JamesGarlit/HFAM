@@ -92,9 +92,9 @@
             });
         }
         
-        //setInterval(pollCheckAttendance, 60 * 60 * 1000); // Poll every hour
+        setInterval(pollCheckAttendance, 60 * 60 * 1000); // Poll every hour
 
-        setInterval(pollCheckAttendance, 5 * 1000); // Poll every 5 seconds
+        {% comment %} setInterval(pollCheckAttendance, 5 * 1000); // Poll every 5 seconds {% endcomment %}
       
     </script>
     {% block javascript %}

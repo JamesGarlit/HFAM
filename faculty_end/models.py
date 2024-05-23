@@ -12,7 +12,7 @@ class TimeIn(models.Model):
     month = models.CharField(max_length=255)
     delay = models.CharField(max_length=255,blank=True, null=True)
     status = models.CharField(max_length=50)
-    created_at = models.DateTimeField(default=timezone.now) 
+    created_at = models.DateTimeField(default=timezone.now)
 
 class Online(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
