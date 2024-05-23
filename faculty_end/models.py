@@ -19,6 +19,7 @@ class Online(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     room_name = models.CharField(max_length=255)
     time_in = models.TimeField(blank=True, null=True)
+    time_start = models.TimeField(blank=True, null=True) 
     time_out = models.TimeField(blank=True, null=True)
     day = models.CharField(max_length=50)
     date = models.DateField()

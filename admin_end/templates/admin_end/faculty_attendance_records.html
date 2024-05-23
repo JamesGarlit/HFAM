@@ -26,7 +26,7 @@
                         <tr>
                           <th>Faculty Name</th>
                           <th>Date</th>
-                          <th>Location</th>
+                          {% comment %} <th>Location</th> {% endcomment %}
                           <th>Time</th>
                           <th>Time in/Time out</th>
                           <th>Status</th>
@@ -38,7 +38,7 @@
                         <tr>
                           <td>{{ record.user }}</td>
                           <td>{{ record.date }}</td>
-                          <td>{{ record.location }}</td>
+                          {% comment %} <td>{{ record.location }}</td> {% endcomment %}
                           <td>{{ record.time }}</td>
                           <td>{{ record.timeintimeout }}</td>
                           <td>{{ record.status }}</td>
