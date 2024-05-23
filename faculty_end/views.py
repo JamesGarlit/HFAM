@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 from django.contrib.auth import update_session_auth_hash
 import requests
 from django.utils import timezone
+from datetime import date
 from django.http import HttpResponse
 
 def is_faculty(user):
@@ -273,6 +274,13 @@ def log_time_in(request):
         room_name = request.POST.get('room_name')
         date = request.POST.get('date')
         month = request.POST.get('month')
+    
+        # Check if there is an existing record in the timein model  
+        is_TimedIn = TimeIn.objects.filter(user=request.user, date=date, room_name = room_name).exists()
+
+
+        if is_TimedIn:
+            return render(request, 'faculty_end/log_time_in.html', {'error_message': 'You are already time logged!'})
 
         # Convert time_in to datetime object
         time_in = datetime.strptime(time_in_str, '%H:%M')
@@ -329,7 +337,8 @@ def log_time_in(request):
                 date=date,
                 month=month,
                 delay=delay,
-                status="Present"
+                status="Present",
+                is_absent = False,
             )
 
             messages.success(request, 'Logged in successfully')
@@ -368,6 +377,10 @@ def log_time_in(request):
                 start_time = datetime.strptime(start_time_str, '%H:%M:%S').strftime('%I:%M %p')
                 end_time = datetime.strptime(end_time_str, '%H:%M:%S').strftime('%I:%M %p')
 
+                # Get RoomName (this line is already correct)
+                room_name = schedule_info.get('roomname', '')
+
+
                 schedule_data = {
                     'Id': schedule_info.get('id', ''),
                     'FacultyId': schedule_info.get('facultyid', ''),
@@ -390,13 +403,27 @@ def log_time_in(request):
             else:
                 initial_time_out = ''
 
+            # Check if the user already timed in
+            is_TimeLogged = TimeIn.objects.filter(user=request.user, date=timezone.now().date(), room_name = room_name).exists()
+        
+            if is_TimeLogged:
+                time_logged = True
+
+            else:
+                time_logged = False
+
+            # If the user already timed in, just make the time_logged true for front end purposes
+
+
             return render(request, 'faculty_end/log_time_in.html', {
                 'schedules': processed_schedules,
                 'current_day': current_day,
                 'current_time': current_time,
                 'current_date': current_date,
                 'current_month': current_month,
-                'initial_time_out': initial_time_out,  # Pass the initial time_out value to the template
+                'initial_time_out': initial_time_out,
+                'time_logged': time_logged, 
+                                            # Pass the initial time_out value to the template
             })
         else:
             return render(request, 'faculty_end/log_time_in.html', {'error_message': 'Failed to fetch data from the API'})
