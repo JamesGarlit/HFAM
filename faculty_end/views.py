@@ -11,7 +11,7 @@ from django.contrib.auth import update_session_auth_hash
 import requests
 from django.utils import timezone
 from datetime import date
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 def is_faculty(user):
     return user.is_authenticated and not user.is_superuser
@@ -422,6 +422,8 @@ def online_time_in(request):
         room_name = request.POST.get('room_name')
         date = request.POST.get('date')
         month = request.POST.get('month')
+        length = request.POST.get('length')
+        length = int(length)
         
         # Parse time_in to datetime object
         time_in = datetime.strptime(time_in_str, '%H:%M').time()
@@ -470,8 +472,15 @@ def online_time_in(request):
         # Set is_absent to False when status is Present
         is_absent = False
 
+        if length != 0:
+            has_attachments = True
+        
+        else:
+            has_attachments = False
+
+
         # Save the data to the database
-        Online.objects.create(
+        online_record = Online.objects.create(
             user=request.user,
             day=day,
             time_in=time_in_str,
@@ -483,11 +492,26 @@ def online_time_in(request):
             delay=delay,
             status=status, 
             is_absent=is_absent, 
+            has_attachments = has_attachments
         )
+
+        online_record_id = online_record.id 
+        if length != 0:
+
+            for file_num in range(0, int(length)):
+                print('File:', request.FILES.get(f'files{file_num}'))
+                OnlineEvidence.objects.create(
+                    online_id = online_record_id ,
+                    uploaded_by = request.user,
+                    name =  request.FILES.get(f'files{file_num}'), 
+                    evidence = request.FILES.get(f'files{file_num}')
+                    
+                ) 
 
         # Redirect to the online_time_in view
         messages.success(request, 'Logged in successfully')
-        return redirect('faculty_attendance')  # Replace 'online_time_in' with the actual URL name of your view
+        # return redirect('faculty_attendance')  # Replace 'online_time_in' with the actual URL name of your view
+        return JsonResponse(status=200)
     else:
         # Retrieve the faculty ID and current day
         faculty_id = request.user.facultyaccount.faculty_id
