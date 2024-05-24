@@ -69,33 +69,35 @@ def check_attendance(request):
             initial_time_out = ''
 
 
-        # Check if the user already timed in
-        try:
-            is_TimedIn = TimeIn.objects.filter(user=request.user, date=date.today())
-        except TimeIn.DoesNotExist:
-            is_TimedIn = None
-
-        # If the user already timed in, just pass a success code
-        if is_TimedIn:
-            return JsonResponse({'success0': True}, status=200)
+        if schedules_from_api:
+            # Check if the user already timed in
+            
+            is_TimedIn = TimeIn.objects.filter(user=request.user, date=date.today()).exists()
         
-        else:
-            # If the user still didn't timed in, it will check if the end time of the schedule had passed. If so, it will mark it as absent
-            if current_time > initial_time_out:
-                # Save the data to the database
-
-                TimeIn.objects.create(
-                    user = request.user,
-                    day=current_day,
-                    time_in= None,
-                    time_out= None,
-                    room_name=room_name,
-                    date=current_date,
-                    month=current_month,
-                    status = 'Absent'
-                )
-
-                return JsonResponse({'success1': True}, status=200)
+            # If the user already timed in, just pass a success code
+            if is_TimedIn:
+                return JsonResponse({'success0': True}, status=200)
             
             else:
-                return JsonResponse({'success2': True}, status=200)
+                # If the user still didn't timed in, it will check if the end time of the schedule had passed. If so, it will mark it as absent
+                if current_time > initial_time_out:
+                    # Save the data to the database
+
+                    TimeIn.objects.create(
+                        user = request.user,
+                        day=current_day,
+                        time_in= None,
+                        time_out= None,
+                        room_name=room_name,
+                        date=current_date,
+                        month=current_month,
+                        status = 'Absent'
+                    )
+
+                    return JsonResponse({'success1': True}, status=200)
+                
+                else:
+                    return JsonResponse({'success2': True}, status=200)
+                
+        else:
+            return JsonResponse({'success3': True}, status=200)
