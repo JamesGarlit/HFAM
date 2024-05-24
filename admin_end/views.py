@@ -537,59 +537,74 @@ def approval(request, leave_app_id):
 @user_passes_test(is_superadmin, login_url='error_400')
 @login_required(login_url='login_as')
 
-def faculty_attendance_records(request):
-    # Fetch all faculty users with the faculty role
-    faculty_users = CustomUser.objects.filter(user_role='faculty')
+# def faculty_attendance_records(request):
+#     # Fetch all faculty users with the faculty role
+#     faculty_users = CustomUser.objects.filter(user_role='faculty')
 
-    # Initialize an empty dictionary to store attendance records for each faculty member
-    faculty_attendance = {}
+#     # Initialize an empty dictionary to store attendance records for each faculty member
+#     faculty_attendance = {}
 
-    # Iterate over faculty users
-    for faculty_user in faculty_users:
-        # Fetch TimeIn and TimeOut records for the current faculty user
-        time_in_records = TimeIn.objects.filter(user=faculty_user)
-        time_out_records = TimeOut.objects.filter(user=faculty_user)
+#     # Iterate over faculty users
+#     for faculty_user in faculty_users:
+#         # Fetch TimeIn and TimeOut records for the current faculty user
+#         time_in_records = TimeIn.objects.filter(user=faculty_user)
+#         time_out_records = TimeOut.objects.filter(user=faculty_user)
 
 
-        print(time_in_records)
+#         print(time_in_records)
 
-        print(time_out_records)
+#         print(time_out_records)
 
-        # Combine TimeIn and TimeOut records for display
-        attendance_records = []
-        for record in time_in_records:
-            attendance_records.append({
-                'user': faculty_user.get_full_name(),
-                'date': record.date,
-                # 'location': record.location,
-                'time': record.time_in,
-                'status': record.status,
-                'timeintimeout': 'Time In',  # Indicates Time In record
-            })
-            print('lakas', record)
+#         # Combine TimeIn and TimeOut records for display
+#         attendance_records = []
+#         for record in time_in_records:
+#             attendance_records.append({
+#                 'user': faculty_user.get_full_name(),
+#                 'date': record.date,
+#                 # 'location': record.location,
+#                 'time': record.time_in,
+#                 'status': record.status,
+#                 'timeintimeout': 'Time In',  # Indicates Time In record
+#             })
+#             print('lakas', record)
             
-        for time_out_record in time_out_records:
-            attendance_records.append({
-                'user': faculty_user.get_full_name(),
-                'date': time_out_record.date,
-                'location': time_out_record.location,
-                'time': time_out_record.time_out,
-                'status': time_out_record.status,
-                'timeintimeout': 'Time Out',  # Indicates Time Out record
-            })
+#         for time_out_record in time_out_records:
+#             attendance_records.append({
+#                 'user': faculty_user.get_full_name(),
+#                 'date': time_out_record.date,
+#                 'location': time_out_record.location,
+#                 'time': time_out_record.time_out,
+#                 'status': time_out_record.status,
+#                 'timeintimeout': 'Time Out',  # Indicates Time Out record
+#             })
 
-        # Sort attendance records based on date and time
-        sorted_records = sorted(attendance_records, key=lambda x: (x['date'], x['time']))
+#         # Sort attendance records based on date and time
+#         sorted_records = sorted(attendance_records, key=lambda x: (x['date'], x['time']))
 
-        # Store the sorted attendance records for the current faculty user in the dictionary
-        faculty_attendance[faculty_user.get_full_name()] = sorted_records
+#         # Store the sorted attendance records for the current faculty user in the dictionary
+#         faculty_attendance[faculty_user.get_full_name()] = sorted_records
 
-    # Pass the attendance records for each faculty member to the template for rendering
-    context = {
-        'faculty_attendance': faculty_attendance,
-    }
-    print(faculty_attendance)
-    return render(request, 'admin_end/faculty_attendance_records.html', context)
+#     # Pass the attendance records for each faculty member to the template for rendering
+#     context = {
+#         'faculty_attendance': faculty_attendance,
+#     }
+#     print(faculty_attendance)
+#     return render(request, 'admin_end/faculty_attendance_records.html', context)
+
+
+def merged_table(request):
+    # Fetch data from both tables
+    time_in_data = TimeIn.objects.all()
+    online_data = Online.objects.all()
+
+    # Merge data from both tables
+    merged_data = list(time_in_data) + list(online_data)
+
+    # Sort merged data by date
+    merged_data.sort(key=lambda x: x.created_at)
+
+    # Pass the merged data to the template for rendering
+    return render(request, 'admin_end/merged_table.html', {'merged_data': merged_data})
 
 
 
