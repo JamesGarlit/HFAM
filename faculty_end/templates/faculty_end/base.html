@@ -26,6 +26,13 @@
     <!--DataTable-->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap4.min.css">
+
+        <!--FILEPOND-->
+    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet" />
+    <link
+        href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css"
+        rel="stylesheet"
+    />
     {% block css %}
 
     {% endblock %}
@@ -97,6 +104,41 @@
         {% comment %} setInterval(pollCheckAttendance, 5 * 1000); // Poll every 5 seconds {% endcomment %}
       
     </script>
+
+
+
+    <!--FILEPOND DEPENDENCIES -->
+    <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+    <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script>
+
+    <script src="https://unpkg.com/jquery-filepond/filepond.jquery.js"></script>
+
+
+    <style>
+      .disabled {
+        pointer-events: none; /* Disable clicks */
+        opacity: 0.6;       /* Visual indicator */
+      }
+    </style>
+    
+    <script>
+      const checkbox = document.getElementById("uploadInfoCheckbox");
+      const submitButtons = document.querySelectorAll('button[type="submit"]'); // Select all submit buttons
+    
+      checkbox.addEventListener("change", function() {
+        submitButtons.forEach(button => {
+          if (checkbox.checked) {
+            button.classList.remove("disabled"); // Enable
+          } else {
+            button.classList.add("disabled");    // Disable
+          }
+        });
+      });
+    </script>
+    
+
     {% block javascript %}
     
     {% endblock %}

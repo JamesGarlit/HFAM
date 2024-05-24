@@ -1,8 +1,10 @@
 {% extends 'faculty_end/base.html' %}
 {% load static %}
+{% load custom_tags %}
 {% block content %}
 
 <!-- Page header -->
+{% now "Y-m" as today %}
 <div class="page-header d-print-none">
     <div class="container-xl">
         <div class="row g-2 align-items-center">
@@ -25,38 +27,60 @@
                             <tr>
                                 <th>Room Name</th>
                                 <th>Time In</th>
-                                <th>Time Start</th>
-                                <th>Time Out</th>
+                                <th>Schedule</th>
                                 <th>Day</th>
                                 <th>Date</th>
                                 <th>Month</th>
                                 <th>Delay</th>
                                 <th>Status</th>
                                 <th>Evidence</th>
-                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for item in attendance_records %}
-                                <tr>
-                                    <td>{{ item.record.room_name }}</td>
-                                    <td>{{ item.record.time_in }}</td>
-                                    <td>{{ item.record.time_start }}</td>
-                                    <td>{{ item.record.time_out }}</td>
-                                    <td>{{ item.record.day }}</td>
-                                    <td>{{ item.record.date }}</td>
-                                    <td>{{ item.record.month }}</td>
-                                    <td>{{ item.record.delay }}</td>
-                                    <td>{{ item.record.status }}</td>
-                                    <td>
-                                        {% if item.type == 'Online' and item.record.evidence %}
-                                            <img src="{{ item.record.evidence.url }}" alt="Evidence Image" width="100">
+                                <tr class="small">
+                                    <td  class="align-middle" class="align-middle">{{ item.record.room_name }}</td>
+                                    <td  class="align-middle">{{ item.record.time_in|date:'H:s A'  }}</td>
+                                    <td  class="align-middle">{{ item.record.time_start|date:'H:s A' }} - {{ item.record.time_out|date:'H:s A'  }}</td>
+                                    <td  class="align-middle">{{ item.record.day }}</td>
+                                    <td  class="align-middle">{{ item.record.date }}</td>
+                                    <td  class="align-middle">{{ item.record.month }}</td>
+                                    <td  class="align-middle">{{ item.record.delay }}</td>
+                                    <td  class="align-middle">{{ item.record.status }}</td>
+                                    <td  class="align-middle">
+                                        {% if item.type == 'Online' %}
+
+                                            {% if item.evidences == None and today > item.record.date|date:'Y-m'%}
+                                                Expired
+
+                                            {% elif item.evidences %}
+                                                <ul class="list-unstyled">
+                                                    {% for evidence in item.evidences %}
+                                                        {% if evidence.online_id == item.record.id %}
+                                                            <li>  <a href="{{ evidence.evidence.url }}" target="_blank">Click to show evidence</a> </li>
+                                                        {% endif %}
+
+                                                    {% endfor %}
+                                                </ul>
+
+                                            {% else %}
+                                            <a href="#" id="{{ item.record.id }}" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#evidence-modal-{{ item.record.id}}">
+                                                Submit Evidence
+                                            </a>
+
+                                            {{ item.evidences }}
+                                            
+                                            {% endif %}
+                          
                                         {% else %}
                                             N/A
                                         {% endif %}
                                     </td>
                                     <td>{{ item.record.status }}</td>
                                 </tr>
+
+                                {% include "faculty_end/evidence-modal.html" %}
+
                             {% endfor %}
                         </tbody>
                     </table>

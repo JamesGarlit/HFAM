@@ -6,11 +6,12 @@ class TimeIn(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     room_name = models.CharField(max_length=255)
     time_in = models.TimeField(blank=True, null=True)
+    time_start = models.TimeField(blank=True, null=True) 
     time_out = models.TimeField(blank=True, null=True)
     day = models.CharField(max_length=50)
-    date = models.DateField()
-    month = models.CharField(max_length=50)
-    delay = models.CharField(max_length=50, blank=True, null=True)
+    date = models.DateField(blank=True, null=True)
+    month = models.CharField(max_length=255)
+    delay = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(max_length=50)
     coursesection = models.CharField(max_length=50)
     remarks = models.CharField(max_length=100, null=True)
@@ -24,14 +25,17 @@ class Online(models.Model):
     time_start = models.TimeField(blank=True, null=True) 
     time_out = models.TimeField(blank=True, null=True)
     day = models.CharField(max_length=50)
-    date = models.DateField()
+    date = models.DateField(blank=True, null=True)
     month = models.CharField(max_length=255)
     delay = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(max_length=50)
     coursesection = models.CharField(max_length=50)
-    evidence = models.ImageField(upload_to='evidence_images/', blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
     is_absent = models.BooleanField(default=False)
+    is_red_instruction = models.BooleanField(default=False)
+    has_attachments = models.BooleanField(default=False)
+
+
 
 class TimeOut(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -65,4 +69,12 @@ class LeaveApplication(models.Model):
     signature = models.CharField(max_length=255, blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True) 
+
+
+class OnlineEvidence(models.Model):
+    online = models.ForeignKey(Online, related_name='online_evidence', on_delete=models.CASCADE, null=True, blank=True)
+    evidence = models.ImageField(upload_to='evidence_images/', blank=True, null=True)
+    name = models.CharField(max_length=300, null=True, blank=True)
+    uploaded_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    uploaded_at = models.DateTimeField(default=timezone.now)
 
