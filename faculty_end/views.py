@@ -584,10 +584,11 @@ def online_time_in(request):
                 'current_time': current_time,
                 'current_date': current_date,
                 'current_month': current_month,
-                'initial_time_out': initial_time_out,  # Pass the initial time_out value to the template
+                'initial_time_out': initial_time_out, 
+                 'has_schedule': True, # Pass the initial time_out value to the template
             })
         else:
-            return render(request, 'faculty_end/online_time_in.html', {'error_message': 'Failed to fetch data from the API'})
+            return render(request, 'faculty_end/online_time_in.html', {'error_message': 'Failed to fetch data from the API', 'has_schedule': False})
         
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @login_required(login_url='faculty_login')

@@ -34,9 +34,8 @@
             </div>
 
 
-
         
-        {% else %}
+        {% elif time_logged == False %}
             <div class="card">
                 {% comment %} <div class="card-header">
                     <h3 class="card-title">Please scan the QR code to log your attendance.</h3>
@@ -115,7 +114,21 @@
                     </div>
                 </div>
             </div>
-    </div>
+
+            {% elif time_logged == None %}
+                <div class="card">
+                    <div class="container-tight py-4">
+                        <div class="empty">
+                        <div class="empty-header">You don't have any schedule/s for Today!</div>
+                        {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
+                        {% comment %} <p class="empty-subtitle text-muted">
+                            Time in could only be process once a day.
+                        </p> {% endcomment %}
+                    
+                        </div>
+                    </div>
+                </div>
+        </div>
 
 
 
