@@ -29,14 +29,14 @@
       <div class="col-lg-4 col-md-12 col-sm-12">
         <div class="card">
           <div class="card-body">
-            <div id="earlyChart"></div>
+            <div id="present-chart"></div>
           </div>
         </div>
       </div>
       <div class="col-lg-4 col-md-12 col-sm-12">
         <div class="card">
           <div class="card-body">
-            <div id="lateChart"></div>
+            <div id="absent-chart"></div>
           </div>
         </div>
       </div>
@@ -107,115 +107,35 @@
     {% endif %}
   });
   
-  document.addEventListener('DOMContentLoaded', function () {
-    // Fetch data for 'Early' status from TimeIn table
-    fetch('/dashboard/early/')
+  // Function to fetch data and render pie chart
+  function renderPieChart(url, containerId, title) {
+    fetch(url)
         .then(response => response.json())
         .then(data => {
-            Highcharts.chart('earlyChart', {
+            console.log(data); // Log the data received from the API
+            Highcharts.chart(containerId, {
                 chart: {
                     type: 'pie'
                 },
                 title: {
-                    text: 'Top 20 Faculty with Many Early Status Entries (Time in)'
+                    text: title
                 },
                 series: [{
-                    name: 'Faculty',
+                    name: 'Users',
                     data: data
                 }]
             });
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
         });
+}
 
-    // Fetch data for 'Late' status from TimeIn table
-    fetch('/dashboard/late/')
-        .then(response => response.json())
-        .then(data => {
-            Highcharts.chart('lateChart', {
-                chart: {
-                    type: 'pie'
-                },
-                title: {
-                    text: 'Top 20 Faculty with Many Late Status Entries (Time in)'
-                },
-                series: [{
-                    name: 'Faculty',
-                    data: data
-                }]
-            });
-        });
+// Fetch data and render pie chart for present users
+renderPieChart("{% url 'present_users_chart' %}", 'present-chart', 'Present Users');
 
-    // Fetch data for 'On Time' status from TimeIn table
-    fetch('/dashboard/ontime/')
-        .then(response => response.json())
-        .then(data => {
-            Highcharts.chart('ontimeChart', {
-                chart: {
-                    type: 'pie'
-                },
-                title: {
-                    text: 'Top 20 Faculty with Many On Time Status Entries (Time in)'
-                },
-                series: [{
-                    name: 'Faculty',
-                    data: data
-                }]
-            });
-        });
-
-    // Fetch data for 'Early' status from TimeOut table
-    fetch('/dashboard/timeout/early/')
-        .then(response => response.json())
-        .then(data => {
-            Highcharts.chart('earlyTimeoutChart', {
-                chart: {
-                    type: 'pie'
-                },
-                title: {
-                    text: 'Top 20 Faculty with Many Early Status Entries (Time out)'
-                },
-                series: [{
-                    name: 'Faculty',
-                    data: data
-                }]
-            });
-        });
-
-    // Fetch data for 'Late' status from TimeOut table
-    fetch('/dashboard/timeout/late/')
-        .then(response => response.json())
-        .then(data => {
-            Highcharts.chart('lateTimeoutChart', {
-                chart: {
-                    type: 'pie'
-                },
-                title: {
-                    text: 'Top 20 Faculty with Many Late Status Entries (Time out)'
-                },
-                series: [{
-                    name: 'Faculty',
-                    data: data
-                }]
-            });
-        });
-
-    // Fetch data for 'On Time' status from TimeOut table
-    fetch('/dashboard/timeout/ontime/')
-        .then(response => response.json())
-        .then(data => {
-            Highcharts.chart('ontimeTimeoutChart', {
-                chart: {
-                    type: 'pie'
-                },
-                title: {
-                    text: 'Top 20 Faculty with Many On Time Status Entries (Time out)'
-                },
-                series: [{
-                    name: 'Faculty',
-                    data: data
-                }]
-            });
-        });
-});
+// Fetch data and render pie chart for absent users
+renderPieChart("{% url 'absent_users_chart' %}", 'absent-chart', 'Absent Users');
 </script>
 {% endblock %}
 {% endblock %}

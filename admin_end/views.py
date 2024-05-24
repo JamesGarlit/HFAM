@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout, update_session_auth
 from django.views.decorators.cache import cache_control
 from django.contrib import messages
 from .models import CustomUser, FacultyShift, AcademicYear, Semester, AttendanceNotification, FacultyAccount, LeaveApplicationAction
-from faculty_end.models import LeaveApplication, TimeIn, TimeOut
+from faculty_end.models import LeaveApplication, TimeIn, Online, TimeOut
 from django.contrib.auth import get_user_model
 from datetime import datetime, timedelta
 import dateutil.parser
@@ -32,13 +32,58 @@ def admin_notif(request):
 def dashboard(request):
     return render(request,'admin_end/dashboard.html')
 
+def top_faculty_present_status(request):
+    return render(request, 'admin_end/dashboard.html')
+
+def get_top_faculty_present_status_data(request):
+    # Get the top 20 faculty users
+    faculty_users = CustomUser.objects.filter(user_role='faculty')
+    
+    # Aggregate present status counts
+    present_status_counts = (
+        TimeIn.objects.filter(user__in=faculty_users, status='Present')
+        .values('user')
+        .annotate(present_count=Count('status'))
+        .order_by('-present_count')[:20]
+    )
+
+    # Prepare data for Highcharts
+    chart_data = [{
+        'name': CustomUser.objects.get(id=entry['user']).username,
+        'y': entry['present_count']
+    } for entry in present_status_counts]
+
+    return JsonResponse(chart_data, safe=False)
+
 def generate_qr(request):
     return render(request,'admin_end/generate_qr.html')
 
 def onlineqrcode(request):
     return render(request,'admin_end/onlineqrcode.html')
 
+def present_users_chart(request):
+    present_users_timein = TimeIn.objects.filter(status="Present", user__user_role="faculty").values('user__email').annotate(count=Count('user'))
+    present_users_online = Online.objects.filter(status="Present", user__user_role="faculty").values('user__email').annotate(count=Count('user'))
+    
+    # Merge the results from both queries
+    present_users = present_users_timein.union(present_users_online)
+    
+    data = [{'name': user['user__email'], 'y': user['count']} for user in present_users]
+    
+    return JsonResponse(data, safe=False)
+
+def absent_users_chart(request):
+    absent_users_timein = TimeIn.objects.filter(status="Absent", user__user_role="faculty").values('user__email').annotate(count=Count('user'))
+    absent_users_online = Online.objects.filter(status="Absent", user__user_role="faculty").values('user__email').annotate(count=Count('user'))
+    
+    # Merge the results from both queries
+    absent_users = absent_users_timein.union(absent_users_online)
+    
+    data = [{'name': user['user__email'], 'y': user['count']} for user in absent_users]
+    
+    return JsonResponse(data, safe=False)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
+
 @user_passes_test(is_superadmin, login_url='error_400')
 @login_required(login_url='login_as')
 def admin_settings(request):
@@ -609,35 +654,24 @@ def attendance_trends(request):
 
     return render(request, 'admin_end/dashboard.html', {'dates': dates, 'attendance_counts': attendance_counts})
 
-def top_early_faculty(request):
-    top_early_faculty = TimeIn.objects.filter(status='Early').values('user').annotate(total_early=Count('id')).order_by('-total_early')[:20]
-    faculty_data = [{'name': CustomUser.objects.get(pk=entry['user']).get_full_name(), 'y': entry['total_early']} for entry in top_early_faculty]
-    return JsonResponse(faculty_data, safe=False)
+def get_absent_users_data(request):
+    # Get absent users from both tables
+    timein_absent_users = TimeIn.objects.filter(is_absent=True).values('user__username').distinct()
+    online_absent_users = Online.objects.filter(is_absent=True).values('user__username').distinct()
+    
+    # Create a set of all absent users
+    absent_users = set()
+    absent_users.update(user['user__username'] for user in timein_absent_users)
+    absent_users.update(user['user__username'] for user in online_absent_users)
 
-def top_late_faculty(request):
-    top_late_faculty = TimeIn.objects.filter(status='Late', user__user_role='faculty').values('user').annotate(total_late=Count('id')).order_by('-total_late')[:20]
-    faculty_data = [{'name': CustomUser.objects.get(pk=entry['user']).get_full_name(), 'y': entry['total_late']} for entry in top_late_faculty]
-    return JsonResponse(faculty_data, safe=False)
+    # Prepare data for Highcharts
+    absent_data = []
+    for user in absent_users:
+        absent_count = TimeIn.objects.filter(user__username=user, is_absent=True).count() + \
+                       Online.objects.filter(user__username=user, is_absent=True).count()
+        absent_data.append({'name': user, 'y': absent_count})
 
-def top_ontime_faculty(request):
-    top_ontime_faculty = TimeIn.objects.filter(status='On Time', user__user_role='faculty').values('user').annotate(total_ontime=Count('id')).order_by('-total_ontime')[:20]
-    faculty_data = [{'name': CustomUser.objects.get(pk=entry['user']).get_full_name(), 'y': entry['total_ontime']} for entry in top_ontime_faculty]
-    return JsonResponse(faculty_data, safe=False)
-
-def top_early_timeout(request):
-    top_early_timeout = TimeOut.objects.filter(status='Early').values('user').annotate(total_early=Count('id')).order_by('-total_early')[:20]
-    faculty_data = [{'name': CustomUser.objects.get(pk=entry['user']).get_full_name(), 'y': entry['total_early']} for entry in top_early_timeout]
-    return JsonResponse(faculty_data, safe=False)
-
-def top_late_timeout(request):
-    top_late_timeout = TimeOut.objects.filter(status='Late', user__user_role='faculty').values('user').annotate(total_late=Count('id')).order_by('-total_late')[:20]
-    faculty_data = [{'name': CustomUser.objects.get(pk=entry['user']).get_full_name(), 'y': entry['total_late']} for entry in top_late_timeout]
-    return JsonResponse(faculty_data, safe=False)
-
-def top_ontime_timeout(request):
-    top_ontime_timeout = TimeOut.objects.filter(status='On Time', user__user_role='faculty').values('user').annotate(total_ontime=Count('id')).order_by('-total_ontime')[:20]
-    faculty_data = [{'name': CustomUser.objects.get(pk=entry['user']).get_full_name(), 'y': entry['total_ontime']} for entry in top_ontime_timeout]
-    return JsonResponse(faculty_data, safe=False)
+    return JsonResponse(absent_data, safe=False)
 
 # ---------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
