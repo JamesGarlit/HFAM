@@ -50,7 +50,7 @@
                                     <td  class="align-middle">
                                         {% if item.type == 'Online' %}
 
-                                            {% if item.evidences == None and today > item.record.date|date:'Y-m'%}
+                                            {% if item.record.has_attachments == False and today > item.record.date|date:'Y-m'%}
                                                 Expired
 
                                             {% elif item.evidences %}
@@ -68,7 +68,6 @@
                                                 Submit Evidence
                                             </a>
 
-                                            {{ item.evidences }}
                                             
                                             {% endif %}
                           
