@@ -21,7 +21,6 @@
     <div class="container-xl">
         <div class="card">
             <div class="card-body">
-                {% if attendance_records %}
                     <table id="facultyattendance" class="table table-striped display" style="width:100%">
                         <thead>
                             <tr>
@@ -82,10 +81,7 @@
 
                             {% endfor %}
                         </tbody>
-                    </table>
-                {% else %}
-                    <p>No attendance records found.</p>
-                {% endif %}                                                                      
+                    </table>                                                                   
             </div>
         </div>        
     </div>
