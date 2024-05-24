@@ -26,7 +26,7 @@ def approved(request):
             record = TimeIn.objects.get(id=record_id)
 
             record.is_approved = True
-            record.validation_comment = comments
+            record.validation_comment = "Approved by " + comments
             record.save()
 
             messages.success(request, f'The record is validated successfully!') 
