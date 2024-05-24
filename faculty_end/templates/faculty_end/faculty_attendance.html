@@ -33,6 +33,7 @@
                                 <th>Delay</th>
                                 <th>Status</th>
                                 <th>Evidence</th>
+                                <th>Remarks</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -74,10 +75,17 @@
                                             N/A
                                         {% endif %}
                                     </td>
+                                    <td  class="align-middle">
+                                        <a href="#" id="{{ item.record.id }}" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#remarks-modal-{{ item.record.id}}">
+                                            View Remarks
+                                        </a>
+                                    </td>
                             
                                 </tr>
 
                                 {% include "faculty_end/evidence-modal.html" %}
+                                
+                                {% include "faculty_end/remarks-modal.html" %}
 
                             {% endfor %}
                         </tbody>

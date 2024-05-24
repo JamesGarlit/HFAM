@@ -354,6 +354,7 @@ def log_time_in(request):
                 messages.success(request, 'Logged in successfully')
                 return redirect('faculty_attendance')
             else:
+                print("May error sa API PARE")
                 return render(request, 'faculty_end/log_time_in.html', {'error_message': 'Failed to fetch data from the API'})
 
     else:
@@ -443,6 +444,7 @@ def log_time_in(request):
                                             # Pass the initial time_out value to the template
             })
         else:
+            print("May error sa API PARE 33333")
             return render(request, 'faculty_end/log_time_in.html', {'error_message': 'Failed to fetch data from the API'})
         
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)

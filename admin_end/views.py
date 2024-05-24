@@ -557,15 +557,17 @@ def faculty_attendance_records(request):
 
         # Combine TimeIn and TimeOut records for display
         attendance_records = []
-        for time_in_record in time_in_records:
+        for record in time_in_records:
             attendance_records.append({
                 'user': faculty_user.get_full_name(),
-                'date': time_in_record.date,
-                # 'location': time_in_record.location,
-                'time': time_in_record.time_in,
-                'status': time_in_record.status,
+                'date': record.date,
+                # 'location': record.location,
+                'time': record.time_in,
+                'status': record.status,
                 'timeintimeout': 'Time In',  # Indicates Time In record
             })
+            print('lakas', record)
+            
         for time_out_record in time_out_records:
             attendance_records.append({
                 'user': faculty_user.get_full_name(),
