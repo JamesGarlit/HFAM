@@ -546,7 +546,7 @@ def faculty_attendance_records(request):
     # Iterate over faculty users
     for faculty_user in faculty_users:
         # Fetch TimeIn and TimeOut records for the current faculty user
-        time_in_records = TimeIn.objects.filter(user=faculty_user)
+        time_in_records = TimeIn.objects.filter()
         time_out_records = TimeOut.objects.filter(user=faculty_user)
 
         # Combine TimeIn and TimeOut records for display
