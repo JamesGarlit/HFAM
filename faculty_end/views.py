@@ -286,7 +286,7 @@ def log_time_in(request):
 
 
         if is_TimedIn:
-            return render(request, 'faculty_end/faculty_attendance.html', {'error_message': 'You are already time logged!'})
+            return redirect('log_time_in')
         
         else:
             # Convert time_in to datetime object
@@ -417,7 +417,9 @@ def log_time_in(request):
             # If the api has contents, then it will run the below code.
             if schedules_from_api:
                 # Check if the user already timed in
-                is_TimeLogged = TimeIn.objects.filter(user=request.user, date=timezone.now().date(), room_name = room_name)
+                is_TimeLogged = TimeIn.objects.filter(user=request.user, date=timezone.now().date(), room_name = room_name).exists()
+
+                print('TIME LOGGED: ', is_TimeLogged)
             
                 if is_TimeLogged:
                     time_logged = True
@@ -516,7 +518,6 @@ def online_time_in(request):
             delay=delay,
             status=status, 
             is_absent=is_absent, 
-            evidence=request.FILES.get('evidence'),  # Handle file upload
         )
 
         # Redirect to the online_time_in view
