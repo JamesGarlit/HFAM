@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import LeaveApplication, TimeIn, TimeOut, Online
+from .models import LeaveApplication, OnlineEvidence, TimeIn, TimeOut, Online
 from django.contrib.auth import authenticate, login, logout
 from admin_end.models import FacultyShift, CustomUser, LeaveApplicationAction
 from datetime import datetime, timedelta
@@ -27,15 +27,20 @@ def faculty_attendance(request):
 
     time_in_records = TimeIn.objects.filter(user=user)
     online_records = Online.objects.filter(user=user)
+    online_evidences = OnlineEvidence.objects.filter(uploaded_by=user)
 
     attendance_records = [
         {'type': 'TimeIn', 'record': record} for record in time_in_records
-    ] + [
-        {'type': 'Online', 'record': record} for record in online_records
     ]
+
+    for online_record in online_records:
+        evidences = OnlineEvidence.objects.filter(online=online_record)  # Get evidences related to this online_record
+        attendance_records.append({'type': 'Online', 'record': online_record, 'evidences': evidences})
+
 
     context = {
         'attendance_records': attendance_records,
+        'online_evidences': online_evidences,
     }
 
     return render(request, 'faculty_end/faculty_attendance.html', context)
@@ -332,6 +337,7 @@ def log_time_in(request):
                     user=request.user,
                     day=day,
                     time_in=time_in_str,
+                    time_start = fstart_time_str,
                     time_out=time_out,
                     room_name=room_name,
                     date=date,
