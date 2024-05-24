@@ -3,18 +3,15 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.views.decorators.cache import cache_control
 from django.contrib import messages
-from .models import CustomUser, FacultyShift, AcademicYear, Semester, AttendanceNotification, FacultyAccount, LeaveApplicationAction
-from faculty_end.models import LeaveApplication, TimeIn, Online, TimeOut
+from .models import CustomUser, FacultyAccount
+from faculty_end.models import TimeIn, Online
 from django.contrib.auth import get_user_model
 from datetime import datetime, timedelta
 import dateutil.parser
 from django.utils import timezone
 from django.http import JsonResponse
 from django.http import HttpResponse
-from django.db import transaction
 from django.db.models import Count
-from django.db.models import Q
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import requests
 
 def is_superadmin(user):
@@ -60,6 +57,12 @@ def get_top_faculty_present_status_data(request):
 
 def generate_qr(request):
     return render(request,'admin_end/generate_qr.html')
+
+def complaints_online(request):
+    return render(request,'admin_end/complaints_online.html')
+
+def complaints_f2f(request):
+    return render(request,'admin_end/complaints_f2f.html')
 
 def onlineqrcode(request):
     return render(request,'admin_end/onlineqrcode.html')
@@ -320,140 +323,6 @@ def user_list(request):
 def user_view(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
     return render(request, 'admin_end/user_view.html', {'user': user})
-
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='error_400')
-@login_required(login_url='login_as')
-def shift_list(request):
-    # Fetch all users with role 'faculty' along with their shifts
-    faculty_shifts = FacultyShift.objects.select_related('user', 'academic_year', 'semester').filter(user__user_role='faculty')
-
-    # Initialize an empty dictionary to store the data for each faculty member
-    faculty_shift_data = {}
-
-    # Iterate over each faculty member's shifts
-    for shift in faculty_shifts:
-        # If the faculty member is not in the dictionary, add them with their shifts
-        if shift.user not in faculty_shift_data:
-            faculty_shift_data[shift.user] = {
-                'user': shift.user,
-                'academic_year': shift.academic_year if shift.academic_year else 'No Data',
-                'semester': shift.semester if shift.semester else 'No Data',
-                'shifts': f"{shift.shift_day} {shift.shift_start.strftime('%I:%M %p')} - {shift.shift_end.strftime('%I:%M %p')}"
-            }
-        # If the faculty member is already in the dictionary, append the shift details
-        else:
-            faculty_shift_data[shift.user]['shifts'] += f" / {shift.shift_day} {shift.shift_start.strftime('%I:%M %p')} - {shift.shift_end.strftime('%I:%M %p')}"
-
-    # Check for faculty members without shifts and add them to the dictionary with 'No Data'
-    all_faculty_members = CustomUser.objects.filter(user_role='faculty')
-    for faculty_member in all_faculty_members:
-        if faculty_member not in faculty_shift_data:
-            faculty_shift_data[faculty_member] = {
-                'user': faculty_member,
-                'academic_year': 'No Data',
-                'semester': 'No Data',
-                'shifts': 'No shift yet'
-            }
-
-    # Convert the dictionary values to a list for template rendering
-    faculty_shift_data_list = list(faculty_shift_data.values())
-
-    # Pass the data to the template for rendering
-    return render(request, 'admin_end/shift_list.html', {'faculty_shift_data': faculty_shift_data_list})
-
-
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='error_400')
-@login_required(login_url='login_as')
-def shift_details(request, user_id):
-    faculty_user = get_object_or_404(CustomUser, id=user_id, user_role='faculty')
-    shifts = FacultyShift.objects.filter(user=faculty_user)
-    return render(request, 'admin_end/shift_details.html', {'faculty_user': faculty_user, 'shifts': shifts})
-
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='error_400')
-@login_required(login_url='login_as')
-@transaction.atomic
-def shift_create(request, user_id):
-    faculty_user = get_object_or_404(CustomUser, id=user_id, user_role='faculty')
-
-    if request.method == 'POST':
-        academic_year = AcademicYear.objects.create(
-            user=faculty_user,
-            year_start=request.POST.get('year_start'),
-            year_end=request.POST.get('year_end')
-        )
-
-        semester = Semester.objects.create(
-            user=faculty_user,
-            academic_year=academic_year,
-            semester_name=request.POST.get('semester_name')
-        )
-
-        shift_start = request.POST.getlist('shift_start[]')
-        shift_end = request.POST.getlist('shift_end[]')
-        shift_day = request.POST.getlist('shift_day[]')
-
-        # Create FacultyShift objects for each shift
-        for start, end, day in zip(shift_start, shift_end, shift_day):
-            FacultyShift.objects.create(
-                user=faculty_user,
-                academic_year=academic_year,
-                semester=semester,
-                shift_start=start,
-                shift_end=end,
-                shift_day=day
-            )
-
-        messages.success(request, 'Shifts Created Successfully!')
-        return redirect('shift_details', user_id=user_id)
-    else:
-        return render(request, 'admin_end/shift_create.html', {'faculty_user': faculty_user})
-
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='error_400')
-@login_required(login_url='login_as')
-def shift_update(request, user_id, shift_id):
-    faculty_user = get_object_or_404(CustomUser, id=user_id, user_role='faculty')
-    shift = get_object_or_404(FacultyShift, id=shift_id)
-    academic_years = AcademicYear.objects.all()
-
-    if request.method == 'POST':
-        # Assuming you have form fields for updating shift details directly in the HTML
-        shift.shift_start = request.POST.get('shift_start')
-        shift.shift_end = request.POST.get('shift_end')
-        shift.shift_day = request.POST.get('shift_day')
-        shift.save()
-
-        # Update associated AcademicYear and Semester
-        academic_year = shift.academic_year
-        academic_year.year_start = request.POST.get('year_start')
-        academic_year.year_end = request.POST.get('year_end')
-        academic_year.save()
-
-        semester = shift.semester
-        semester.semester_name = request.POST.get('semester_name')
-        semester.save()
-
-        messages.success(request, 'Shift and Associated Details Updated Successfully!')
-        return redirect('shift_details', user_id=user_id)
-    else:
-        return render(request, 'admin_end/shift_update.html', {'shift': shift, 'faculty_user': faculty_user, 'academic_years': academic_years})
-
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='error_400')
-@login_required(login_url='login_as')
-def shift_delete(request, shift_id):
-    print(f"Received shift_id: {shift_id}")
-    shift = get_object_or_404(FacultyShift, id=shift_id)
-    
-    if request.method == 'POST':
-        shift.delete()
-        return redirect('shift_details', user_id=shift.user.id)
-
-    return render(request, 'admin_end/shift_delete.html', {'shift': shift})
-
 # ---------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 # # LOGIN FUNCTION
@@ -510,10 +379,14 @@ def login_as(request):
                 login(request, user)
                 messages.success(request, 'Faculty logged in successful.')
                 return redirect('supdashboard')  # Redirect to faculty home page
-            elif user.user_role == 'admin':
+            elif user.user_role == 'faculty':
                 login(request, user)
                 messages.success(request, 'Faculty logged in successful.')
                 return redirect('log_time_in')  # Redirect to faculty home page
+            elif user.user_role == 'Academic Head':
+                login(request, user)
+                messages.success(request, 'Faculty logged in successful.')
+                return redirect('complaints_f2f')  # Redirect to faculty home page
             else:
                 messages.error(request, 'Invalid user role.')
         else:
@@ -577,120 +450,6 @@ def activate_user(request, user_id):
     return redirect('user_list')
 # ---------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
-
-# LEAVE APPLICATION LIST FUNCTION
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='error_400')
-@login_required(login_url='login_as')
-# def leaveappreq_list(request):
-#     faculty_leave_apps = LeaveApplication.objects.all()  # Get all leave applications
-#     return render(request, 'admin_end/leaveappreq_list.html', {'faculty_leave_apps': faculty_leave_apps})
-
-def leaveappreq_list(request):
-    # Fetch all leave applications
-    all_leave_apps = LeaveApplication.objects.all()
-
-    # Filter leave applications based on status if a status is selected
-    status_filter = request.GET.get('status')
-    if status_filter == 'Pending':
-        all_leave_apps = all_leave_apps.filter(Q(leaveapplicationaction__status=status_filter) | Q(leaveapplicationaction__status__isnull=True))
-    elif status_filter:
-        all_leave_apps = all_leave_apps.filter(leaveapplicationaction__status=status_filter)
-
-    return render(request, 'admin_end/leaveappreq_list.html', {'all_leave_apps': all_leave_apps})
-
-
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='error_400')
-@login_required(login_url='login_as')
-def approval(request, leave_app_id):
-    leave_app = LeaveApplication.objects.get(pk=leave_app_id)
-    if request.method == 'POST':
-        comment = request.POST.get('comment')
-        action = request.POST.get('action')
-
-        # Check if the leave application has already been approved or rejected
-        if LeaveApplicationAction.objects.filter(leave_application=leave_app).exists():
-            messages.error(request, 'This leave application has already been processed.')
-
-        # Get the user ID of the faculty member who filled the leave application
-        faculty_user_id = leave_app.user_id
-
-        # Create a LeaveApplicationAction instance for the faculty member and leave application
-        leave_action = LeaveApplicationAction.objects.create(
-            user_id=faculty_user_id,
-            leave_application=leave_app,
-            status='Accepted' if action == 'accept' else 'Rejected',
-            comment=comment
-        )
-        leave_action.save()
-
-        # Redirect to the leave applications page after processing
-        return redirect('leaveappreq_list')
-
-    return render(request, 'admin_end/approval.html', {'leave_app': leave_app})
-# ---------------------------------------------------------------------------------------------------------
-# ---------------------------------------------------------------------------------------------------------
-# ATTENDANCE RECORD FUNCTION
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='error_400')
-@login_required(login_url='login_as')
-
-# def faculty_attendance_records(request):
-#     # Fetch all faculty users with the faculty role
-#     faculty_users = CustomUser.objects.filter(user_role='faculty')
-
-#     # Initialize an empty dictionary to store attendance records for each faculty member
-#     faculty_attendance = {}
-
-#     # Iterate over faculty users
-#     for faculty_user in faculty_users:
-#         # Fetch TimeIn and TimeOut records for the current faculty user
-#         time_in_records = TimeIn.objects.filter(user=faculty_user)
-#         time_out_records = TimeOut.objects.filter(user=faculty_user)
-
-
-#         print(time_in_records)
-
-#         print(time_out_records)
-
-#         # Combine TimeIn and TimeOut records for display
-#         attendance_records = []
-#         for record in time_in_records:
-#             attendance_records.append({
-#                 'user': faculty_user.get_full_name(),
-#                 'date': record.date,
-#                 # 'location': record.location,
-#                 'time': record.time_in,
-#                 'status': record.status,
-#                 'timeintimeout': 'Time In',  # Indicates Time In record
-#             })
-#             print('lakas', record)
-            
-#         for time_out_record in time_out_records:
-#             attendance_records.append({
-#                 'user': faculty_user.get_full_name(),
-#                 'date': time_out_record.date,
-#                 'location': time_out_record.location,
-#                 'time': time_out_record.time_out,
-#                 'status': time_out_record.status,
-#                 'timeintimeout': 'Time Out',  # Indicates Time Out record
-#             })
-
-#         # Sort attendance records based on date and time
-#         sorted_records = sorted(attendance_records, key=lambda x: (x['date'], x['time']))
-
-#         # Store the sorted attendance records for the current faculty user in the dictionary
-#         faculty_attendance[faculty_user.get_full_name()] = sorted_records
-
-#     # Pass the attendance records for each faculty member to the template for rendering
-#     context = {
-#         'faculty_attendance': faculty_attendance,
-#     }
-#     print(faculty_attendance)
-#     return render(request, 'admin_end/faculty_attendance_records.html', context)
-
-
 def merged_table(request):
     # Fetch data from both tables
     time_in_data = TimeIn.objects.all()
@@ -705,96 +464,6 @@ def merged_table(request):
     # Pass the merged data to the template for rendering
     return render(request, 'admin_end/merged_table.html', {'merged_data': merged_data})
 
-
-
-# ---------------------------------------------------------------------------------------------------------
-# ---------------------------------------------------------------------------------------------------------
-# LATE NOTIFICATION
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='error_400')
-@login_required(login_url='login_as')
-def attendance_notif(request):
-    notifications = []
-
-    # Retrieve TimeIn records
-    time_in_records = TimeIn.objects.all()
-    for time_in_record in time_in_records:
-        notification = AttendanceNotification(
-            user=time_in_record.user,
-            date=time_in_record.date,
-            time_in=time_in_record.time_in,
-            status=time_in_record.status,
-        )
-        notifications.append(notification)
-
-    # Retrieve TimeOut records
-    time_out_records = TimeOut.objects.all()
-    for time_out_record in time_out_records:
-        notification = AttendanceNotification(
-            user=time_out_record.user,
-            date=time_out_record.date,
-            time_out=time_out_record.time_out,
-            status=time_out_record.status,
-        )
-        notifications.append(notification)
-
-    # Paginate notifications
-    paginator = Paginator(notifications, 10)  # 10 items per page
-    page_number = request.GET.get('page')
-    try:
-        notifications = paginator.page(page_number)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        notifications = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range, deliver last page of results.
-        notifications = paginator.page(paginator.num_pages)
-
-    context = {'notifications': notifications}
-    return render(request, 'admin_end/attendance_notif.html', context)
-
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@user_passes_test(is_superadmin, login_url='error_400')
-@login_required(login_url='login_as')
-def attendance_trends(request):
-    # Your logic to fetch attendance data and prepare it for Highcharts
-    # Example: Get attendance data for the last 30 days for users with the faculty role
-    attendance_data = TimeIn.objects.filter(
-        date__gte=datetime.date.today() - datetime.timedelta(days=30),
-        user__user_role='faculty'
-    )
-
-    # Your logic to prepare data for Highcharts
-    # Example: Create a list of dates and corresponding attendance counts
-    dates = [entry.date for entry in attendance_data]
-    
-    # Check if either TimeIn or TimeOut is marked as absent
-    attendance_counts = [
-        entry.user.count()
-        for entry in attendance_data
-        if entry.status == 'Absent' or TimeOut.objects.filter(user=entry.user, date=entry.date, status='Absent').exists()
-    ]
-
-    return render(request, 'admin_end/dashboard.html', {'dates': dates, 'attendance_counts': attendance_counts})
-
-def get_absent_users_data(request):
-    # Get absent users from both tables
-    timein_absent_users = TimeIn.objects.filter(is_absent=True).values('user__username').distinct()
-    online_absent_users = Online.objects.filter(is_absent=True).values('user__username').distinct()
-    
-    # Create a set of all absent users
-    absent_users = set()
-    absent_users.update(user['user__username'] for user in timein_absent_users)
-    absent_users.update(user['user__username'] for user in online_absent_users)
-
-    # Prepare data for Highcharts
-    absent_data = []
-    for user in absent_users:
-        absent_count = TimeIn.objects.filter(user__username=user, is_absent=True).count() + \
-                       Online.objects.filter(user__username=user, is_absent=True).count()
-        absent_data.append({'name': user, 'y': absent_count})
-
-    return JsonResponse(absent_data, safe=False)
 
 # ---------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
