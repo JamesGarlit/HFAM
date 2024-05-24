@@ -375,18 +375,22 @@ def login_as(request):
                 login(request, user)
                 messages.success(request, 'Admin logged in successful.')
                 return redirect('dashboard')  # Redirect to admin dashboard
+            
             elif user.user_role == 'superadmin':
                 login(request, user)
                 messages.success(request, 'Faculty logged in successful.')
                 return redirect('supdashboard')  # Redirect to faculty home page
+            
             elif user.user_role == 'faculty':
                 login(request, user)
                 messages.success(request, 'Faculty logged in successful.')
                 return redirect('log_time_in')  # Redirect to faculty home page
+            
             elif user.user_role == 'Academic Head':
                 login(request, user)
                 messages.success(request, 'Faculty logged in successful.')
                 return redirect('complaints_f2f')  # Redirect to faculty home page
+            
             else:
                 messages.error(request, 'Invalid user role.')
         else:
