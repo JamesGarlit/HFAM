@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import LeaveApplication, Online, Evidence, TimeIn, TimeOut
+from .models import Complains, LeaveApplication, Online, Evidence, TimeIn, TimeOut
 from django.contrib.auth import authenticate, login, logout
 from admin_end.models import FacultyShift, CustomUser, LeaveApplicationAction
 from datetime import datetime, timedelta
@@ -36,6 +36,49 @@ def upload_evidence(request, pk):
                 print('File:', request.FILES.get(f'files{file_num}'))
                 Evidence.objects.create(
                     online_id = int(pk) ,
+                    uploaded_by = request.user,
+                    name =  request.FILES.get(f'files{file_num}'), 
+                    evidence = request.FILES.get(f'files{file_num}')
+                    
+                ) 
+            # Provide a success message as a JSON response
+            messages.success(request, f'The Evidences successfully uploaded!') 
+            return JsonResponse({"status": "success"}, status=200)
+        else:
+            return JsonResponse({'error': 'Please attach a file before submitting the form.'}, status=400)
+        
+
+
+    else:
+        # Return a validation error as a JSON response
+        return JsonResponse({'error': 'Invalid request method.'}, status=400)
+    
+
+
+def submit_complaint(request):
+    # update_form = Create_Bodies_Form(instance=type)
+    if request.method == 'POST':
+        length = request.POST.get('length')
+        complains = request.POST.get('complains')
+        user_id = request.user.id
+        onsite_id =  request.POST.get('onsite_id')
+
+        length = int(length)
+        if length != 0:
+ 
+            complain_record = Complains.objects.create(
+                onsite_id = onsite_id,
+                complainant_id = user_id,
+                complains = complains
+            )
+
+            complaint_id = complain_record.id
+
+
+            for file_num in range(0, int(length)):
+                print('File:', request.FILES.get(f'files{file_num}'))
+                Evidence.objects.create(
+                    complain_id = complaint_id ,
                     uploaded_by = request.user,
                     name =  request.FILES.get(f'files{file_num}'), 
                     evidence = request.FILES.get(f'files{file_num}')

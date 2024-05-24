@@ -8,7 +8,7 @@
         <div class="row g-2 align-items-center">
             <div class="col">
                 <h2 class="page-title">
-                    Time In
+                    Time In {{time_logged}}
                 </h2>
             </div>
         </div>
@@ -37,10 +37,15 @@
             <div class="card">
                 <div class="container-tight py-4">
                     <div class="empty">
-                        <div class="empty-header">You have Already Submitted your Time In! But you're marked as absent.</div>
+                        <div class="empty-header">Time-in already submitted, but marked absent.</div>
                         {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
                         <p class="empty-subtitle text-muted">
-                            Please issue a complaint if you think is wrong.
+                            To resolve this, please file a complaint by clicking the button
+
+                            <div class="d-grid text-center w-100">
+                                <a href="#" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#complaint-modal">Issue a complaint</a>
+                            </div>
+
                         </p>
                 
                     </div>
@@ -239,7 +244,7 @@
 
     {% endif %}
 
-
+        {% include "faculty_end/complaint-modal.html" %}
 </div>
 
 {% block css %}

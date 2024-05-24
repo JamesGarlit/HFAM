@@ -375,22 +375,32 @@ def log_time_in(request):
 
             # If the api has contents, then it will run the below code.
             if schedules_from_api:
+                philippine_timezone = timezone.get_current_timezone()  # Get the current time zone setting (from settings.py)
+                now = timezone.now()  # Get current time in UTC
+                local_time = now.astimezone(philippine_timezone) # Convert to Philippine time
+                date = local_time.date()  # Extract the date
                 # Check if the user already timed in
-                is_TimeLogged = TimeIn.objects.filter(user=request.user, date=timezone.now().date(), room_name = room_name).exists()
-            
+                is_TimeLogged = TimeIn.objects.get(user=request.user, date=date, room_name = room_name)
+
+
+                print('HAHHAHHAHAHA :', is_TimeLogged, date, room_name)
+                logged_but_absent = False
+                TimeIn_record_id = 0
                 if is_TimeLogged:
                     time_logged = True
 
                     # Check if the time in record is considered as absent or have an absent status
                     if is_TimeLogged.is_absent:
                         logged_but_absent = True
+                        TimeIn_record_id = is_TimeLogged.id
 
                 else:
                     time_logged = False
-                    logged_but_absent = False
+           
 
             else:
                 time_logged = None
+            
 
                 # If the user already timed in, just make the time_logged true for front end purposes
 
@@ -404,6 +414,7 @@ def log_time_in(request):
                 'initial_time_in': initial_time_in,
                 'time_logged': time_logged, 
                 'logged_but_absent': logged_but_absent,
+                'TimeIn_record_id': TimeIn_record_id 
                 # Pass the initial time_out value to the template
             })
         else:
