@@ -37,15 +37,9 @@
         
         {% elif time_logged == False %}
             <div class="card">
-<<<<<<< Updated upstream
-                {% comment %} <div class="card-header">
-                    <h3 class="card-title">Please scan the QR code to log your attendance.</h3>
-                </div> {% endcomment %}
-=======
                 <div class="card-header">
                     <h3 class="card-title">Your starting schedule: {{ initial_time_in }} to {{ initial_time_out }}</h3>
                 </div>
->>>>>>> Stashed changes
                 <div class="card-body">
                     <div class="row justify-content-center">
                         <div class="col-lg-5 col-md-5 col-sm-12">
@@ -112,7 +106,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <a class="btn btn-primary w-100" data-bs-toggle="modal"
+                                {% comment %} <a class="btn btn-primary w-100" data-bs-toggle="modal"
                                         data-bs-target="#modal-leaveapp">Proceed</a>
                                     <div class="modal modal-blur fade" id="modal-leaveapp" tabindex="-1" role="dialog"
                                         aria-hidden="true">
@@ -201,7 +195,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> {% endcomment %}
                                 {% endfor %}
                                 {% endif %}
                             </form>                     

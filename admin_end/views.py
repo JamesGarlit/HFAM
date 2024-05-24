@@ -510,7 +510,7 @@ def login_as(request):
                 login(request, user)
                 messages.success(request, 'Faculty logged in successful.')
                 return redirect('supdashboard')  # Redirect to faculty home page
-            elif user.user_role == 'admin':
+            elif user.user_role == 'faculty':
                 login(request, user)
                 messages.success(request, 'Faculty logged in successful.')
                 return redirect('log_time_in')  # Redirect to faculty home page

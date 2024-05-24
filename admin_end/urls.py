@@ -2,11 +2,7 @@
 from django.urls import path
 
 from faculty_end.views_absent import check_attendance
-<<<<<<< Updated upstream
-from .views import merged_table, onlineqrcode, generate_qr, dashboard, present_users_chart, absent_users_chart, dashboard, leaveappreq_list, update_faculty_account, create_faculty_account, admin_settings, schedule_api, user_create, user_list, faculty_members, user_update, user_view, shift_list, shift_list, shift_details, shift_create, shift_update, shift_delete, login, login_as, admin_logout, deactivate_user, activate_user, admin_notif, leaveappreq_list, approval, attendance_notif
-=======
 from .views import supmerged_table, supdashboard, suppresent_users_chart, supabsent_users_chart, onlineqrcode, generate_qr, dashboard, present_users_chart, absent_users_chart, dashboard, merged_table, leaveappreq_list, update_faculty_account, create_faculty_account, admin_settings, schedule_api, user_create, user_list, faculty_members, user_update, user_view, shift_list, shift_list, shift_details, shift_create, shift_update, shift_delete, login, login_as, admin_logout, deactivate_user, activate_user, admin_notif, leaveappreq_list, approval, attendance_notif
->>>>>>> Stashed changes
 from .views_reports import DTRReport
 from .views_validation import approved, rejected
 
@@ -38,13 +34,8 @@ urlpatterns = [
     path('attendance_notif/', attendance_notif, name='attendance_notif'),
     path('schedule_api/', schedule_api, name='schedule_api'),
     path('admin_settings/', admin_settings, name='admin_settings'),
-<<<<<<< Updated upstream
-    # path('faculty_attendance_records/', faculty_attendance_records, name='faculty_attendance_records'),
-    path('merged_table/', merged_table, name='merged_table'),
-=======
     path('merged_table/', merged_table, name='merged_table'),
     path('supmerged_table/', supmerged_table, name='supmerged_table'),
->>>>>>> Stashed changes
     path('dashboard/', dashboard, name='dashboard'),
     path('dashboard/present_users_chart-chart/', present_users_chart, name='present_users_chart'),
     path('dashboard/absent-users-chart/', absent_users_chart, name='absent_users_chart'),

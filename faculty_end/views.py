@@ -549,13 +549,9 @@ def online_time_in(request):
                 'current_time': current_time,
                 'current_date': current_date,
                 'current_month': current_month,
-<<<<<<< Updated upstream
                 'initial_time_out': initial_time_out, 
                  'has_schedule': True, # Pass the initial time_out value to the template
-=======
-                'initial_time_out': initial_time_out,
                 'initial_time_in': initial_time_in,  # Pass the initial time_out value to the template
->>>>>>> Stashed changes
             })
         else:
             return render(request, 'faculty_end/online_time_in.html', {'error_message': 'Failed to fetch data from the API', 'has_schedule': False})
