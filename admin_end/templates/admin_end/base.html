@@ -81,6 +81,93 @@
     <script src="https://cdn.datatables.net/fixedcolumns/4.3.0/js/dataTables.fixedColumns.min.js" defer></script>
     <script src="{% static "/dist/js/tabler.min.js" %}" defer></script>
     <script src="{% static "/dist/js/demo.min.js" %}" defer></script>
+
+
+    
+<script>
+
+  $(document).ready(function(){
+
+      $(".rejected-form").submit(function(event) {
+          var id = $(this).data('id');
+          var serializedData = $("#rejected-form-"+id).serialize();
+          var rejected_url = "/validate/rejected/";
+
+          event.preventDefault();
+
+          $.ajax({
+              url:  rejected_url,
+              data: serializedData,
+              type: "POST",
+              success: function(response) {
+                  location.reload();
+              },
+              error: function(error) {
+
+                  if (error.responseJSON && error.responseJSON.error) {
+                      // Handle the IntegrityError message
+                      toastr.error(error.responseJSON.error);
+                  }
+                  // Check for the errors field in the JSON response
+                  else if (error.responseJSON && error.responseJSON.errors) {
+                      // Iterate over the errors field and display the validation errors to the user
+                      for (var field in error.responseJSON.errors) {
+                          toastr.error(error.responseJSON.errors[field]);
+                      }
+                  } else {
+                      toastr.error('Something went wrong. Please try again later.');
+                  }
+              }
+
+          });
+      });
+  });
+</script> 
+
+
+<script>
+
+  $(document).ready(function(){
+
+      $(".approved-form").submit(function(event) {
+          var id = $(this).data('id');
+          var serializedData = $("#approved-form-"+id).serialize();
+       
+          var approved_url = "/validate/approved/";
+
+          event.preventDefault();
+
+          $.ajax({
+              url: approved_url,
+              data: serializedData,
+              type: "POST",
+              success: function(response) {
+                  location.reload();
+              },
+              error: function(error) {
+
+                  if (error.responseJSON && error.responseJSON.error) {
+                      // Handle the IntegrityError message
+                      toastr.error(error.responseJSON.error);
+                  }
+                  // Check for the errors field in the JSON response
+                  else if (error.responseJSON && error.responseJSON.errors) {
+                      // Iterate over the errors field and display the validation errors to the user
+                      for (var field in error.responseJSON.errors) {
+                          toastr.error(error.responseJSON.errors[field]);
+                      }
+                  } else {
+                      toastr.error('Something went wrong. Please try again later.');
+                  }
+              }
+
+          });
+      });
+  });
+</script> 
+
+
+
     {% block javascript %}
     
     {% endblock %}

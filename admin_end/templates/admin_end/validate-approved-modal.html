@@ -1,0 +1,36 @@
+
+<!-- Modal -->
+<div class="modal modal-blur fade" id="approved-modal-{{ item.id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		  <div class="modal-content">
+			<div class="modal-header">
+				  <h1 class="modal-title">Approve Modal</h1>
+				  <button type="button" class="btn-close" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#result-modal-{{ item.id }}" aria-label="Close"></button>
+			</div>
+
+			<div class="modal-body">
+	
+				<form method="POST" autocomplete="off" 
+					id="approved-form-{{ item.id }}"
+					class="approved-form"
+					data-id={{ item.id }}
+					>
+
+					<input type="hidden" value="{{ item.id }}" name="record_id" id="record_id_{{ item.id }}">
+					{% csrf_token %}
+					<div class="row">
+						<label class="form-label">Approver's Name <small class="text-muted">(Required)</small></label>
+						<input type="text" name="comment" class="form-control" id="comment-{{ item.id }}" value="Jean Paul D. De Guzman" required placeholder="Please enter your name...">
+					</div>
+		
+				</div>
+
+					<div class="modal-footer">
+						<button type="button" class="btn me-auto" data-bs-dismiss="modal" >Close</button>
+						<button id="submit-approved-{{ item.id }}" type="submit" class="btn btn-success">Approve</button>
+					</div>
+
+				</form>
+		</div>
+	  </div>
+</div>

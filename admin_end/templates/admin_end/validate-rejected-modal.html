@@ -1,0 +1,38 @@
+
+<!-- Modal -->
+<div class="modal modal-blur fade" id="rejected-modal-{{ item.id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		  <div class="modal-content">
+			<div class="modal-header">
+				  <h1 class="modal-title">Reject Modal</h1>
+				  <button type="button" class="btn-close" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#result-modal-{{ item.id }}" aria-label="Close"></button>
+			</div>
+
+			<div class="modal-body">
+	
+				<form method="POST" autocomplete="off" 
+					id="rejected-form-{{ item.id }}"
+					data-id= "{{ item.id }}"
+					class="rejected-form">
+					{% csrf_token %}
+
+					<input type="hidden" value="{{ item.id }}" name="record_id" id="record_id_{{ item.id }}">
+
+					<div class="row">
+						<label class="form-label">Reason <small class="text-muted">(Required)</small></label>
+						<textarea class="form-control" name="comment" id="comment-{{ item.id }}" data-bs-toggle="autosize" placeholder="Please input your reason..." style="overflow: hidden; overflow-wrap: break-word; resize: none; text-align: start; height: 55.3333px;"></textarea>
+					</div>
+		
+				</div>
+
+					<div class="modal-footer">
+						<button type="button" class="btn me-auto" data-bs-dismiss="modal">Close</button>
+						<button id="submit-rejected-{{ item.id }}" type="submit" class="btn btn-danger">Reject</button>
+					</div>
+
+				</form>
+		</div>
+	  </div>
+</div>
+
+
