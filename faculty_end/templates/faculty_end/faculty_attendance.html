@@ -76,9 +76,16 @@
                                         {% endif %}
                                     </td>
                                     <td  class="align-middle">
+
+                                        {% if item.type != 'Online' %}
                                         <a href="#" id="{{ item.record.id }}" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#remarks-modal-{{ item.record.id}}">
                                             View Remarks
                                         </a>
+
+                                        {% else %}
+                                            -
+
+                                        {% endif %}
                                     </td>
                             
                                 </tr>
