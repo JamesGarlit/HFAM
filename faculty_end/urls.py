@@ -1,6 +1,6 @@
 from django.urls import path
 
-from faculty_end.views_uploads import upload_evidence
+from faculty_end.views_uploads import submit_complaint, upload_evidence
 from .views import log_attendance, online_time_in, faculty_attendance, log_time_in, log_time_out, time_in_out_records, leaveapp_create, leaveapp_list, leaveapp_view, faculty_login, faculty_logout, qrcode_generator, faculty_login, attendance_record1, notif, account_settings, change_password, error_400
 
 urlpatterns = [
@@ -26,6 +26,6 @@ urlpatterns = [
 
     path('upload/evidence/<str:pk>/', upload_evidence, name='upload-evidence'),
 
-
+    path('submit/complaint/', submit_complaint, name='submit-complaint'),
 
 ]

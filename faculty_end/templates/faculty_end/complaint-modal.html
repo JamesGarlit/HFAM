@@ -1,0 +1,187 @@
+
+<!-- Modal -->
+<div class="modal modal-blur fade" id="complaint-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		  <div class="modal-content">
+			<div class="modal-header">
+				  <h1 class="modal-title">File a Complaint about your Attendance</h1>
+				  <button type="button" class="btn-close" data-bs-dismiss="modal" data-bs-toggle="modal" aria-label="Close"></button>
+			</div>
+
+			<div class="modal-body">
+				<div class="alert alert-info" role="alert">
+					<div class="d-flex">
+					  <div>
+						<svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+							<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+							<circle cx="12" cy="12" r="9"></circle>
+							<line x1="12" y1="8" x2="12.01" y2="8"></line>
+							<polyline points="11 12 12 12 12 16 13 16"></polyline>
+						  </svg>
+					  </div>
+					  <div>
+						<h4 class="alert-title">Important Reminder!</h4>
+						<div class="text-secondary">
+							You are allowed only one submission of complaint. After you submit, your complaint will be final and cannot be modified or resubmitted.
+						</div>
+						
+					  </div>
+					</div>
+				</div>
+
+				<form method="POST" autocomplete="off" 
+					id="complaint-form"
+					class="complaint-form"
+					>
+					{% csrf_token %}
+
+					<input type="hidden" value={{TimeIn_record_id}} name="onsite_id" id="onsite_id">
+
+					<div class="row">
+						<label class="form-label">Upload Evidence Here <small class="text-muted">(Required)</small></label>
+						<div class = "" >
+							<div class="row">
+								<input type="file" name="evidence" id="evidence" multiple>
+							</div>
+						</div>
+					</div>
+
+					<br>
+
+					<div class="row">
+						<label class="form-label">Complains <small class="text-muted">(Required)</small></label>
+						<textarea class="form-control" name="complains" id="complains" data-bs-toggle="autosize" placeholder="Please input your complains here..." style="overflow: hidden; overflow-wrap: break-word; resize: none; text-align: start; height: 55.3333px;"></textarea>
+					</div>
+
+					<br>
+			
+					<div class="form-check">
+						<input class="form-check-input" type="checkbox" value="1" id="chk-btn" name="user_approval">
+						<label class="form-check-label" for="chk-btn">
+							I have read the 'Important Reminder'
+						</label>
+					  </div>
+					
+				</div>
+
+					<div class="modal-footer">
+						<button type="button" class="btn me-auto" data-bs-dismiss="modal" >Close</button>
+						<button id="submit-button" type="submit" class="btn btn-primary disabled">Submit</button>
+					</div>
+
+				</form>
+		</div>
+	  </div>
+</div>
+
+
+
+{% block javascript %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+		var accepted_file_types = [ 
+			'image/jpeg',
+			'image/png',
+			'image/gif',
+			'image/bmp',
+			'image/svg+xml',
+			'image/webp',
+			]
+        var files = []
+        // Now acceptedFileTypes is a JavaScript array
+
+        FilePond.registerPlugin(FilePondPluginFileValidateSize);    //Register plugin to validate file size
+        FilePond.registerPlugin(FilePondPluginFileValidateType);    //Register plugin to validate file type
+        FilePond.registerPlugin(FilePondPluginImagePreview);
+        FilePond.setOptions({
+            allowMultiple:true,
+            maxFiles: 5,             //It sets the max file counts
+            maxFileSize: '100MB'      //It sets the accepted max storage size
+        })
+        const inputElement = document.querySelector('#evidence');  //Convert input types that are file types into filepond
+        var pond = FilePond.create( inputElement, {
+            acceptedFileTypes:  accepted_file_types, // The lists are the accepted file types
+            onaddfile: (err, fileItem) => {
+                if (!err) {
+                files.push(fileItem.file)
+                }
+                console.log(files)
+            },
+            onremovefile: (err, fileItem) => {
+                const index = files.indexOf(fileItem.file)
+                if (index > -1) {
+                    files.splice(index, 1)
+                }
+                console.log(files)
+            }
+        } );
+
+		var formData = new FormData();
+		$("#complaint-form").submit(function(event) {
+			event.preventDefault();
+            event.stopPropagation();
+            var url = "/submit/complaint/";
+            formData.append('length', files.length)
+            for (var i = 0; i < files.length; i++) {
+                formData.append('files' + i, files[i])
+            }
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+			formData.append('complains', document.getElementById('complains').value);
+			
+			formData.append('onsite_id', document.getElementById('onsite_id').value);
+
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: formData,
+				headers: { 'X-CSRFToken': '{{ csrf_token }}' }, 
+                cache: false,
+                processData: false,
+                contentType: false,
+                enctype: 'multipart/form-data',
+                success: function(response) {
+					location.reload();
+
+                },
+                error: function(error) {
+					if (error.responseJSON && error.responseJSON.error) {
+                        // Handle the other error message
+                        toastr.error(error.responseJSON.error);
+                    }
+                    // Check for the errors field in the JSON response
+                    else if (error.responseJSON && error.responseJSON.errors) {
+                        // Iterate over the errors field and display the validation errors to the user
+                        for (var field in error.responseJSON.errors) {
+                            toastr.error(error.responseJSON.errors[field]);
+                        }
+                    } else {
+                        toastr.error('Something went wrong. Please try again later.');
+                    }
+                    
+                }
+            })
+        })
+    })
+</script>  
+
+
+<script>
+	const checkbox_complaint = document.getElementById("chk-btn");
+	const submitComplaint = document.getElementById('submit-button'); // Select all submit buttons
+
+	checkbox_complaint.addEventListener("change", function() {
+		if (checkbox_complaint.checked) {
+			submitComplaint.classList.remove("disabled"); // Enable
+			checkbox.value = '1';
+		} else {
+			submitComplaint.classList.add("disabled");    // Disable
+			checkbox.value = '0';
+		}
+	});
+	
+</script>
+    
+{% endblock %}

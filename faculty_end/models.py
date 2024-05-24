@@ -81,7 +81,10 @@ class Complains(models.Model):
     complained_date = models.DateTimeField(default=timezone.now)
     complains =  models.TextField(null=True, blank=True)
     is_resolved = models.BooleanField(default=False)
+    validated_at = models.DateTimeField(auto_now=False, null=True, blank=True)
+    validated_by =  models.ForeignKey(CustomUser, related_name='validated_by' ,on_delete=models.CASCADE, null=True, blank=True)
 
+    
 class Evidence(models.Model):
     online = models.ForeignKey(Online, related_name='online_evidence', on_delete=models.CASCADE, null=True, blank=True)
     onsite = models.ForeignKey(TimeIn, related_name='onsite_evidence', on_delete=models.CASCADE, null=True, blank=True)
