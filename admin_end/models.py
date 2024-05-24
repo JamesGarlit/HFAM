@@ -102,4 +102,6 @@ class AttendanceNotification(models.Model):
         return f"{self.user.user_firstname} {self.user.user_lastname} - {self.date}"
     
 
+    
+
 

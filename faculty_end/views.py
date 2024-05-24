@@ -204,50 +204,6 @@ def account_settings(request):
 def error_400(request):
     return render(request,'faculty_end/error_400.html')
 
-# def log_time_in(request):
-#     # Get the faculty ID from your model based on the logged-in user or any other relevant context
-#     # For example:
-#     faculty_id = request.user.facultyaccount.faculty_id  # Assuming the faculty ID is stored in the FacultyAccount model related to the user
-
-#     # Fetch data from the API
-#     api_url = 'https://schedulerserver-6e565d991c10.herokuapp.com/facultyloadings/getfacultyloading'
-#     access_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqYW1lc0BzYW5kbG90LnBoIiwidXNlcnR5cGUiOiJzdGFmZiIsImV4cCI6MTcxNzYxMjgzNH0.0NDFuxsVNh40fsIVf8b2H_4OBSdm0LPRPdUDpkf8NxE'
-
-#     headers = {
-#         'Authorization': f'Bearer {access_token}',
-#     }
-
-#     response = requests.get(api_url, headers=headers)
-
-#     if response.status_code == 200:
-#         # Parse the API response
-#         api_data = response.json()
-#         room_name = api_data.get('roomname', None)
-
-#         if room_name:
-#             # Get other required data
-#             time_in = datetime.now().strftime('%H:%M:%S')  # Current time
-#             date = datetime.now().strftime('%Y-%m-%d')     # Current date
-#             month = datetime.now().strftime('%B')          # Current month
-
-#             # Render the template with the fetched data
-#             return render(request, 'faculty_end/log_time_in.html', {
-#                 'time_in': time_in,
-#                 'date': date,
-#                 'month': month,
-#                 'room_name': room_name,
-#                 'faculty_id': faculty_id  # Pass the faculty ID to the template
-#             })
-#         else:
-#             # Handle case where room name is not available from API
-#             return render(request, 'faculty_end/log_time_in.html', {
-#                 'error_message': 'Room name not found in API response.'
-#             })
-#     else:
-#         # Handle API request failure
-#         return render(request, 'faculty_end/log_time_in.html', {
-#             'error_message': 'Failed to fetch room name from API.'
-#         })
 def attendance_record(request):
     try:
         # Fetch all time data
@@ -271,7 +227,6 @@ def attendance_record(request):
 @user_passes_test(is_faculty, login_url='error_400')
 def log_time_in(request):
     if request.method == 'POST':
-        # Handle form submission
         day = request.POST.get('day')
         time_in_str = request.POST.get('time_in')
         time_out = request.POST.get('time_out')
@@ -283,7 +238,6 @@ def log_time_in(request):
 
         # Check if there is an existing record in the timein model  
         is_TimedIn = TimeIn.objects.filter(user=request.user, date=date, room_name = room_name).exists()
-
 
         if is_TimedIn:
             return redirect('log_time_in')
@@ -331,15 +285,13 @@ def log_time_in(request):
                     else:
                         delay = 'N/A'
                 else:
-                    # If there's no matching schedule, consider the user as on time
                     delay = 'N/A'
 
-                # Save the data to the database with status "Present"
                 TimeIn.objects.create(
                     user=request.user,
                     day=day,
                     time_in=time_in_str,
-                    # time_start = fstart_time_str,
+                    time_start = fstart_time_str,
                     time_out=time_out,
                     room_name=room_name,
                     date=date,
@@ -415,6 +367,12 @@ def log_time_in(request):
             else:
                 initial_time_out = ''
 
+            initial_start_time_str = schedules_from_api[0].get('fstart_time', '') if schedules_from_api else ''
+            if initial_start_time_str:
+                initial_time_in = datetime.strptime(initial_start_time_str, '%H:%M:%S').strftime('%H:%M')
+            else:
+                initial_time_in = ''
+
             # If the api has contents, then it will run the below code.
             if schedules_from_api:
                 # Check if the user already timed in
@@ -440,6 +398,7 @@ def log_time_in(request):
                 'current_date': current_date,
                 'current_month': current_month,
                 'initial_time_out': initial_time_out,
+                'initial_time_in': initial_time_in,
                 'time_logged': time_logged, 
                                             # Pass the initial time_out value to the template
             })
@@ -512,7 +471,7 @@ def online_time_in(request):
             user=request.user,
             day=day,
             time_in=time_in_str,
-            # time_start = fstart_time,
+            time_start = fstart_time,
             time_out=time_out,
             room_name=room_name,
             date=date,
@@ -577,6 +536,12 @@ def online_time_in(request):
                 initial_time_out = datetime.strptime(initial_end_time_str, '%H:%M:%S').strftime('%H:%M')
             else:
                 initial_time_out = ''
+            
+            initial_start_time_str = schedules_from_api[0].get('fstart_time', '') if schedules_from_api else ''
+            if initial_start_time_str:
+                initial_time_in = datetime.strptime(initial_start_time_str, '%H:%M:%S').strftime('%H:%M')
+            else:
+                initial_time_in = ''
 
             return render(request, 'faculty_end/online_time_in.html', {
                 'schedules': processed_schedules,
@@ -584,8 +549,13 @@ def online_time_in(request):
                 'current_time': current_time,
                 'current_date': current_date,
                 'current_month': current_month,
+<<<<<<< Updated upstream
                 'initial_time_out': initial_time_out, 
                  'has_schedule': True, # Pass the initial time_out value to the template
+=======
+                'initial_time_out': initial_time_out,
+                'initial_time_in': initial_time_in,  # Pass the initial time_out value to the template
+>>>>>>> Stashed changes
             })
         else:
             return render(request, 'faculty_end/online_time_in.html', {'error_message': 'Failed to fetch data from the API', 'has_schedule': False})

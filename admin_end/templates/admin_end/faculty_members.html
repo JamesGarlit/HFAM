@@ -25,7 +25,6 @@
                 <table id="facultyList" class="table table-striped display" style="width:100%">
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th>Full Name</th>
                             <th>Email</th>
                             <th>Action</th>
@@ -34,7 +33,6 @@
                     <tbody>
                         {% for faculty in faculties_from_api %}
                         <tr>
-                            <td>{{ faculty.FacultyId }}</td>
                             <td>{{ faculty.FirstName }} {{ faculty.MiddleName }} {{ faculty.LastName }} {{ faculty.ExtensionName }}</td>
                             <td>{{ faculty.Email }}</td>
                             <th>

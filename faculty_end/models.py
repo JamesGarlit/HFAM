@@ -74,7 +74,6 @@ class LeaveApplication(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True) 
 
-
 class OnlineEvidence(models.Model):
     online = models.ForeignKey(Online, related_name='online_evidence', on_delete=models.CASCADE, null=True, blank=True)
     evidence = models.ImageField(upload_to='evidence_images/', blank=True, null=True)

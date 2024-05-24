@@ -1,4 +1,4 @@
-{% extends "admin_end/base.html" %}
+{% extends "admin_end/supbase.html" %}
 {% load static %}
 {% block content %}
 <!-- Page header -->
@@ -34,16 +34,10 @@
                             <th>Month</th>
                             <th>Delay</th>
                             <th>Status</th>
-<<<<<<< Updated upstream
-                            <th>Remarks</th>
-                            <th>Validate</th>
-                            <th>Comment</th>
-=======
                             <th>Course Section</th>
                             <th>Remarks</th>
                             <th>Validate</th>
                             <th>Admin Comment</th>
->>>>>>> Stashed changes
                         </tr>
                     </thead>
                     <tbody>
@@ -59,29 +53,11 @@
                             <td>{{ item.month }}</td>
                             <td>{{ item.delay }}</td>
                             <td>{{ item.status }}</td>
-<<<<<<< Updated upstream
-                            <td>{{ item.remarks }}
-                            </td>
-                            <td>    
-                                <a href="#" class="btn btn-success btn-icon rounded-circle btn-ghost-success btn-md" aria-label="Approved"  data-bs-toggle="modal" data-bs-target="#approved-modal-{{ item.id }}">
-                                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>   
-                                </a>
-
-                                <a href="#" class="btn btn-success btn-icon rounded-circle btn-ghost-danger btn-md" aria-label="Approved"  data-bs-toggle="modal" data-bs-target="#rejected-modal-{{ item.id }}">
-                                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-x"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>
-                                </a>
-
-                            </td>
-                            <td>{{ item.validation_comment }}</td>
-=======
                             <td>{{ item.coursesection }}</td>
                             <td>{{ item.remarks }}</td>
                             <td></td>
                             <td></td>
->>>>>>> Stashed changes
                         </tr>
-                        {% include "admin_end/validate-approved-modal.html" %}
-                        {% include "admin_end/validate-rejected-modal.html" %}
                         {% endfor %}
                     </tbody>
                 </table>

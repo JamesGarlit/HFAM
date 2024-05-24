@@ -47,65 +47,18 @@
         </div>
         <div class="collapse navbar-collapse" id="sidebar-menu">
             <ul class="navbar-nav pt-lg-3">
-                <li class="nav-item {% if request.path == '/dashboard/' %}active{% endif %}">
-                    <a class="nav-link" href="{% url 'dashboard' %}">
+                <li class="nav-item {% if request.path == '/supdashboard/' %}active{% endif %}">
+                    <a class="nav-link" href="{% url 'supdashboard' %}">
                         <span class="material-symbols-outlined m-1">monitoring</span>
                         <span class="nav-link-title">Dashboard</span>
                     </a>
                 </li>
-                <li class="nav-item {% if request.path == '/merged_table/' %}active{% endif %}">
-                    <a class="nav-link" href="{% url 'merged_table' %}">
+                <li class="nav-item {% if request.path == '/supmerged_table/' %}active{% endif %}">
+                    <a class="nav-link" href="{% url 'supmerged_table' %}">
                         <span class="material-symbols-outlined m-1">event_available</span>
                         <span class="nav-link-title">Attendance Records</span>
                     </a>
                 </li>
-                <li class="nav-item {% if request.path == '/generate_qr/' %}active{% endif %}">
-                    <a class="nav-link" href="{% url 'generate_qr' %}">
-                        <span class="material-symbols-outlined m-1">notifications</span>
-                        <span class="nav-link-title">FacetoFace QR Code</span>
-                    </a>
-                </li>
-                <li class="nav-item {% if request.path == '/onlineqrcode/' %}active{% endif %}">
-                    <a class="nav-link" href="{% url 'onlineqrcode' %}">
-                        <span class="material-symbols-outlined m-1">notifications</span>
-                        <span class="nav-link-title">Contactless Attendance</span>
-                    </a>
-                </li>
-                <li class="nav-item {% if request.path == '/user_list/' %}active{% endif %}">
-                    <a class="nav-link" href="{% url 'user_list' %}">
-                        <span class="material-symbols-outlined m-1">group</span>
-                        <span class="nav-link-title">Accounts</span>
-                    </a>
-                </li>
-                <li class="nav-item {% if request.path == '/faculty_members/' %}active{% endif %}">
-                    <a class="nav-link" href="{% url 'faculty_members' %}">
-                        <span class="material-symbols-outlined m-1">manage_accounts</span>
-                        <span class="nav-link-title">Users</span>
-                    </a>
-                </li>
-                {% comment %} <li class="nav-item {% if request.path == '/schedule_api/' %}active{% endif %}">
-                    <a class="nav-link" href="{% url 'schedule_api' %}">
-                        <span class="material-symbols-outlined m-1">schedule</span>
-                        <span class="nav-link-title">Schedule</span>
-                    </a>
-<<<<<<< Updated upstream
-                </li> {% endcomment %}
-                {% comment %} <li class="nav-item {% if request.path == '/shift_list/' %}active{% endif %}">
-                    <a class="nav-link" href="{% url 'shift_list' %}">
-                        <span class="material-symbols-outlined m-1">schedule</span>
-                        <span class="nav-link-title">Facutly Shift</span>
-                    </a>
-                </li> {% endcomment %}
-                    {% comment %} <li class="nav-item {% if request.path == '/leaveappreq_list/' %}active{% endif %}">
-                        <a class="nav-link" href="{% url 'leaveappreq_list' %}">
-                            <span class="material-symbols-outlined m-1">date_range</span>
-                            <span class="nav-link-title">Leave Application</span>
-                            {% if has_new_leave_applications %}<span style="color: red;">(New)</span>{% endif %}
-                        </a>
-                    </li> {% endcomment %}
-=======
-                </li>
->>>>>>> Stashed changes
             </ul>
         </div>
     </div>

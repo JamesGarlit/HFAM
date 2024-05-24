@@ -32,6 +32,9 @@ def admin_notif(request):
 def dashboard(request):
     return render(request,'admin_end/dashboard.html')
 
+def supdashboard(request):
+    return render(request,'admin_end/supdashboard.html')
+
 def top_faculty_present_status(request):
     return render(request, 'admin_end/dashboard.html')
 
@@ -61,28 +64,93 @@ def generate_qr(request):
 def onlineqrcode(request):
     return render(request,'admin_end/onlineqrcode.html')
 
-def present_users_chart(request):
-    present_users_timein = TimeIn.objects.filter(status="Present", user__user_role="faculty").values('user__email').annotate(count=Count('user'))
-    present_users_online = Online.objects.filter(status="Present", user__user_role="faculty").values('user__email').annotate(count=Count('user'))
-    
+def absent_users_chart(request):
+    absent_users_timein = TimeIn.objects.filter(status="Absent", user__user_role="faculty").values(
+        'user__user_firstname', 'user__user_middlename', 'user__user_lastname', 'user__extension_name'
+    ).annotate(count=Count('user'))
+
+    absent_users_online = Online.objects.filter(status="Absent", user__user_role="faculty").values(
+        'user__user_firstname', 'user__user_middlename', 'user__user_lastname', 'user__extension_name'
+    ).annotate(count=Count('user'))
+
     # Merge the results from both queries
-    present_users = present_users_timein.union(present_users_online)
-    
-    data = [{'name': user['user__email'], 'y': user['count']} for user in present_users]
-    
+    absent_users = list(absent_users_timein) + list(absent_users_online)
+
+    data = [
+        {
+            'name': f"{user['user__user_firstname']} {' ' + user['user__user_middlename'] if user['user__user_middlename'] else ''} {user['user__user_lastname']} {' ' + user['user__extension_name'] if user['user__extension_name'] else ''}",
+            'y': user['count']
+        }
+        for user in absent_users
+    ]
+
     return JsonResponse(data, safe=False)
 
-def absent_users_chart(request):
-    absent_users_timein = TimeIn.objects.filter(status="Absent", user__user_role="faculty").values('user__email').annotate(count=Count('user'))
-    absent_users_online = Online.objects.filter(status="Absent", user__user_role="faculty").values('user__email').annotate(count=Count('user'))
-    
+def present_users_chart(request):
+    present_users_timein = TimeIn.objects.filter(status="Present", user__user_role="faculty").values(
+        'user__user_firstname', 'user__user_middlename', 'user__user_lastname', 'user__extension_name'
+    ).annotate(count=Count('user'))
+
+    present_users_online = Online.objects.filter(status="Present", user__user_role="faculty").values(
+        'user__user_firstname', 'user__user_middlename', 'user__user_lastname', 'user__extension_name'
+    ).annotate(count=Count('user'))
+
     # Merge the results from both queries
-    absent_users = absent_users_timein.union(absent_users_online)
-    
-    data = [{'name': user['user__email'], 'y': user['count']} for user in absent_users]
-    
+    present_users = list(present_users_timein) + list(present_users_online)
+
+    data = [
+        {
+            'name': f"{user['user__user_firstname']} {' ' + user['user__user_middlename'] if user['user__user_middlename'] else ''} {user['user__user_lastname']} {' ' + user['user__extension_name'] if user['user__extension_name'] else ''}",
+            'y': user['count']
+        }
+        for user in present_users
+    ]
+
     return JsonResponse(data, safe=False)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+
+def supabsent_users_chart(request):
+    absent_users_timein = TimeIn.objects.filter(status="Absent", user__user_role="faculty").values(
+        'user__user_firstname', 'user__user_middlename', 'user__user_lastname', 'user__extension_name'
+    ).annotate(count=Count('user'))
+
+    absent_users_online = Online.objects.filter(status="Absent", user__user_role="faculty").values(
+        'user__user_firstname', 'user__user_middlename', 'user__user_lastname', 'user__extension_name'
+    ).annotate(count=Count('user'))
+
+    # Merge the results from both queries
+    absent_users = list(absent_users_timein) + list(absent_users_online)
+
+    data = [
+        {
+            'name': f"{user['user__user_firstname']} {' ' + user['user__user_middlename'] if user['user__user_middlename'] else ''} {user['user__user_lastname']} {' ' + user['user__extension_name'] if user['user__extension_name'] else ''}",
+            'y': user['count']
+        }
+        for user in absent_users
+    ]
+
+    return JsonResponse(data, safe=False)
+
+def suppresent_users_chart(request):
+    present_users_timein = TimeIn.objects.filter(status="Present", user__user_role="faculty").values(
+        'user__user_firstname', 'user__user_middlename', 'user__user_lastname', 'user__extension_name'
+    ).annotate(count=Count('user'))
+
+    present_users_online = Online.objects.filter(status="Present", user__user_role="faculty").values(
+        'user__user_firstname', 'user__user_middlename', 'user__user_lastname', 'user__extension_name'
+    ).annotate(count=Count('user'))
+
+    # Merge the results from both queries
+    present_users = list(present_users_timein) + list(present_users_online)
+
+    data = [
+        {
+            'name': f"{user['user__user_firstname']} {' ' + user['user__user_middlename'] if user['user__user_middlename'] else ''} {user['user__user_lastname']} {' ' + user['user__extension_name'] if user['user__extension_name'] else ''}",
+            'y': user['count']
+        }
+        for user in present_users
+    ]
+
+    return JsonResponse(data, safe=False)
 
 @user_passes_test(is_superadmin, login_url='error_400')
 @login_required(login_url='login_as')
@@ -170,6 +238,33 @@ def user_update(request, user_id):
     else:
         return render(request, 'admin_end/user_update.html', {'user': user})
 
+def merged_table(request):
+    # Fetch data from both tables
+    time_in_data = TimeIn.objects.all()
+    online_data = Online.objects.all()
+
+    # Merge data from both tables
+    merged_data = list(time_in_data) + list(online_data)
+
+    # Sort merged data by date
+    merged_data.sort(key=lambda x: x.created_at)
+
+    # Pass the merged data to the template for rendering
+    return render(request, 'admin_end/merged_table.html', {'merged_data': merged_data})
+
+def supmerged_table(request):
+    # Fetch data from both tables
+    time_in_data = TimeIn.objects.all()
+    online_data = Online.objects.all()
+
+    # Merge data from both tables
+    merged_data = list(time_in_data) + list(online_data)
+
+    # Sort merged data by date
+    merged_data.sort(key=lambda x: x.created_at)
+
+    # Pass the merged data to the template for rendering
+    return render(request, 'admin_end/supmerged_table.html', {'merged_data': merged_data})
 # ---------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 # SHIFT FUNCTION
@@ -407,11 +502,15 @@ def login_as(request):
             request.session.pop('login_attempts', None)
 
             # Redirect based on user role
-            if user.user_role == 'admin' or user.user_role == 'superadmin':
+            if user.user_role == 'admin':
                 login(request, user)
                 messages.success(request, 'Admin logged in successful.')
                 return redirect('dashboard')  # Redirect to admin dashboard
-            elif user.user_role == 'faculty':
+            elif user.user_role == 'superadmin':
+                login(request, user)
+                messages.success(request, 'Faculty logged in successful.')
+                return redirect('supdashboard')  # Redirect to faculty home page
+            elif user.user_role == 'admin':
                 login(request, user)
                 messages.success(request, 'Faculty logged in successful.')
                 return redirect('log_time_in')  # Redirect to faculty home page
