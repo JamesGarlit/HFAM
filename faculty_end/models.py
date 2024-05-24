@@ -13,6 +13,8 @@ class TimeIn(models.Model):
     month = models.CharField(max_length=255)
     delay = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(max_length=50)
+    coursesection = models.CharField(max_length=50)
+    remarks = models.CharField(max_length=100, null=True)
     created_at = models.DateTimeField(default=timezone.now) 
     is_absent = models.BooleanField(default=False)
 
@@ -27,11 +29,11 @@ class Online(models.Model):
     month = models.CharField(max_length=255)
     delay = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(max_length=50)
+    coursesection = models.CharField(max_length=50)
     created_at = models.DateTimeField(default=timezone.now)
     is_absent = models.BooleanField(default=False)
     is_red_instruction = models.BooleanField(default=False)
     has_attachments = models.BooleanField(default=False)
-
 
 
 

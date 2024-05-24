@@ -16,122 +16,190 @@
 </div>
 <!-- Page body -->
 <div class="page-body">
-
-
-
     <div class="container-xl">
-        {% if time_logged %}
-            <div class="card">
-                <div class="container-tight py-4">
-                    <div class="empty">
-                    <div class="empty-header"> {{ time_logged}} You have Already Submitted your Time In!</div>
-                    {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
-                    <p class="empty-subtitle text-muted">
-                        Time in could only be process once a day.
-                    </p>
-                
-                    </div>
-                </div>
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Please scan the QR code to log your attendance.</h3>
             </div>
+            <div class="card-body">
+                <div class="row justify-content-center">
+                    <div class="col-lg-5 col-md-5 col-sm-12">
+                        {% if error_message %}
+                        <p>{{ error_message }}</p>
+                        {% endif %}
 
-        
-        {% elif time_logged == False %}
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Please scan the QR code to log your attendance.</h3>
-                </div>
-                <div class="card-body">
-                    <div class="row justify-content-center">
-                        <div class="col-lg-5 col-md-5 col-sm-12">
-                            {% if error_message %}
-                            <p>{{ error_message }}</p>
-                            {% endif %}
-                            
-                            <form method="post" action="{% url 'log_time_in' %}">
-                                {% csrf_token %}
-                                {% if schedules %}
-                                {% for schedule in schedules %}
-                                <div class="row">
-                                    <div class="col">
-                                        <div class="form-floating mb-1">
-                                            <input name="room_name" type="text" class="form-control" id="room_name" value="{{ schedule.RoomName }}" readonly required>
-                                            <label for="room_name">Room Name</label>
-                                        </div>
-                                    </div>
-                                    <div class="col">
-                                        <div class="form-floating mb-1">
-                                            <input name="time_in" type="time" class="form-control" id="time_in" value="{{ current_time }}" readonly required>
-                                            <label for="time_in">Time In</label>
-                                        </div>
-                                    </div>
-                                    <div class="col">
-                                        <div class="form-floating mb-1">
-                                            <input name="time_out" type="time" class="form-control" id="time_out" value="{{ initial_time_out }}" readonly required>
-                                            <label for="time_out">Time Out</label>
-                                        </div>
+                        <form method="post" action="{% url 'log_time_in' %}">
+                            {% csrf_token %}
+                            {% if schedules %}
+                            {% for schedule in schedules %}
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-floating mb-1">
+                                        <input name="" type="text" class="form-control" id="section"
+                                            value="{{ schedule.ClassName }}" readonly required>
+                                        <label for="coursesection">Program and Section</label>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col">
-                                        <div class="form-floating mb-1">
-                                            <input name="date" type="text" class="form-control" id="date" value="{{ current_date }}" readonly required>
-                                            <label for="date">Date</label>
-                                        </div>
-                                    </div>
-                                    <div class="col">
-                                        <div class="form-floating mb-1">
-                                            <input name="day" type="text" class="form-control" id="day" value="{{ current_day }}" readonly required>
-                                            <label for="day">Day</label>
-                                        </div>
-                                    </div>
-                                    <div class="col">
-                                        <div class="form-floating mb-1">
-                                            <input name="month" type="text" class="form-control" id="month" value="{{ current_month }}" readonly required>
-                                            <label for="month">Month</label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row justify-content-center">
-                                    <div class="col-lg-12 col-md-12 col-sm-12">
-                                        <div class="d-grid text-center w-100">
-                                            <button type="submit" class="btn btn-primary">Submit</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                                {% endif %}
-                            </form>                     
                             </div>
-                        </div>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-floating mb-1">
+                                        <input name="" type="text" class="form-control" id="room_name"
+                                            value="{{ schedule.RoomName }}" readonly required>
+                                        <label for="room_name">Room Name</label>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-floating mb-1">
+                                        <input name="" type="time" class="form-control" id="time_in"
+                                            value="{{ current_time }}" readonly required>
+                                        <label for="time_in">Time In</label>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-floating mb-1">
+                                        <input name="" type="time" class="form-control" id="time_out"
+                                            value="{{ initial_time_out }}" readonly required>
+                                        <label for="time_out">Time Out</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-floating mb-1">
+                                        <input name="" type="text" class="form-control" id="date"
+                                            value="{{ current_date }}" readonly required>
+                                        <label for="date">Date</label>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-floating mb-1">
+                                        <input name="" type="text" class="form-control" id="day"
+                                            value="{{ current_day }}" readonly required>
+                                        <label for="day">Day</label>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-floating mb-1">
+                                        <input name="" type="text" class="form-control" id="month"
+                                            value="{{ current_month }}" readonly required>
+                                        <label for="month">Month</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Add the submit button -->
+                            <a class="btn btn-primary w-100" data-bs-toggle="modal"
+                                data-bs-target="#modal-leaveapp">Proceed</a>
+                            <div class="modal modal-blur fade" id="modal-leaveapp" tabindex="-1" role="dialog"
+                                aria-hidden="true">
+                                <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                        <div class="modal-status bg-info"></div>
+                                        <div class="modal-body text-center py-4">
+                                            <!-- Download SVG icon from http://tabler-icons.io/i/alert-triangle -->
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-3 text-info icon-lg"
+                                                width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
+                                                stroke="currentColor" fill="none" stroke-linecap="round"
+                                                stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path
+                                                    d="M10.24 3.957l-8.422 14.06a1.989 1.989 0 0 0 1.7 2.983h16.845a1.989 1.989 0 0 0 1.7 -2.983l-8.423 -14.06a1.989 1.989 0 0 0 -3.4 0z" />
+                                                <path d="M12 9v4" />
+                                                <path d="M12 17h.01" />
+                                            </svg>
+                                            <h3>Are you sure?</h3>
+                                            <div class="text-secondary">Double check the details.</div>
+                                            <br>
+                                            
+                                        </div><div class="row mx-2">
+                                            <div class="col">
+                                                <div class="form-floating mb-1">
+                                                    <input name="coursesection" type="text" class="form-control" id="section"
+                                                        value="{{ schedule.ClassName }}" readonly required>
+                                                    <label for="coursesection">Program and Section</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mx-2">
+                                            <div class="col">
+                                                <div class="form-floating mb-1">
+                                                    <input name="room_name" type="text" class="form-control" id="room_name"
+                                                        value="{{ schedule.RoomName }}" readonly required>
+                                                    <label for="room_name">Room Name</label>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="form-floating mb-1">
+                                                    <input name="time_in" type="time" class="form-control" id="time_in"
+                                                        value="{{ current_time }}" readonly required>
+                                                    <label for="time_in">Time In</label>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="form-floating mb-1">
+                                                    <input name="time_out" type="time" class="form-control" id="time_out"
+                                                        value="{{ initial_time_out }}" readonly required>
+                                                    <label for="time_out">Time Out</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mx-2">
+                                            <div class="col">
+                                                <div class="form-floating mb-1">
+                                                    <input name="date" type="text" class="form-control" id="date"
+                                                        value="{{ current_date }}" readonly required>
+                                                    <label for="date">Date</label>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="form-floating mb-1">
+                                                    <input name="day" type="text" class="form-control" id="day"
+                                                        value="{{ current_day }}" readonly required>
+                                                    <label for="day">Day</label>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="form-floating mb-1">
+                                                    <input name="month" type="text" class="form-control" id="month"
+                                                        value="{{ current_month }}" readonly required>
+                                                    <label for="month">Month</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mx-2">
+                                            <div class="col">
+                                                <div class="form-floating mb-1">
+                                                    <textarea class="form-control" name="remarks" rows="5" placeholder="Write something"></textarea>
+                                                    <label for="date">Remarks</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <div class="w-100">
+                                                <div class="row">
+                                                    <div class="col"><button class="btn w-100" data-bs-dismiss="modal">
+                                                            Cancel
+                                                        </button></div>
+                                                    <div class="col"><button type="submit" class="btn btn-primary w-100"
+                                                            data-bs-dismiss="modal">
+                                                            Confirm
+                                                        </button></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                        </form>
                     </div>
                 </div>
             </div>
-
-        
-        {% elif time_logged == None %}
-            <div class="card">
-                <div class="container-tight py-4">
-                    <div class="empty">
-                    <div class="empty-header">You have no Schedules for to day.</div>
-                    {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
-                    {% comment %} <p class="empty-subtitle text-muted">
-                        
-                    </p> {% endcomment %}
-                
-                    </div>
-                </div>
-            </div>
-
-        {% endif %}
+        </div>
     </div>
-
-
-
-
-
-  
-
-
 </div>
 {% block css %}
 <style>
@@ -141,27 +209,27 @@
 {% block javascript %}
 <script src="https://cdn.rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
 <script>
-  // Get current date and time
-  var now = new Date();
-  
-  // Autofill time
-  var hours = now.getHours().toString().padStart(2, '0');
-  var minutes = now.getMinutes().toString().padStart(2, '0');
-  document.getElementById('time_in').value = hours + ':' + minutes;
-  
-  // Autofill day
-  var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  document.getElementById('day').value = days[now.getDay()];
-  
-  // Autofill month
-  var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-  document.getElementById('month').value = months[now.getMonth()];
-  
-  // Autofill date
-  var year = now.getFullYear();
-  var month = (now.getMonth() + 1).toString().padStart(2, '0');
-  var day = now.getDate().toString().padStart(2, '0');
-  document.getElementById('date').value = year + '-' + month + '-' + day;
+    // Get current date and time
+    var now = new Date();
+
+    // Autofill time
+    var hours = now.getHours().toString().padStart(2, '0');
+    var minutes = now.getMinutes().toString().padStart(2, '0');
+    document.getElementById('time_in').value = hours + ':' + minutes;
+
+    // Autofill day
+    var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    document.getElementById('day').value = days[now.getDay()];
+
+    // Autofill month
+    var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    document.getElementById('month').value = months[now.getMonth()];
+
+    // Autofill date
+    var year = now.getFullYear();
+    var month = (now.getMonth() + 1).toString().padStart(2, '0');
+    var day = now.getDate().toString().padStart(2, '0');
+    document.getElementById('date').value = year + '-' + month + '-' + day;
 </script>
 {% endblock %}
 {% endblock %}

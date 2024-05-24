@@ -278,13 +278,15 @@ def log_time_in(request):
         room_name = request.POST.get('room_name')
         date = request.POST.get('date')
         month = request.POST.get('month')
-    
+        coursesection = request.POST.get('coursesection')
+        remarks = request.POST.get('remarks')
+
         # Check if there is an existing record in the timein model  
         is_TimedIn = TimeIn.objects.filter(user=request.user, date=date, room_name = room_name).exists()
 
 
         if is_TimedIn:
-            return render(request, 'faculty_end/log_time_in.html', {'error_message': 'You are already time logged!'})
+            return render(request, 'faculty_end/faculty_attendance.html', {'error_message': 'You are already time logged!'})
         
         else:
             # Convert time_in to datetime object
@@ -343,6 +345,8 @@ def log_time_in(request):
                     date=date,
                     month=month,
                     delay=delay,
+                    coursesection=coursesection,
+                    remarks=remarks,
                     status="Present",
                     is_absent = False,
                 )
@@ -393,7 +397,8 @@ def log_time_in(request):
                     'Day': schedule_info.get('day', ''),
                     'StartTime': start_time,
                     'EndTime': end_time,
-                    'RoomName': schedule_info.get('roomname', '')
+                    'RoomName': schedule_info.get('roomname', ''),
+                    'ClassName': schedule_info.get('classname', ''),
                 }
                 processed_schedules.append(schedule_data)
 
