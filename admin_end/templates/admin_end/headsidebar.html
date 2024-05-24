@@ -1,0 +1,56 @@
+{% load static %}
+<aside class="navbar navbar-vertical navbar-expand-lg" data-bs-theme="dark">
+    <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu"
+            aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <h1 class="navbar-brand navbar-brand-autodark">
+            <a href=".">
+                <img src="{% static '/dist/img/pupqc_logo.png' %}" width="110" height="32" alt="PUPQC_Logo"
+                    class="navbar-brand-image">
+            </a>
+            HFAM
+        </h1>
+        <div class="navbar-nav flex-row d-lg-none">
+            <div class="nav-item dropdown">
+                {% if request.user.is_authenticated %}
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
+                        {% if request.user.user_picture %}
+                            <span class="avatar avatar-sm" style="background-image: url({{ request.user.user_picture.url }})"></span>
+                        {% else %}
+                            <!-- Provide a default image or placeholder if user_picture is not available -->
+                            <span class="avatar avatar-sm default-avatar" style="background-image: url({% static '/dist/img/defaultpicture.png' %})"></span>
+                        {% endif %}
+                        <div class="d-none d-xl-block ps-2">
+                            <div>{{ request.user.get_full_name }}</div>
+                        </div>
+                    </a>                
+                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                        <a href="{% url 'account_settings' %}" class="dropdown-item">Settings</a>
+                        <div class="dropdown-divider"></div>
+                        <a href="{% url 'faculty_logout' %}" class="dropdown-item">Logout</a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="collapse navbar-collapse" id="sidebar-menu">
+            <ul class="navbar-nav pt-lg-3">
+                <li class="nav-item {% if request.path == '/complaints_f2f/' %}active{% endif %}">
+                    <a class="nav-link" href="{% url 'complaints_f2f' %}">
+                        <span class="material-symbols-outlined m-1">monitoring</span>
+                        <span class="nav-link-title">FacetoFace Complaints</span>
+                    </a>
+                </li>
+                <li class="nav-item {% if request.path == '/complaints_online/' %}active{% endif %}">
+                    <a class="nav-link" href="{% url 'complaints_online' %}">
+                        <span class="material-symbols-outlined m-1">event_available</span>
+                        <span class="nav-link-title">Online Complaints</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</aside>

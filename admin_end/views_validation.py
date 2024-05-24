@@ -56,11 +56,14 @@ def rejected(request):
         comments = request.POST.get('comment')
         record_id = request.POST.get('record_id')
 
+        print(comments)
+
         try:
             record = TimeIn.objects.get(id=record_id)
 
             record.is_approved = False
             record.validation_comment = comments
+            
             record.save()
 
             messages.success(request, f'The record is validated successfully!') 

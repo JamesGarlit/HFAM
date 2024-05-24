@@ -30,7 +30,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     user_lastname = models.CharField(max_length=30)
     extension_name = models.CharField(max_length=30, blank=True)
     employment_status = models.CharField(max_length=10)
-    user_role = models.CharField(max_length=10)
+    user_role = models.CharField(max_length=20)
     email = models.EmailField(unique=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=True)
