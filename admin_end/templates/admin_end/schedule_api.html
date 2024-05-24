@@ -25,7 +25,6 @@
                 <table id="schedule" class="table table-striped display" style="width:100%">
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th>Faculty ID</th>
                             <th>Day</th>
                             <th>Room Name</th>
@@ -37,7 +36,6 @@
                         {% if schedules_from_api %}
                         {% for schedule in schedules_from_api %}
                         <tr>
-                            <td>{{ schedule.Id }}</td>
                             <td>{{ schedule.FacultyId }}</td>
                             <td>{{ schedule.Day }}</td>
                             <td>{{ schedule.RoomName }}</td>

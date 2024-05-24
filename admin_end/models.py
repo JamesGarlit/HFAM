@@ -16,7 +16,7 @@ class CustomUserManager(BaseUserManager):
 
     def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
-        if extra_fields.get('user_role') in ['admin', 'superadmin']:
+        if extra_fields.get('user_role') in ['admin', 'superadmin', 'Academic Head']:
             extra_fields.setdefault('is_superuser', True)
         else:
             extra_fields.setdefault('is_superuser', False)
@@ -45,7 +45,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def save(self, *args, **kwargs):
         # Check if is_superuser should be set based on user_role
-        if self.user_role in ['admin', 'superadmin']:
+        if self.user_role in ['admin', 'superadmin', 'Academic Head']:
             self.is_superuser = True
         super().save(*args, **kwargs)
 
