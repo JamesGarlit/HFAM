@@ -21,7 +21,7 @@
     <div class="container-xl">
         <div class="card">
             <div class="card-body">
-                <table id="facultyAttendanceRec" class="table table-striped table-bordered" style="width:100%">
+                <table id="records" class="table table-striped table-bordered" style="width:100%">
                     <thead>
                         <tr>
                             <th>Name</th>
@@ -52,8 +52,7 @@
                             <td>{{ item.month }}</td>
                             <td>{{ item.delay }}</td>
                             <td>{{ item.status }}</td>
-                            <td>{{ item.remarks }}
-                            </td>
+                            <td>{{ item.remarks }}</td>
                             <td>    
                                 <a href="#" class="btn btn-success btn-icon rounded-circle btn-ghost-success btn-md" aria-label="Approved"  data-bs-toggle="modal" data-bs-target="#approved-modal-{{ item.id }}">
                                     <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>   
@@ -76,7 +75,7 @@
     </div>
 </div>
 {% block css %}
-<style>a
+<style>
     thead input {
         width: 100%;
     }
@@ -88,9 +87,9 @@
 <script>
     $(document).ready(function () {
         // Setup - add a text input to each footer cell
-        $('#facultyAttendanceRec thead tr').clone(true).addClass('filters').appendTo('#facultyAttendanceRec thead');
+        $('#records thead tr').clone(true).addClass('filters').appendTo('#records thead');
 
-        var table = $('#facultyAttendanceRec').DataTable({
+        var table = $('#records').DataTable({
             scrollCollapse: true,
             orderCellsTop: true,
             ordering: false,

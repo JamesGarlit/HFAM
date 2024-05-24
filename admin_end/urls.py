@@ -2,16 +2,17 @@
 from django.urls import path
 
 from faculty_end.views_absent import check_attendance
-from .views import complaints_online, complaints_f2f, supmerged_table, supdashboard, suppresent_users_chart, supabsent_users_chart, onlineqrcode, generate_qr, dashboard, present_users_chart, absent_users_chart, dashboard, merged_table, update_faculty_account, create_faculty_account, admin_settings, schedule_api, user_create, user_list, faculty_members, user_update, user_view, login, login_as, admin_logout, deactivate_user, activate_user, admin_notif
+from .views import user_attendance_view, approve_attendance, disapprove_attendance, online_approval, complaints_f2f, supmerged_table, supdashboard, suppresent_users_chart, supabsent_users_chart, onlineqrcode, generate_qr, dashboard, present_users_chart, absent_users_chart, dashboard, merged_table, update_faculty_account, create_faculty_account, admin_settings, schedule_api, user_create, user_list, faculty_members, user_update, user_view, login, login_as, admin_logout, deactivate_user, activate_user
 from .views_reports import DTRReport
 from .views_validation import approved, rejected
 
 urlpatterns = [
-    path('admin_notif/', admin_notif, name='admin_notif'),
+    path('online_approval/', user_attendance_view, name='user_attendance'),
+    path('online_approval/approve/<int:online_id>/', approve_attendance, name='approve_attendance'),
+    path('online_approval/disapprove/<int:online_id>/', disapprove_attendance, name='disapprove_attendance'),
     path('user_create/', user_create, name='user_create'),
     path('generate_qr/', generate_qr, name='generate_qr'),
     path('complaints_f2f/', complaints_f2f, name='complaints_f2f'),
-    path('complaints_online/', complaints_online, name='complaints_online'),
     path('onlineqrcode/', onlineqrcode, name='onlineqrcode'),
     path('user_list/', user_list, name='user_list'),
     path('faculty_members/', faculty_members, name='faculty_members'),
@@ -34,6 +35,7 @@ urlpatterns = [
     path('supdashboard/', supdashboard, name='supdashboard'),
     path('supdashboard/present_users_chart-chart/', suppresent_users_chart, name='supsuppresent_users_chart'),
     path('supdashboard/absent-users-chart/', supabsent_users_chart, name='supabsent_users_chart'),
+    path('online_approval/', online_approval, name='online_approval'),
 
     # These are the paths for all the reports
     path('reports/dtr/', DTRReport, name='report-dtr'),

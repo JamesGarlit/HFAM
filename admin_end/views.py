@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout, update_session_auth
 from django.views.decorators.cache import cache_control
 from django.contrib import messages
 from .models import CustomUser, FacultyAccount
-from faculty_end.models import TimeIn, Online
+from faculty_end.models import TimeIn, Online, Evidence
 from django.contrib.auth import get_user_model
 from datetime import datetime, timedelta
 import dateutil.parser
@@ -23,8 +23,6 @@ def is_admin(user):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @user_passes_test(is_superadmin, login_url='error_400')
 @login_required(login_url='login_as')
-def admin_notif(request):
-    return render(request,'admin_end/admin_notif.html')
 
 def dashboard(request):
     return render(request,'admin_end/dashboard.html')
@@ -58,8 +56,8 @@ def get_top_faculty_present_status_data(request):
 def generate_qr(request):
     return render(request,'admin_end/generate_qr.html')
 
-def complaints_online(request):
-    return render(request,'admin_end/complaints_online.html')
+def online_approval(request):
+    return render(request,'admin_end/online_approval.html')
 
 def complaints_f2f(request):
     return render(request,'admin_end/complaints_f2f.html')
@@ -652,3 +650,35 @@ def update_faculty_account(request, faculty_id):
         print("Failed to fetch data from the API. Status code:", response.status_code)
         return HttpResponse("Failed to fetch data from the API.", status=response.status_code)
     
+@login_required
+def user_attendance_view(request):
+    attendance_records = Online.objects.select_related('user').all()
+
+    data = []
+    for record in attendance_records:
+        evidences = record.online_evidence.all()
+        data.append({
+            'id': record.pk,
+            'user_firstname': record.user.user_firstname,
+            'user_lastname': record.user.user_lastname,
+            'is_absent': record.is_absent,
+            'status': record.status,
+            'evidences': [evidence.evidence.url for evidence in evidences],
+            'date': record.date
+        })
+
+    return render(request, 'admin_end/online_approval.html', {'data': data})
+
+@login_required
+def approve_attendance(request, online_id):
+    online_record = get_object_or_404(Online, pk=online_id)
+    online_record.status = 'Present'
+    online_record.save()
+    return redirect('user_attendance')
+
+@login_required
+def disapprove_attendance(request, online_id):
+    online_record = get_object_or_404(Online, pk=online_id)
+    online_record.status = 'Absent'
+    online_record.save()
+    return redirect('user_attendance')
