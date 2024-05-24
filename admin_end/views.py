@@ -546,14 +546,19 @@ def faculty_attendance_records(request):
     # Iterate over faculty users
     for faculty_user in faculty_users:
         # Fetch TimeIn and TimeOut records for the current faculty user
-        time_in_records = TimeIn.objects.filter()
+        time_in_records = TimeIn.objects.filter(user=faculty_user)
         time_out_records = TimeOut.objects.filter(user=faculty_user)
+
+
+        print(time_in_records)
+
+        print(time_out_records)
 
         # Combine TimeIn and TimeOut records for display
         attendance_records = []
         for time_in_record in time_in_records:
             attendance_records.append({
-                'user': faculty_user.get_full_name(),
+                # 'user': faculty_user.get_full_name(),
                 'date': time_in_record.date,
                 # 'location': time_in_record.location,
                 'time': time_in_record.time_in,
@@ -562,7 +567,7 @@ def faculty_attendance_records(request):
             })
         for time_out_record in time_out_records:
             attendance_records.append({
-                'user': faculty_user.get_full_name(),
+                # 'user': faculty_user.get_full_name(),
                 'date': time_out_record.date,
                 'location': time_out_record.location,
                 'time': time_out_record.time_out,
@@ -580,6 +585,7 @@ def faculty_attendance_records(request):
     context = {
         'faculty_attendance': faculty_attendance,
     }
+    print(faculty_attendance)
     return render(request, 'admin_end/faculty_attendance_records.html', context)
 
 
