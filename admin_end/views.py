@@ -536,6 +536,7 @@ def approval(request, leave_app_id):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @user_passes_test(is_superadmin, login_url='error_400')
 @login_required(login_url='login_as')
+
 def faculty_attendance_records(request):
     # Fetch all faculty users with the faculty role
     faculty_users = CustomUser.objects.filter(user_role='faculty')
@@ -558,7 +559,7 @@ def faculty_attendance_records(request):
         attendance_records = []
         for time_in_record in time_in_records:
             attendance_records.append({
-                # 'user': faculty_user.get_full_name(),
+                'user': faculty_user.get_full_name(),
                 'date': time_in_record.date,
                 # 'location': time_in_record.location,
                 'time': time_in_record.time_in,
@@ -567,7 +568,7 @@ def faculty_attendance_records(request):
             })
         for time_out_record in time_out_records:
             attendance_records.append({
-                # 'user': faculty_user.get_full_name(),
+                'user': faculty_user.get_full_name(),
                 'date': time_out_record.date,
                 'location': time_out_record.location,
                 'time': time_out_record.time_out,
