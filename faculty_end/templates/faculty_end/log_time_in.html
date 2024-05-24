@@ -19,7 +19,7 @@
 <div class="page-body">
 
     <div class="container-xl">
-        {% if time_logged %}
+        {% if time_logged and logged_but_absent == False%}
             <div class="card">
                 <div class="container-tight py-4">
                     <div class="empty">
@@ -33,19 +33,28 @@
                 </div>
             </div>
 
+         {% elif time_logged and logged_but_absent == True %}
+            <div class="card">
+                <div class="container-tight py-4">
+                    <div class="empty">
+                        <div class="empty-header">You have Already Submitted your Time In! But you're marked as absent.</div>
+                        {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
+                        <p class="empty-subtitle text-muted">
+                            Please issue a complaint if you think is wrong.
+                        </p>
+                
+                    </div>
+                </div>
+            </div>
+
+
 
         
         {% elif time_logged == False %}
             <div class="card">
-<<<<<<< Updated upstream
                 {% comment %} <div class="card-header">
                     <h3 class="card-title">Please scan the QR code to log your attendance.</h3>
                 </div> {% endcomment %}
-=======
-                <div class="card-header">
-                    <h3 class="card-title">Your starting schedule: {{ initial_time_in }} to {{ initial_time_out }}</h3>
-                </div>
->>>>>>> Stashed changes
                 <div class="card-body">
                     <div class="row justify-content-center">
                         <div class="col-lg-5 col-md-5 col-sm-12">

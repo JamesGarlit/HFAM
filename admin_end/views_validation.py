@@ -26,7 +26,8 @@ def approved(request):
             record = TimeIn.objects.get(id=record_id)
 
             record.is_approved = True
-            record.validation_comment = "Approved by " + comments
+            record.status = "Present"
+            record.validation_comment = comments
             record.save()
 
             messages.success(request, f'The record is validated successfully!') 
@@ -38,6 +39,7 @@ def approved(request):
                 record = Online.objects.get(id=record_id)
                 record.is_approved = True
                 record.validation_comment = comments
+                record.status = "Present"
                 record.save()
                 messages.success(request, f'The record is validated successfully!') 
                 return JsonResponse({'success': True}, status=200)
@@ -58,7 +60,7 @@ def rejected(request):
 
         try:
             record = TimeIn.objects.get(id=record_id)
-
+            record.status = "Absent"
             record.is_approved = False
             record.validation_comment = comments
             record.save()
@@ -72,6 +74,7 @@ def rejected(request):
                 record = Online.objects.get(id=record_id)
                 record.is_approved = False
                 record.validation_comment = comments
+                record.status = "Absent"
                 record.save()
                 messages.success(request, f'The record is validated successfully!') 
                 return JsonResponse({'success': True}, status=200)

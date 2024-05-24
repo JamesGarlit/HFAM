@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import LeaveApplication, Online, OnlineEvidence, TimeIn, TimeOut
+from .models import LeaveApplication, Online, Evidence, TimeIn, TimeOut
 from django.contrib.auth import authenticate, login, logout
 from admin_end.models import FacultyShift, CustomUser, LeaveApplicationAction
 from datetime import datetime, timedelta
@@ -34,7 +34,7 @@ def upload_evidence(request, pk):
 
             for file_num in range(0, int(length)):
                 print('File:', request.FILES.get(f'files{file_num}'))
-                OnlineEvidence.objects.create(
+                Evidence.objects.create(
                     online_id = int(pk) ,
                     uploaded_by = request.user,
                     name =  request.FILES.get(f'files{file_num}'), 

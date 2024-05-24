@@ -34,16 +34,9 @@
                             <th>Month</th>
                             <th>Delay</th>
                             <th>Status</th>
-<<<<<<< Updated upstream
                             <th>Remarks</th>
                             <th>Validate</th>
                             <th>Comment</th>
-=======
-                            <th>Course Section</th>
-                            <th>Remarks</th>
-                            <th>Validate</th>
-                            <th>Admin Comment</th>
->>>>>>> Stashed changes
                         </tr>
                     </thead>
                     <tbody>
@@ -59,7 +52,6 @@
                             <td>{{ item.month }}</td>
                             <td>{{ item.delay }}</td>
                             <td>{{ item.status }}</td>
-<<<<<<< Updated upstream
                             <td>{{ item.remarks }}
                             </td>
                             <td>    
@@ -72,13 +64,7 @@
                                 </a>
 
                             </td>
-                            <td>{{ item.validation_comment }}</td>
-=======
-                            <td>{{ item.coursesection }}</td>
                             <td>{{ item.remarks }}</td>
-                            <td></td>
-                            <td></td>
->>>>>>> Stashed changes
                         </tr>
                         {% include "admin_end/validate-approved-modal.html" %}
                         {% include "admin_end/validate-rejected-modal.html" %}
@@ -90,7 +76,7 @@
     </div>
 </div>
 {% block css %}
-<style>
+<style>a
     thead input {
         width: 100%;
     }

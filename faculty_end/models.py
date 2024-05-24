@@ -74,10 +74,23 @@ class LeaveApplication(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True) 
 
-class OnlineEvidence(models.Model):
+
+class Complains(models.Model):
+    onsite = models.OneToOneField(TimeIn, related_name='onsite_complains', on_delete=models.CASCADE, null=True, blank=True)
+    complainant = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    complained_date = models.DateTimeField(default=timezone.now)
+    complains =  models.TextField(null=True, blank=True)
+    is_resolved = models.BooleanField(default=False)
+
+class Evidence(models.Model):
     online = models.ForeignKey(Online, related_name='online_evidence', on_delete=models.CASCADE, null=True, blank=True)
+    onsite = models.ForeignKey(TimeIn, related_name='onsite_evidence', on_delete=models.CASCADE, null=True, blank=True)
+    complain = models.ForeignKey(Complains, related_name='complain_evidence', on_delete=models.CASCADE, null=True, blank=True)
     evidence = models.ImageField(upload_to='evidence_images/', blank=True, null=True)
     name = models.CharField(max_length=300, null=True, blank=True)
     uploaded_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     uploaded_at = models.DateTimeField(default=timezone.now)
+
+
+
 

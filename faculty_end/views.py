@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import LeaveApplication, OnlineEvidence, TimeIn, TimeOut, Online
+from .models import LeaveApplication, Evidence, TimeIn, TimeOut, Online
 from django.contrib.auth import authenticate, login, logout
 from admin_end.models import FacultyShift, CustomUser, LeaveApplicationAction
 from datetime import datetime, timedelta
@@ -27,14 +27,14 @@ def faculty_attendance(request):
 
     time_in_records = TimeIn.objects.filter(user=user)
     online_records = Online.objects.filter(user=user)
-    online_evidences = OnlineEvidence.objects.filter(uploaded_by=user)
+    online_evidences = Evidence.objects.filter(uploaded_by=user)
 
     attendance_records = [
         {'type': 'TimeIn', 'record': record} for record in time_in_records
     ]
 
     for online_record in online_records:
-        evidences = OnlineEvidence.objects.filter(online=online_record)  # Get evidences related to this online_record
+        evidences = Evidence.objects.filter(online=online_record)  # Get evidences related to this online_record
         attendance_records.append({'type': 'Online', 'record': online_record, 'evidences': evidences})
 
 
@@ -377,14 +377,17 @@ def log_time_in(request):
             if schedules_from_api:
                 # Check if the user already timed in
                 is_TimeLogged = TimeIn.objects.filter(user=request.user, date=timezone.now().date(), room_name = room_name).exists()
-
-                print('TIME LOGGED: ', is_TimeLogged)
             
                 if is_TimeLogged:
                     time_logged = True
 
+                    # Check if the time in record is considered as absent or have an absent status
+                    if is_TimeLogged.is_absent:
+                        logged_but_absent = True
+
                 else:
                     time_logged = False
+                    logged_but_absent = False
 
             else:
                 time_logged = None
@@ -400,7 +403,8 @@ def log_time_in(request):
                 'initial_time_out': initial_time_out,
                 'initial_time_in': initial_time_in,
                 'time_logged': time_logged, 
-                                            # Pass the initial time_out value to the template
+                'logged_but_absent': logged_but_absent,
+                # Pass the initial time_out value to the template
             })
         else:
             print("May error sa API PARE 33333")
@@ -549,13 +553,9 @@ def online_time_in(request):
                 'current_time': current_time,
                 'current_date': current_date,
                 'current_month': current_month,
-<<<<<<< Updated upstream
                 'initial_time_out': initial_time_out, 
                  'has_schedule': True, # Pass the initial time_out value to the template
-=======
-                'initial_time_out': initial_time_out,
                 'initial_time_in': initial_time_in,  # Pass the initial time_out value to the template
->>>>>>> Stashed changes
             })
         else:
             return render(request, 'faculty_end/online_time_in.html', {'error_message': 'Failed to fetch data from the API', 'has_schedule': False})
