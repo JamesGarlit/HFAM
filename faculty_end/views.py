@@ -292,6 +292,7 @@ def log_time_in(request):
             logged_but_absent = False
             TimeIn_record_id = 0
             complain_record = None
+
             if schedules_from_api:
                 philippine_timezone = timezone.get_current_timezone()  # Get the current time zone setting (from settings.py)
                 now = timezone.now()  # Get current time in UTC
@@ -302,13 +303,8 @@ def log_time_in(request):
                 print('HAHHAHHAHAHA :', date, room_name)    
                 is_TimeLogged = TimeIn.objects.filter(user=request.user, date=date, room_name = room_name).exists()
 
-
-               
-
                 if is_TimeLogged:
                     record = TimeIn.objects.get(user=request.user, date=date, room_name = room_name)
-
-                    
 
                     time_logged = True
 
@@ -327,7 +323,6 @@ def log_time_in(request):
 
                 else:
                     time_logged = False
-           
 
             else:
                 time_logged = None

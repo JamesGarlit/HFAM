@@ -90,20 +90,36 @@
                                 <div class="row">
                                     <div class="col">
                                         <div class="form-floating mb-1">
-                                            <input name="room_name" type="text" class="form-control" id="room_name" value="{{ schedule.RoomName }}" readonly required>
-                                            <label for="room_name">Room Name</label>
-                                        </div>
-                                    </div>
-                                    <div class="col">
-                                        <div class="form-floating mb-1">
                                             <input name="time_in" type="time" class="form-control" id="time_in" value="{{ current_time }}" readonly required>
-                                            <label for="time_in">Time In</label>
+                                            <label for="time_in">Log Time In</label>
                                         </div>
                                     </div>
                                     <div class="col">
                                         <div class="form-floating mb-1">
                                             <input name="time_out" type="time" class="form-control" id="time_out" value="{{ initial_time_out }}" readonly required>
-                                            <label for="time_out">Time Out</label>
+                                            <label for="time_out">Log Time Out</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="form-floating mb-1">
+                                            <input name="room_name" type="text" class="form-control" id="room_name" value="{{ schedule.RoomName }}" readonly required>
+                                            <label for="room_name">Room Name</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="form-floating mb-1">
+                                            <input name="time_start" type="time" class="form-control" id="time_start" value="{{ initial_time_in }}" readonly required>
+                                            <label for="time_start">Log Time In</label>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-floating mb-1">
+                                            <input name="time_out" type="time" class="form-control" id="time_out" value="{{ initial_time_out }}" readonly required>
+                                            <label for="time_out">Log Time Out</label>
                                         </div>
                                     </div>
                                 </div>

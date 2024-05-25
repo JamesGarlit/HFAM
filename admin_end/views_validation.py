@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout, update_session_auth
 from django.views.decorators.cache import cache_control
 from django.contrib import messages
 from .models import CustomUser, AcademicYear, Semester, FacultyAccount
-from faculty_end.models import Complains, LeaveApplication, TimeIn, Online, TimeOut
+from faculty_end.models import Complains, TimeIn, Online, TimeOut
 from django.contrib.auth import get_user_model
 from datetime import datetime, timedelta
 import dateutil.parser
