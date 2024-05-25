@@ -27,7 +27,7 @@ def approved(request):
 
             record.is_approved = True
             record.status = "Present"
-            record.validation_comment = comments
+            record.validation_comment = f"Approved by {comments}"
             record.save()
 
             messages.success(request, f'The record is validated successfully!') 
@@ -58,7 +58,6 @@ def rejected(request):
         comments = request.POST.get('comment')
         record_id = request.POST.get('record_id')
 
-        print(comments)
 
         try:
             record = TimeIn.objects.get(id=record_id)
@@ -97,6 +96,7 @@ def approved_revalidation(request, onsite_id):
         record = TimeIn.objects.get(id=onsite_id)
         record.status = "Present"
         record.is_absent = False
+        record.validation_comment = f"Revalidated by {request.user.get_full_name()}"
         record.save()
 
 
@@ -106,7 +106,8 @@ def approved_revalidation(request, onsite_id):
         complain.validated_at = timezone.now()
         complain.save()
         messages.success(request, f'The record is revalidated successfully!') 
-        return JsonResponse({'success': True}, status=200)
+        # return JsonResponse({'success': True}, status=200)
+        return redirect('complaints_f2f')
     
                 
     else:
@@ -118,9 +119,13 @@ def approved_revalidation(request, onsite_id):
 
 def rejected_revalidation(request, onsite_id):
     if request.method == 'POST':
+        reason = request.POST.get('reason')
+
         record = TimeIn.objects.get(id=onsite_id)
         record.is_absent = True
         record.status = "Absent"
+
+        record.validation_comment = f"Acad Head remarks: {reason}"
         record.save()
 
 
@@ -130,7 +135,8 @@ def rejected_revalidation(request, onsite_id):
         complain.validated_at = timezone.now()
         complain.save()
         messages.success(request, f'The record is revalidated successfully!') 
-        return JsonResponse({'success': True}, status=200)
+        return redirect('complaints_f2f')
+        # return JsonResponse({'success': True}, status=200)
     
                 
     else:
