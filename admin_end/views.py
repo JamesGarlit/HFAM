@@ -253,6 +253,8 @@ def merged_table(request):
     time_in_data = TimeIn.objects.all()
     online_data = Online.objects.all()
 
+    complains = Complains.objects.all()
+
     # Merge data from both tables
     merged_data = list(time_in_data) + list(online_data)
 
@@ -260,7 +262,7 @@ def merged_table(request):
     merged_data.sort(key=lambda x: x.created_at)
 
     # Pass the merged data to the template for rendering
-    return render(request, 'admin_end/merged_table.html', {'merged_data': merged_data})
+    return render(request, 'admin_end/merged_table.html', {'merged_data': merged_data, 'complains': complains})
 
 def supmerged_table(request):
     # Fetch data from both tables

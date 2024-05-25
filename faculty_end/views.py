@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import Evidence, TimeIn, TimeOut, Online
+from .models import Complains, Evidence, TimeIn, TimeOut, Online
 from django.contrib.auth import authenticate, login, logout
 from datetime import datetime, timedelta
 from django.contrib.auth import update_session_auth_hash
@@ -304,6 +304,9 @@ def log_time_in(request):
                 TimeIn_record_id = 0
                 if is_TimeLogged:
                     record = TimeIn.objects.get(user=request.user, date=date, room_name = room_name)
+                    complain = Complains.objects.filter(onsite_id=record.id).exists()
+
+                    
 
                     time_logged = True
 
