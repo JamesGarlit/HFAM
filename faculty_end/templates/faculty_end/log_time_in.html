@@ -8,7 +8,7 @@
         <div class="row g-2 align-items-center">
             <div class="col">
                 <h2 class="page-title">
-                    Time In {{time_logged}}
+                    Time In
                 </h2>
             </div>
         </div>
@@ -33,17 +33,17 @@
                 </div>
             </div>
 
-         {% elif time_logged and logged_but_absent == True %}
+         {% elif time_logged and logged_but_absent == True and rejected_complaint == False %}
             <div class="card">
                 <div class="container-tight py-4">
                     <div class="empty">
                         <div class="empty-header">Time-in already submitted, but marked absent.</div>
                         {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
                         <p class="empty-subtitle text-muted">
-                            To resolve this, please file a complaint by clicking the button
+                            To resolve this, please file a justification request by clicking the button
 
                             <div class="d-grid text-center w-100">
-                                <a href="#" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#complaint-modal">Issue a complaint</a>
+                                <a href="#" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#complaint-modal">Issue a justification request</a>
                             </div>
 
                         </p>
@@ -51,6 +51,22 @@
                     </div>
                 </div>
             </div>
+
+
+            {% elif time_logged and logged_but_absent == True and rejected_complaint == True %}
+            <div class="card">
+                <div class="container-tight py-4">
+                    <div class="empty">
+                    <div class="h3">Your justification request has been approved. Your attendance is now marked as present!</div>
+                    {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
+                    <p class="empty-subtitle text-muted">
+                        Your justification was validated by {{ complain_record.validated_by.user_firstname }} {{ complain_record.validated_by.user_lastname }} at {{ complain_record.validated_at|date:'H:s A' }}
+                    </p>
+                
+                    </div>
+                </div>
+            </div>
+
 
 
 

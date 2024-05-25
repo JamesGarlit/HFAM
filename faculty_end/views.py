@@ -288,6 +288,10 @@ def log_time_in(request):
                 initial_time_in = ''
 
             # If the api has contents, then it will run the below code.
+            rejected_complaint = False
+            logged_but_absent = False
+            TimeIn_record_id = 0
+            complain_record = None
             if schedules_from_api:
                 philippine_timezone = timezone.get_current_timezone()  # Get the current time zone setting (from settings.py)
                 now = timezone.now()  # Get current time in UTC
@@ -300,11 +304,9 @@ def log_time_in(request):
 
 
                
-                logged_but_absent = False
-                TimeIn_record_id = 0
+
                 if is_TimeLogged:
                     record = TimeIn.objects.get(user=request.user, date=date, room_name = room_name)
-                    complain = Complains.objects.filter(onsite_id=record.id).exists()
 
                     
 
@@ -314,6 +316,14 @@ def log_time_in(request):
                     if record.is_absent:
                         logged_but_absent = True
                         TimeIn_record_id = record.id
+                        complain = Complains.objects.filter(onsite_id=record.id).exists()
+
+                        if complain:
+                            complain_record = Complains.objects.get(onsite_id=record.id)
+
+                            if complain_record.is_resolved == False:
+                                rejected_complaint = True
+
 
                 else:
                     time_logged = False
@@ -335,7 +345,9 @@ def log_time_in(request):
                 'initial_time_in': initial_time_in,
                 'time_logged': time_logged, 
                 'logged_but_absent': logged_but_absent,
-                'TimeIn_record_id': TimeIn_record_id 
+                'TimeIn_record_id': TimeIn_record_id,
+                'rejected_complaint': rejected_complaint,
+                'complain_record': complain_record
                 # Pass the initial time_out value to the template
             })
         else:
