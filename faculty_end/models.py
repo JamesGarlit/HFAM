@@ -18,7 +18,7 @@ class TimeIn(models.Model):
     created_at = models.DateTimeField(default=timezone.now) 
     is_absent = models.BooleanField(default=False)
     is_approved = models.BooleanField(default=False, null=True, blank= True)
-    validation_comment = models.CharField(max_length=50, null=True, blank= True)
+    validation_comment = models.CharField(max_length=250, null=True, blank= True)
 
 class Online(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -37,7 +37,7 @@ class Online(models.Model):
     is_red_instruction = models.BooleanField(default=False)
     has_attachments = models.BooleanField(default=False)
     is_approved = models.BooleanField(default=False, null=True, blank= True)
-    validation_comment = models.CharField(max_length=150, null=True, blank= True)
+    validation_comment = models.CharField(max_length=250, null=True, blank= True)
 
 
 
