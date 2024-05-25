@@ -34,6 +34,7 @@
                                 <th>Month</th>
                                 <th>Delay</th>
                                 <th>Status</th>
+                                <th>Comments</th>
                                 <th>Evidence</th>
                                 <th>Remarks</th>
                             </tr>
@@ -42,15 +43,16 @@
                             {% for item in attendance_records %}
                                 <tr class="small">
                                     <td>{{ item.record.room_name }}</td>
-                                    <td>{{ item.record.time_in|date:'H:s A'  }}</td>
-                                    <td> {{ item.record.time_out|date:'H:s A'  }}</td>
-                                    <td></td>
-                                    <td></td>
+                                    <td>{{ item.record.time_in|date:'h:i A' }}</td>
+                                    <td>{{ item.record.time_out|date:'h:i A' }}</td>
+                                    <td>{{ item.record.time_start|date:'h:i A' }}</td>
+                                    <td>{{ item.record.time_out|date:'h:i A' }}</td>
                                     <td>{{ item.record.day }}</td>
                                     <td>{{ item.record.date }}</td>
                                     <td>{{ item.record.month }}</td>
                                     <td>{{ item.record.delay }}</td>
                                     <td>{{ item.record.status }}</td>
+                                    <td>{{ item.record.validation_comment }}</td>
                                     <td>
                                         {% if item.type == 'Online' %}
 
@@ -91,7 +93,6 @@
 
                                         {% endif %}
                                     </td>
-                            
                                 </tr>
 
                                 {% include "faculty_end/evidence-modal.html" %}
@@ -125,14 +126,14 @@
             scrollCollapse: true,
             orderCellsTop: true,
             fixedHeader: true,
-            ordering: false,
-            order: [[0, 'desc']],
+            ordering: true,
+            order: [[0, 'asc']], // Change 'desc' to 'asc' for ascending order
             scrollX: true,
             dom: 'Bfrtlip',
             buttons: [
                 {
                     extend: 'print',
-                        title: "{{ request.user.get_full_name }} - Attendance Record - " + new Date().toLocaleDateString(),
+                    title: "{{ request.user.get_full_name }} - Attendance Record - " + new Date().toLocaleDateString(),
                     exportOptions: {
                         columns: ':visible'
                     }

@@ -286,7 +286,8 @@ def log_time_in(request):
                 initial_time_in = datetime.strptime(initial_start_time_str, '%H:%M:%S').strftime('%H:%M')
             else:
                 initial_time_in = ''
-
+            logged_but_absent = False
+            TimeIn_record_id = 0
             # If the api has contents, then it will run the below code.
             if schedules_from_api:
                 philippine_timezone = timezone.get_current_timezone()  # Get the current time zone setting (from settings.py)
@@ -298,10 +299,6 @@ def log_time_in(request):
                 print('HAHHAHHAHAHA :', date, room_name)    
                 is_TimeLogged = TimeIn.objects.filter(user=request.user, date=date, room_name = room_name).exists()
 
-
-               
-                logged_but_absent = False
-                TimeIn_record_id = 0
                 if is_TimeLogged:
                     record = TimeIn.objects.get(user=request.user, date=date, room_name = room_name)
 
