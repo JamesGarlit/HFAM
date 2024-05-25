@@ -450,7 +450,7 @@ def online_time_in(request):
         # Redirect to the online_time_in view
         messages.success(request, 'Logged in successfully')
         # return redirect('faculty_attendance')  # Replace 'online_time_in' with the actual URL name of your view
-        return JsonResponse(status=200)
+        return JsonResponse({ 'success': True},status=200)
     else:
         # Retrieve the faculty ID and current day
         faculty_id = request.user.facultyaccount.faculty_id

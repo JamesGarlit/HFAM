@@ -93,7 +93,7 @@
 
 
                                     <div class="row">
-                                        <input type="file" name="evidence" id="evidence-{{ item.record.id }}" multiple>
+                                        <input type="file" name="evidence" id="evidence" multiple>
                                     </div>
                                 
 
@@ -174,7 +174,7 @@
             maxFiles: 5,             //It sets the max file counts
             maxFileSize: '100MB'      //It sets the accepted max storage size
         })
-        const inputElement = document.querySelector('#evidence-'+{{ item.record.id }});  //Convert input types that are file types into filepond
+        const inputElement = document.querySelector('#evidence');  //Convert input types that are file types into filepond
         var pond = FilePond.create( inputElement, {
             acceptedFileTypes:  accepted_file_types, // The lists are the accepted file types
             onaddfile: (err, fileItem) => {
