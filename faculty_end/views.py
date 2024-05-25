@@ -380,19 +380,23 @@ def log_time_in(request):
                 local_time = now.astimezone(philippine_timezone) # Convert to Philippine time
                 date = local_time.date()  # Extract the date
                 # Check if the user already timed in
-                is_TimeLogged = TimeIn.objects.get(user=request.user, date=date, room_name = room_name)
+
+                print('HAHHAHHAHAHA :', date, room_name)    
+                is_TimeLogged = TimeIn.objects.filter(user=request.user, date=date, room_name = room_name).exists()
 
 
-                print('HAHHAHHAHAHA :', is_TimeLogged, date, room_name)
+               
                 logged_but_absent = False
                 TimeIn_record_id = 0
                 if is_TimeLogged:
+                    record = TimeIn.objects.get(user=request.user, date=date, room_name = room_name)
+
                     time_logged = True
 
                     # Check if the time in record is considered as absent or have an absent status
-                    if is_TimeLogged.is_absent:
+                    if record.is_absent:
                         logged_but_absent = True
-                        TimeIn_record_id = is_TimeLogged.id
+                        TimeIn_record_id = record.id
 
                 else:
                     time_logged = False

@@ -39,7 +39,7 @@
                         <tbody>
                             {% for item in attendance_records %}
                                 <tr class="small">
-                                    <td  class="align-middle" class="align-middle">{{ item.record.room_name }}</td>
+                                    <td  class="align-middle">{{ item.record.room_name }}</td>
                                     <td  class="align-middle">{{ item.record.time_in|date:'H:s A'  }}</td>
                                     <td  class="align-middle"> {{ item.record.time_out|date:'H:s A'  }}</td>
                                     <td  class="align-middle">{{ item.record.day }}</td>
