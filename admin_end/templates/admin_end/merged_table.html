@@ -41,7 +41,7 @@
                     </thead>
                     <tbody>
                         {% for item in merged_data %}
-                        <tr>
+                        <tr class="small">
                             <td>{{ item.user.get_full_name }}</td>
                             <td>{{ item.room_name }}</td>
                             <td>{{ item.time_in }}</td>
@@ -63,7 +63,7 @@
                                 </a>
 
                             </td>
-                            <td>{{ item.remarks }}</td>
+                            <td>{{ item.validation_comment }}</td>
                         </tr>
                         {% include "admin_end/validate-approved-modal.html" %}
                         {% include "admin_end/validate-rejected-modal.html" %}

@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout, update_session_auth
 from django.views.decorators.cache import cache_control
 from django.contrib import messages
 from .models import CustomUser, FacultyAccount
-from faculty_end.models import TimeIn, Online, Evidence
+from faculty_end.models import Complains, TimeIn, Online, Evidence
 from django.contrib.auth import get_user_model
 from datetime import datetime, timedelta
 import dateutil.parser
@@ -60,7 +60,16 @@ def online_approval(request):
     return render(request,'admin_end/online_approval.html')
 
 def complaints_f2f(request):
-    return render(request,'admin_end/complaints_f2f.html')
+
+    complains = Complains.objects.select_related('complainant', 'validated_by').filter()
+    evidences = Evidence.objects.select_related('uploaded_by').filter()
+
+    context = {
+        'complains': complains,
+        'evidences': evidences
+    }
+
+    return render(request,'admin_end/complaints_f2f.html', context)
 
 def onlineqrcode(request):
     return render(request,'admin_end/onlineqrcode.html')

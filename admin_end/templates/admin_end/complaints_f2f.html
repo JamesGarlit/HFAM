@@ -10,7 +10,7 @@
                 <div class="page-pretitle">
                     Overview
                 </div>
-                <h2 class="page-title">FacetoFace Complaints
+                <h2 class="page-title">Face-to-Face Complaints
                 </h2>
             </div>
         </div>
@@ -25,20 +25,81 @@
                     <thead>
                         <tr>
                             <th>Name</th>
+                            <th>Complains</th>
                             <th>Complained Date</th>
                             <th>Evidence</th>
                             <th>Issue Status</th>
+                            <th>Validated by</th>
+                            <th>Validated at</th>
                             <th>Revalidated</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
+                        {% for complain in complains %}
+                            <tr class="small">
+                                <td  class="align-middle"> {{ complain.complainant.user_firstname }} {{ complain.complainant.user_lastname }}</td>
+                                <td  class="align-middle"> {{ complain.complains }}</td>
+                                <td  class="align-middle"> {{ complain.complained_date|date:"F d, Y" }}</td>
+                                <td  class="align-middle"> 
+                                    <ul class="list-unstyled">
+                                        {% for evidence in evidences  %}
+                                            {% if evidence.complain_id == complain.id %}
+                                            
+                                            <li>  <a href="{{ evidence.evidence.url }}" target="_blank">Show evidence</a> </li>
+                                            
+                                            {% endif %}
+                                        
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                                <td  class="align-middle"> 
+                                    {% if complain.is_resolved == True %}
+                                        Approved
+                                    {% elif complain.is_resolved == False and complain.validated_by == None  %}
+                                        Waiting for Revalidation
+                                        
+                                    {% elif complain.is_resolved == False and complain.validated_by %}
+                                        Not Approved
+
+                                    {% endif %}
+                                </td>
+                                <td  class="align-middle"> 
+                                    {% if complain.validated_by %}
+                                        {{ complain.validated_by.user_firstname }} {{ complain.validated_by.user_lastname }}
+
+                                    {% else %}
+                                        Waiting for Revalidation
+                                    
+                                    {% endif %}
+
+
+                                </td>
+                                <td  class="align-middle"> 
+                                    {% if complain.validated_at %}
+                                        {{ complain.validated_at|date:"F d, Y" }}
+
+                                    {% else %}
+                                        Waiting for Revalidation
+                                    
+                                    {% endif %}
+
+                                </td>
+                                <td class="align-middle">
+
+                                    {% if complain.validated_by %}
+                                        -
+                                    {% else %}
+                                        <button type="button" class="btn btn-success btn-sm w-100 mb-1" data-bs-toggle="modal" data-bs-target="#modal-approve-{{ complain.id }}">Approve</button>
+        
+                                        <button type="button" class="btn btn-danger btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modal-disapprove-{{ complain.id }}">Disapprove</button>
+                                    {% endif %}
+                                   
+                                </td>
+                            </tr>
+
+                            {% include "admin_end/revalidation-modal.html" %}
+                        {% endfor %}
+
                     </tbody>
                 </table>
             </div>

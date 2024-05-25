@@ -64,6 +64,7 @@ def rejected(request):
             record = TimeIn.objects.get(id=record_id)
             record.status = "Absent"
             record.is_approved = False
+            record.is_absent = True
             record.validation_comment = comments
             
             record.save()
@@ -78,12 +79,60 @@ def rejected(request):
                 record.is_approved = False
                 record.validation_comment = comments
                 record.status = "Absent"
+                record.is_absent = True
                 record.save()
                 messages.success(request, f'The record is validated successfully!') 
                 return JsonResponse({'success': True}, status=200)
             
             except Online.DoesNotExist:
                 return JsonResponse({'error': 'There is no available record. Please try again.'}, status=404)
+    else:
+        # Return a validation error using a JSON response
+        return JsonResponse({'error': 'Invalid request. Please try again.'}, status=400)
+    
+
+
+def approved_revalidation(request, onsite_id):
+    if request.method == 'POST':
+        record = TimeIn.objects.get(id=onsite_id)
+        record.status = "Present"
+        record.is_absent = False
+        record.save()
+
+
+        complain = Complains.objects.get(onsite_id=onsite_id)
+        complain.is_resolved = True
+        complain.validated_by = request.user
+        complain.validated_at = timezone.now()
+        complain.save()
+        messages.success(request, f'The record is revalidated successfully!') 
+        return JsonResponse({'success': True}, status=200)
+    
+                
+    else:
+        # Return a validation error using a JSON response
+        return JsonResponse({'error': 'Invalid request. Please try again.'}, status=400)
+
+
+
+
+def rejected_revalidation(request, onsite_id):
+    if request.method == 'POST':
+        record = TimeIn.objects.get(id=onsite_id)
+        record.is_absent = True
+        record.status = "Absent"
+        record.save()
+
+
+        complain = Complains.objects.get(onsite_id=onsite_id)
+        complain.is_resolved = False
+        complain.validated_by = request.user
+        complain.validated_at = timezone.now()
+        complain.save()
+        messages.success(request, f'The record is revalidated successfully!') 
+        return JsonResponse({'success': True}, status=200)
+    
+                
     else:
         # Return a validation error using a JSON response
         return JsonResponse({'error': 'Invalid request. Please try again.'}, status=400)
