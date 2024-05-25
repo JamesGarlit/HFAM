@@ -5,13 +5,13 @@ from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import Complains, LeaveApplication, Online, Evidence, TimeIn, TimeOut
 from django.contrib.auth import authenticate, login, logout
-from admin_end.models import FacultyShift, CustomUser, LeaveApplicationAction
+from admin_end.models import CustomUser
 from datetime import datetime, timedelta
 from django.contrib.auth import update_session_auth_hash
 import requests
 from django.utils import timezone
 from datetime import date
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 
 def upload_evidence(request, pk):
     # Retrieve the type object with the given primary key (pk)

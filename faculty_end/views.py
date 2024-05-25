@@ -3,15 +3,14 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import LeaveApplication, Evidence, TimeIn, TimeOut, Online
+from .models import Evidence, TimeIn, TimeOut, Online
 from django.contrib.auth import authenticate, login, logout
-from admin_end.models import FacultyShift, CustomUser, LeaveApplicationAction
 from datetime import datetime, timedelta
 from django.contrib.auth import update_session_auth_hash
 import requests
 from django.utils import timezone
 from datetime import date
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 
 def is_faculty(user):
     return user.is_authenticated and not user.is_superuser
@@ -44,91 +43,6 @@ def faculty_attendance(request):
     }
 
     return render(request, 'faculty_end/faculty_attendance.html', context)
-
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@login_required(login_url='faculty_login')
-@user_passes_test(is_faculty, login_url='error_400')
-def leaveapp_create(request):
-    if request.method == 'POST':
-        # Retrieve form data from the request
-        user = request.user
-        department = request.POST.get('department')
-        full_name = request.POST.get('full_name')
-        filing_date = datetime.strptime(request.POST.get('filing_date'), '%Y-%m-%d').date()
-        position = request.POST.get('position')
-        salary = request.POST.get('salary')
-        leave_type = request.POST.get('leave_type')
-        specify_leavetype = request.POST.get('specify_leavetype', '')
-        leave_details = request.POST.get('leave_details')
-        specify_leavedetails = request.POST.get('specify_leavedetails', '')
-        days_number = request.POST.get('days_number')
-        commutation = request.POST.get('commutation')
-        inclusive_dates = request.POST.get('inclusive_dates')
-        signature = request.POST.get('signature')
-
-        # Create the LeaveApplication object
-        leave_application = LeaveApplication.objects.create(
-            user=user,
-            department=department,
-            full_name=full_name,
-            filing_date=filing_date,
-            position=position,
-            salary=salary,
-            leave_type=leave_type,
-            specify_leavetype=specify_leavetype,
-            leave_details=leave_details,
-            specify_leavedetails=specify_leavedetails,
-            days_number=days_number,
-            commutation=commutation,
-            inclusive_dates=inclusive_dates,
-            signature=signature,
-            created=timezone.now()  # Set the created field to current time
-        )
-
-        # Optionally, you can perform some additional actions here
-        # For example, you can render a success page or redirect the user
-        messages.success(request, 'Leave application submitted successfully!')
-        return redirect('leaveapp_list')
-    else:
-        # Handle GET request (render the form)
-        return render(request, 'faculty_end/leaveapp_create.html')
-
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@login_required(login_url='faculty_login')
-@user_passes_test(is_faculty, login_url='error_400')
-def leaveapp_list(request):
-    # Assuming you have a way to identify the current user (faculty member)
-    current_user = request.user
-
-    # Fetch leave applications for the current user
-    all_leave_applications = LeaveApplication.objects.filter(user=current_user)
-
-    # Fetch leave application actions for the current user
-    all_leave_actions = LeaveApplicationAction.objects.filter(leave_application__user=current_user)
-
-    # Include Date Submitted from LeaveApplication model for all actions
-    actions_with_date = []
-    for action in all_leave_actions:
-        status = action.status if action.status else 'No Status'  # Handle cases where status is empty or None
-        actions_with_date.append({
-            'action': action,
-            'date_submitted': action.leave_application.created,  # Accessing the Date Submitted from LeaveApplication
-            'status': status,  # Include status in the context
-        })
-
-    return render(request, 'faculty_end/leaveapp_list.html', {'leave_apps': all_leave_applications, 'actions_with_date': actions_with_date})
-
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@login_required(login_url='faculty_login')
-@user_passes_test(is_faculty, login_url='error_400')
-def leaveapp_view(request, leave_app_id):
-    # Fetch the leave application object using the leave_app_id
-    leave_application = get_object_or_404(LeaveApplication, pk=leave_app_id)
-    
-    # Fetch the related LeaveApplicationAction (assuming there's only one related action per application)
-    leave_action = LeaveApplicationAction.objects.filter(leave_application=leave_application).first()
-
-    return render(request, 'faculty_end/leaveapp_view.html', {'leave_application': leave_application, 'leave_action': leave_action})
 
 def faculty_login(request):
     RECAPTCHA_SECRET_KEY = '6Lc_w1EpAAAAAPtl_6VlzrVSK8ufqIvpsG6MYwDE'  # Replace with your actual reCAPTCHA secret key
@@ -478,7 +392,7 @@ def online_time_in(request):
             return render(request, 'faculty_end/online_time_in.html', {'error_message': 'Failed to fetch data from the API'})
 
         # Status should be "Present" when time_in is logged
-        status = 'Present'
+        status = 'Pending'
 
         # Set is_absent to False when status is Present
         is_absent = False
@@ -511,7 +425,7 @@ def online_time_in(request):
 
             for file_num in range(0, int(length)):
                 print('File:', request.FILES.get(f'files{file_num}'))
-                OnlineEvidence.objects.create(
+                Evidence.objects.create(
                     online_id = online_record_id ,
                     uploaded_by = request.user,
                     name =  request.FILES.get(f'files{file_num}'), 
@@ -644,58 +558,6 @@ def log_attendance(request):
         return render(request, 'faculty_end/log_attendance.html', {'schedules': processed_schedules, 'current_day': current_day})
     else:
         return render(request, 'faculty_end/log_attendance.html', {'error_message': 'Failed to fetch data from the API'})
-    
-def attendance_record1(request):
-    # Get the current user
-    user = request.user
-
-    # Get the current date
-    current_date = datetime.now().date()
-
-    # Get the faculty shifts for the current date and the current user
-    faculty_shifts = FacultyShift.objects.filter(user=user, shift_day=current_date.strftime('%A'))
-
-    # Retrieve TimeIn and TimeOut records for each faculty shift
-    for faculty_shift in faculty_shifts:
-        time_in_record = TimeIn.objects.filter(user=user, faculty_shift=faculty_shift, date=current_date).first()
-        time_out_record = TimeOut.objects.filter(user=user, faculty_shift=faculty_shift, date=current_date).first()
-
-        if time_in_record:
-            faculty_shift.time_in = time_in_record.time_in
-            faculty_shift.time_in_status = time_in_record.status
-            faculty_shift.time_in_location = time_in_record.location
-
-        if time_out_record:
-            faculty_shift.time_out = time_out_record.time_out
-            faculty_shift.time_out_status = time_out_record.status
-            faculty_shift.time_out_location = time_out_record.location
-
-    # Render the template with the faculty shifts
-    return render(request, 'faculty_end/attendance_record1.html', {'faculty_shifts': faculty_shifts, 'current_date': current_date})
-
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@login_required(login_url='faculty_login')
-@user_passes_test(is_faculty, login_url='error_400')  
-def notif(request):
-    # Get the current user (faculty)
-    faculty_user = request.user
-
-    # Get the current day and time
-    current_day = datetime.now().strftime('%A')  # Returns the full weekday name
-
-    # Get all shifts for the current day
-    faculty_shifts = FacultyShift.objects.filter(user=faculty_user, shift_day=current_day)
-
-    # List to store messages for all shifts
-    messages = []
-
-    # Check each shift and create a message for it
-    for shift in faculty_shifts:
-        message = f"Your shift on {shift.get_schedule_display()} is scheduled today. Please mark your attendance."
-        messages.append(message)
-
-    # You can pass the list of messages to the template and render it
-    return render(request, 'faculty_end/notif.html', {'messages': messages})
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @login_required(login_url='faculty_login')
@@ -728,86 +590,7 @@ def change_password(request):
     else:
         messages.error(request, 'Invalid request method.')
         return redirect('faculty_end/account_settings')
-    
-def time_in_out_records(request, faculty_shift_id):
-    faculty_shift = get_object_or_404(FacultyShift, pk=faculty_shift_id)
-    user = request.user
-    
-    # Fetch time in and time out records for the faculty shift
-    time_in_records = TimeIn.objects.filter(user=user, faculty_shift=faculty_shift).order_by('date', 'time_in')
-    time_out_records = TimeOut.objects.filter(user=user, faculty_shift=faculty_shift).order_by('date', 'time_out')
 
-    # Merge time in and time out records into a single list and sort them by date and time
-    all_records = []
-    in_index = out_index = 0
-
-    # Merge time in and time out records alternatively
-    while in_index < len(time_in_records) and out_index < len(time_out_records):
-        if time_in_records[in_index].date <= time_out_records[out_index].date:
-            all_records.append(time_in_records[in_index])
-            in_index += 1
-        else:
-            all_records.append(time_out_records[out_index])
-            out_index += 1
-
-    all_records.extend(time_in_records[in_index:])
-    all_records.extend(time_out_records[out_index:])
-
-    return render(request, 'faculty_end/attendance_record.html', {'faculty_shift': faculty_shift, 'records': all_records})
-
-# def log_time_in(request):
-#     if request.method == 'POST':
-#         location = request.POST.get('location')
-#         date = datetime.now().date()
-#         time_in = datetime.now().time()
-
-#         # Fetch the start time for the faculty's schedule from the API
-#         api_url = 'https://schedulerserver-6e565d991c10.herokuapp.com/facultyloadings/getfacultyloading'
-#         access_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqYW1lc0BzYW5kbG90LnBoIiwidXNlcnR5cGUiOiJzdGFmZiIsImV4cCI6MTcxNzYxMjgzNH0.0NDFuxsVNh40fsIVf8b2H_4OBSdm0LPRPdUDpkf8NxE'
-
-#         headers = {
-#             'Authorization': f'Bearer {access_token}',
-#         }
-
-#         response = requests.get(api_url, headers=headers)
-
-#         if response.status_code == 200:
-#             api_data = response.json().get('data', [])  # 'data' key holds the schedule start time
-#             if not api_data:
-#                 start_time = None  # No data returned from API
-#             else:
-#                 # Assuming 'fstart_time' is the key for start time in API response
-#                 start_time_str = api_data[0].get('fstart_time', '')
-#                 start_time = datetime.strptime(start_time_str, '%H:%M:%S').time() if start_time_str else None
-
-#             # Compute the status based on the start time and current time
-#             if start_time is None:
-#                 status = 'No Schedule'  # If no start time found
-#             else:
-#                 # Convert time_in and start_time to datetime objects
-#                 time_in_datetime = datetime.combine(date, time_in)
-#                 start_time_datetime = datetime.combine(date, start_time)
-
-#                 # Compute the difference in minutes
-#                 time_difference_seconds = (time_in_datetime - start_time_datetime).total_seconds()
-
-#                 # Set the status based on the time difference
-#                 if time_difference_seconds < 0:
-#                     status = 'Early'
-#                 elif time_difference_seconds > 0:
-#                     status = 'Late'
-#                 else:
-#                     status = 'On time'
-
-#             # Save the TimeIn record
-#             TimeIn.objects.create(user=request.user, location=location, date=date, time_in=time_in, status=status)
-
-#             messages.success(request, 'Time in logged successfully')
-#             return redirect('attendance_record')  # Redirect to the attendance record page after logging time in
-#         else:
-#             return render(request, 'faculty_end/log_time_in.html', {'error_message': 'Failed to fetch start time from API'})
-
-#     return render(request, 'faculty_end/log_time_in.html')
 
 def log_time_out(request):
     if request.method == 'POST':

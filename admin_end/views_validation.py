@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.views.decorators.cache import cache_control
 from django.contrib import messages
-from .models import CustomUser, FacultyShift, AcademicYear, Semester, AttendanceNotification, FacultyAccount, LeaveApplicationAction
+from .models import CustomUser, AcademicYear, Semester, FacultyAccount
 from faculty_end.models import LeaveApplication, TimeIn, Online, TimeOut
 from django.contrib.auth import get_user_model
 from datetime import datetime, timedelta

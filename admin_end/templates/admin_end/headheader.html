@@ -40,6 +40,7 @@
                     {% endif %}
                     <div class="d-none d-xl-block ps-2">
                         <div>{{ request.user.get_full_name }}</div>
+                        <div class="mt-1 small text-secondary">{{ request.user.user_role }}</div>
                     </div>
                 </a>                
                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">

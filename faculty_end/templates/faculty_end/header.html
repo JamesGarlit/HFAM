@@ -47,6 +47,7 @@
                     {% endif %}
                     <div class="d-none d-xl-block ps-2">
                         <div>{{ request.user.user_firstname }} {{ request.user.user_middlename }} {{ request.user.user_lastname }} {{ request.user.user_extension_name }}</div>
+                        <div class="mt-1 small text-secondary">{{ request.user.user_role }}</div>
                     </div>
                 </a>                
                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">

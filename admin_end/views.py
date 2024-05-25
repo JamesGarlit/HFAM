@@ -664,7 +664,8 @@ def user_attendance_view(request):
             'is_absent': record.is_absent,
             'status': record.status,
             'evidences': [evidence.evidence.url for evidence in evidences],
-            'date': record.date
+            'date': record.date,
+            'validation_comment': record.validation_comment
         })
 
     return render(request, 'admin_end/online_approval.html', {'data': data})
@@ -673,6 +674,7 @@ def user_attendance_view(request):
 def approve_attendance(request, online_id):
     online_record = get_object_or_404(Online, pk=online_id)
     online_record.status = 'Present'
+    online_record.validation_comment = f"Approved by {request.user.get_full_name()}"
     online_record.save()
     return redirect('user_attendance')
 
@@ -680,5 +682,6 @@ def approve_attendance(request, online_id):
 def disapprove_attendance(request, online_id):
     online_record = get_object_or_404(Online, pk=online_id)
     online_record.status = 'Absent'
+    online_record.validation_comment = f"Disapproved by {request.user.get_full_name()}"
     online_record.save()
     return redirect('user_attendance')

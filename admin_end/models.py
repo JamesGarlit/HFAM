@@ -2,7 +2,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group, Permission
 from django.contrib.auth import get_user_model
-from django.utils import timezone
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -57,10 +56,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         if self.extension_name:
             full_name += f" {self.extension_name}"
         return full_name
-    
-class QRCodeGenerator(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, primary_key=True)
-    created_at = models.DateTimeField(default=timezone.now) 
 
 class FacultyAccount(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, primary_key=True)
@@ -76,30 +71,7 @@ class Semester(models.Model):
     academic_year = models.ForeignKey(AcademicYear, on_delete=models.CASCADE)
     semester_name = models.CharField(max_length=100)
 
-class FacultyShift(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    academic_year = models.ForeignKey(AcademicYear, on_delete=models.CASCADE)
-    semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
-    shift_start = models.TimeField()
-    shift_end = models.TimeField()
-    shift_day = models.CharField(max_length=20)
-    
-class LeaveApplicationAction(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    leave_application = models.ForeignKey('faculty_end.LeaveApplication', on_delete=models.CASCADE)
-    status = models.CharField(max_length=10, default='Pending')
-    comment = models.TextField(blank=True)
-    created = models.DateTimeField(auto_now_add=True)
-    
-class AttendanceNotification(models.Model):
-    user = models.ForeignKey('CustomUser', on_delete=models.CASCADE)
-    date = models.DateField()
-    time_in = models.TimeField(blank=True, null=True)
-    time_out = models.TimeField(blank=True, null=True)
-    status = models.CharField(max_length=20)
 
-    def __str__(self):
-        return f"{self.user.user_firstname} {self.user.user_lastname} - {self.date}"
     
 
     

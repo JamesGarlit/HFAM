@@ -10,7 +10,7 @@
                 <div class="page-pretitle">
                     Overview
                 </div>
-                <h2 class="page-title">Online Complaints
+                <h2 class="page-title">Online Approval
                 </h2>
             </div>
         </div>
@@ -29,6 +29,7 @@
                             <th>Evidence</th>
                             <th>Validated</th>
                             <th>Date</th>
+                            <th>Remarks</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -46,22 +47,16 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <form action="{% url 'approve_attendance' record.id %}" method="post">
+                                    <form action="{% url 'approve_attendance' record.id %}" method="post" class="d-inline">
                                         {% csrf_token %}
-                                        <button type="button" class="btn btn-success btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modal-approve-{{ record.id }}">Approve</button>
+                                        <button type="button" class="btn btn-success btn-sm approve-btn" data-bs-toggle="modal" data-bs-target="#modal-approve-{{ record.id }}" {% if record.status != 'Pending' %}disabled{% endif %}>Approve</button>
             
-                                        <div class="modal modal-blur fade" id="modal-approve-{{ record.id }}" tabindex="-1" role="dialog" aria-hidden="true">
-                                            <div class="modal-dialog modal-md modal-dialog-centered" role="document">
+                                        <div class="modal fade" id="modal-approve-{{ record.id }}" tabindex="-1" role="dialog" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
                                                 <div class="modal-content">
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                     <div class="modal-status bg-success"></div>
                                                     <div class="modal-body text-center py-4">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-3 text-info icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                            <path d="M10.24 3.957l-8.422 14.06a1.989 1.989 0 0 0 1.7 2.983h16.845a1.989 1.989 0 0 0 1.7 -2.983l-8.423 -14.06a1.989 1.989 0 0 0 -3.4 0z" />
-                                                            <path d="M12 9v4" />
-                                                            <path d="M12 17h.01" />
-                                                        </svg>
                                                         <h3>Are you sure you want to approve this attendance?</h3>
                                                         <div class="text-secondary">Please double-check the evidence or screenshot. Thank you.</div>
                                                     </div>
@@ -69,14 +64,10 @@
                                                         <div class="w-100">
                                                             <div class="row">
                                                                 <div class="col">
-                                                                    <button type="button" class="btn w-100" data-bs-dismiss="modal">
-                                                                        Cancel
-                                                                    </button>
+                                                                    <button type="button" class="btn w-100" data-bs-dismiss="modal">Cancel</button>
                                                                 </div>
                                                                 <div class="col">
-                                                                    <button type="submit" class="btn btn-primary w-100">
-                                                                        Confirm
-                                                                    </button>
+                                                                    <button type="submit" class="btn btn-primary w-100">Confirm</button>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -86,22 +77,16 @@
                                         </div>
                                     </form>
             
-                                    <form action="{% url 'disapprove_attendance' record.id %}" method="post">
+                                    <form action="{% url 'disapprove_attendance' record.id %}" method="post" class="d-inline">
                                         {% csrf_token %}
-                                        <button type="button" class="btn btn-danger btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modal-disapprove-{{ record.id }}">Disapprove</button>
+                                        <button type="button" class="btn btn-danger btn-sm disapprove-btn" data-bs-toggle="modal" data-bs-target="#modal-disapprove-{{ record.id }}" {% if record.status != 'Pending' %}disabled{% endif %}>Disapprove</button>
             
-                                        <div class="modal modal-blur fade" id="modal-disapprove-{{ record.id }}" tabindex="-1" role="dialog" aria-hidden="true">
-                                            <div class="modal-dialog modal-md modal-dialog-centered" role="document">
+                                        <div class="modal fade" id="modal-disapprove-{{ record.id }}" tabindex="-1" role="dialog" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
                                                 <div class="modal-content">
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    <div class="modal-status bg-success"></div>
+                                                    <div class="modal-status bg-danger"></div>
                                                     <div class="modal-body text-center py-4">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-3 text-info icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                            <path d="M10.24 3.957l-8.422 14.06a1.989 1.989 0 0 0 1.7 2.983h16.845a1.989 1.989 0 0 0 1.7 -2.983l-8.423 -14.06a1.989 1.989 0 0 0 -3.4 0z" />
-                                                            <path d="M12 9v4" />
-                                                            <path d="M12 17h.01" />
-                                                        </svg>
                                                         <h3>Are you sure you want to disapprove this attendance?</h3>
                                                         <div class="text-secondary">Please double-check the evidence or screenshot. Thank you.</div>
                                                     </div>
@@ -109,14 +94,10 @@
                                                         <div class="w-100">
                                                             <div class="row">
                                                                 <div class="col">
-                                                                    <button type="button" class="btn w-100" data-bs-dismiss="modal">
-                                                                        Cancel
-                                                                    </button>
+                                                                    <button type="button" class="btn w-100" data-bs-dismiss="modal">Cancel</button>
                                                                 </div>
                                                                 <div class="col">
-                                                                    <button type="submit" class="btn btn-primary w-100">
-                                                                        Confirm
-                                                                    </button>
+                                                                    <button type="submit" class="btn btn-primary w-100">Confirm</button>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -127,6 +108,7 @@
                                     </form>
                                 </td>
                                 <td>{{ record.date }}</td>
+                                <td>{{ record.validation_comment }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>
