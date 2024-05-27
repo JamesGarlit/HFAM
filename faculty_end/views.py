@@ -149,7 +149,6 @@ def log_time_in(request):
         month = request.POST.get('month')
         coursesection = request.POST.get('coursesection')
         remarks = request.POST.get('remarks')
-
         # Check if there is an existing record in the timein model  
         is_TimedIn = TimeIn.objects.filter(user=request.user, date=date, room_name = room_name).exists()
 
@@ -184,9 +183,10 @@ def log_time_in(request):
                     if schedule.get('facultyid') == faculty_id and schedule.get('day') == current_day:
                         matching_schedule = schedule
                         break
-                
+                api_roomname = None
                 if matching_schedule:
                     fstart_time_str = matching_schedule.get('fstart_time')
+                    api_roomname = matching_schedule.get('roomname')
                     fstart_time = datetime.strptime(fstart_time_str, '%H:%M:%S')
 
                     # Compute the difference between time_in and fstart_time
@@ -201,24 +201,47 @@ def log_time_in(request):
                 else:
                     delay = 'N/A'
 
-                TimeIn.objects.create(
-                    user=request.user,
-                    day=day,
-                    time_in=time_in_str,
-                    time_start = fstart_time_str,
-                    time_out=time_out,
-                    room_name=room_name,
-                    date=date,
-                    month=month,
-                    delay=delay,
-                    coursesection=coursesection,
-                    remarks=remarks,
-                    status="Present",
-                    is_absent = False,
-                )
 
-                messages.success(request, 'Logged in successfully')
-                return redirect('faculty_attendance')
+                if api_roomname == None:
+                          # Produce an error message
+                    print('may error nanaman pare')
+                    messages.error(request, 'There is no schedule today.')
+                    return redirect('log_time_in')
+                    # JsonResponse({'error': 'There is no schedule today.'}, status=400)
+                    # pass
+
+                elif api_roomname == room_name:
+
+                    TimeIn.objects.create(
+                        user=request.user,
+                        day=day,
+                        time_in=time_in_str,
+                        time_start = fstart_time_str,
+                        time_out=time_out,
+                        room_name=room_name,
+                        date=date,
+                        month=month,
+                        delay=delay,
+                        coursesection=coursesection,
+                        remarks=remarks,
+                        status="Present",
+                        is_absent = False,
+                    )
+
+                    messages.success(request, 'Logged in successfully')
+                    return redirect('faculty_attendance')
+                
+
+                elif api_roomname != room_name:
+                    # Produce an error message
+                    print('may error pare')
+                    messages.error(request, 'The schedule is not yours.')
+                    return redirect('log_time_in')
+          
+                    # JsonResponse({'error': 'The schedule is not yours.'}, status=400)
+                    # pass 
+
+
             else:
                 print("May error sa API PARE")
                 return render(request, 'faculty_end/log_time_in.html', {'error_message': 'Failed to fetch data from the API'})
@@ -264,7 +287,7 @@ def log_time_in(request):
                     'Day': schedule_info.get('day', ''),
                     'StartTime': start_time,
                     'EndTime': end_time,
-                    'RoomName': schedule_info.get('roomname', ''),
+                    # 'RoomName': schedule_info.get('roomname', ''),
                     'ClassName': schedule_info.get('classname', ''),
                 }
                 processed_schedules.append(schedule_data)
@@ -303,23 +326,16 @@ def log_time_in(request):
                     record = TimeIn.objects.get(user=request.user, date=date, room_name = room_name)
                     complain = Complains.objects.filter(onsite_id=record.id).exists()
 
-                    
-
                     time_logged = True
 
                     # Check if the time in record is considered as absent or have an absent status
                     if record.is_absent:
                         logged_but_absent = True
                         TimeIn_record_id = record.id
-
                 else:
                     time_logged = False
-           
-
             else:
                 time_logged = None
-            
-
                 # If the user already timed in, just make the time_logged true for front end purposes
 
             return render(request, 'faculty_end/log_time_in.html', {

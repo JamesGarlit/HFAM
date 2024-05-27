@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import Complains, LeaveApplication, Online, Evidence, TimeIn, TimeOut
+from .models import Complains, Online, Evidence, TimeIn, TimeOut
 from django.contrib.auth import authenticate, login, logout
 from admin_end.models import CustomUser
 from datetime import datetime, timedelta

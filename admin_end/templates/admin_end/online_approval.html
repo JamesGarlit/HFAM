@@ -30,6 +30,8 @@
                             <th>Validated</th>
                             <th>Date</th>
                             <th>Remarks</th>
+                            <th>Aprroval Date</th>
+                            <th>Time In Date</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -80,7 +82,7 @@
                                     <form action="{% url 'disapprove_attendance' record.id %}" method="post" class="d-inline">
                                         {% csrf_token %}
                                         <button type="button" class="btn btn-danger btn-sm disapprove-btn" data-bs-toggle="modal" data-bs-target="#modal-disapprove-{{ record.id }}" {% if record.status != 'Pending' %}disabled{% endif %}>Disapprove</button>
-            
+                                    
                                         <div class="modal fade" id="modal-disapprove-{{ record.id }}" tabindex="-1" role="dialog" aria-hidden="true">
                                             <div class="modal-dialog modal-dialog-centered" role="document">
                                                 <div class="modal-content">
@@ -88,7 +90,15 @@
                                                     <div class="modal-status bg-danger"></div>
                                                     <div class="modal-body text-center py-4">
                                                         <h3>Are you sure you want to disapprove this attendance?</h3>
-                                                        <div class="text-secondary">Please double-check the evidence or screenshot. Thank you.</div>
+                                                        <div class="text-secondary">Please double-check the evidence or screenshot, and leave a remarks. Thank you.</div>
+                                                        <div class="row">
+                                                            <div class="col">
+                                                                <div class="form-floating mb-1">
+                                                                    <textarea name="remarks" type="text" class="form-control" id="remarks" required></textarea>
+                                                                    <label for="remarks">Remarks</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                     <div class="modal-footer">
                                                         <div class="w-100">
@@ -105,10 +115,12 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    </form>
+                                    </form>                                    
                                 </td>
                                 <td>{{ record.date }}</td>
                                 <td>{{ record.validation_comment }}</td>
+                                <td>{{ record.acadhead_created_at }}</td>
+                                <td>{{ record.created_at }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>

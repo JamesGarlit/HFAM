@@ -1,20 +1,10 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
-from django.views.decorators.cache import cache_control
+from django.shortcuts import redirect
 from django.contrib import messages
-from .models import CustomUser, AcademicYear, Semester, FacultyAccount
 from faculty_end.models import Complains, TimeIn, Online, TimeOut
 from django.contrib.auth import get_user_model
 from datetime import datetime, timedelta
-import dateutil.parser
 from django.utils import timezone
 from django.http import JsonResponse
-from django.http import HttpResponse
-from django.db import transaction
-from django.db.models import Count
-from django.db.models import Q
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import requests
 
 def approved(request):

@@ -30,6 +30,9 @@ def dashboard(request):
 def supdashboard(request):
     return render(request,'admin_end/supdashboard.html')
 
+def directordashboard(request):
+    return render(request,'admin_end/directordashboard.html')
+
 def top_faculty_present_status(request):
     return render(request, 'admin_end/dashboard.html')
 
@@ -334,6 +337,9 @@ def user_view(request, user_id):
     return render(request, 'admin_end/user_view.html', {'user': user})
 # ---------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
+def log_time_in(request):
+    room_name = request.GET.get('room')
+    return render(request, 'log_time_in.html', {'room_name': room_name})
 # # LOGIN FUNCTION
 def login_as(request):
     RECAPTCHA_SECRET_KEY = '6Lc_w1EpAAAAAPtl_6VlzrVSK8ufqIvpsG6MYwDE'  # reCAPTCHA secret key
@@ -388,17 +394,22 @@ def login_as(request):
             elif user.user_role == 'superadmin':
                 login(request, user)
                 messages.success(request, 'Faculty logged in successful.')
-                return redirect('supdashboard')  # Redirect to faculty home page
+                return redirect('supdashboard')  # Redirect to dashboard page
             
             elif user.user_role == 'faculty':
                 login(request, user)
                 messages.success(request, 'Faculty logged in successful.')
-                return redirect('log_time_in')  # Redirect to faculty home page
+                return redirect('log_time_in')  # Redirect to face to face time in page
             
             elif user.user_role == 'Academic Head':
                 login(request, user)
-                messages.success(request, 'Faculty logged in successful.')
-                return redirect('complaints_f2f')  # Redirect to faculty home page
+                messages.success(request, 'Academic Head logged in successful.')
+                return redirect('complaints_f2f')  # Redirect to face to face complaints page
+            
+            elif user.user_role == 'Director':
+                login(request, user)
+                messages.success(request, 'Director logged in successful.')
+                return redirect('directordashboard')  # Redirect to dashboard
             
             else:
                 messages.error(request, 'Invalid user role.')
@@ -676,23 +687,32 @@ def user_attendance_view(request):
             'status': record.status,
             'evidences': [evidence.evidence.url for evidence in evidences],
             'date': record.date,
-            'validation_comment': record.validation_comment
+            'validation_comment': record.validation_comment,
+            'acadhead_created_at': record.acadhead_created_at,
+            'created_at': record.created_at
         })
 
     return render(request, 'admin_end/online_approval.html', {'data': data})
+
+@login_required
+def disapprove_attendance(request, online_id):
+    if request.method == 'POST':
+        online_record = get_object_or_404(Online, pk=online_id)
+        remarks = request.POST.get('remarks', '') 
+
+        online_record.status = 'Absent'
+        online_record.validation_comment = f"Disapproved by {request.user.get_full_name()}: {remarks}"
+        online_record.acadhead_created_at = timezone.now()  # Set the current timestamp
+        online_record.save()
+        return redirect('user_attendance')
+    else:
+        return redirect('user_attendance')
 
 @login_required
 def approve_attendance(request, online_id):
     online_record = get_object_or_404(Online, pk=online_id)
     online_record.status = 'Present'
     online_record.validation_comment = f"Approved by {request.user.get_full_name()}"
-    online_record.save()
-    return redirect('user_attendance')
-
-@login_required
-def disapprove_attendance(request, online_id):
-    online_record = get_object_or_404(Online, pk=online_id)
-    online_record.status = 'Absent'
-    online_record.validation_comment = f"Disapproved by {request.user.get_full_name()}"
+    online_record.acadhead_created_at = timezone.now()
     online_record.save()
     return redirect('user_attendance')

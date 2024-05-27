@@ -15,7 +15,8 @@ class TimeIn(models.Model):
     status = models.CharField(max_length=50)
     coursesection = models.CharField(max_length=50, blank=True, null=True)
     remarks = models.CharField(max_length=100, blank=True, null=True)
-    created_at = models.DateTimeField(default=timezone.now) 
+    acadhead_created_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True) 
     is_absent = models.BooleanField(default=False)
     is_approved = models.BooleanField(default=False, null=True, blank= True)
     validation_comment = models.CharField(max_length=250, null=True, blank= True)
@@ -32,14 +33,13 @@ class Online(models.Model):
     delay = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(max_length=50)
     coursesection = models.CharField(max_length=50, blank=True, null=True)
-    created_at = models.DateTimeField(default=timezone.now)
+    acadhead_created_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     is_absent = models.BooleanField(default=False)
     is_red_instruction = models.BooleanField(default=False)
     has_attachments = models.BooleanField(default=False)
     is_approved = models.BooleanField(default=False, null=True, blank= True)
     validation_comment = models.CharField(max_length=250, null=True, blank= True)
-
-
 
 class TimeOut(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -54,26 +54,6 @@ class WorkedHours(models.Model):
     date = models.DateField()
     hours_worked = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     created_at = models.DateTimeField(default=timezone.now)
-
-
-class LeaveApplication(models.Model):
-    user = models.ForeignKey('admin_end.CustomUser', on_delete=models.CASCADE)
-    department = models.CharField(max_length=100)
-    full_name = models.CharField(max_length=150)
-    filing_date = models.DateField()
-    position = models.CharField(max_length=100)
-    salary = models.DecimalField(max_digits=15, decimal_places=2)
-    leave_type = models.CharField(max_length=150)
-    specify_leavetype = models.CharField(max_length=255, blank=True, null=True)
-    leave_details = models.CharField(max_length=150)
-    specify_leavedetails = models.CharField(max_length=255, blank=True, null=True)
-    days_number = models.CharField(max_length=15)
-    commutation = models.CharField(max_length=255)
-    inclusive_dates = models.CharField(max_length=255)
-    signature = models.CharField(max_length=255, blank=True, null=True)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True) 
-
 
 class Complains(models.Model):
     onsite = models.OneToOneField(TimeIn, related_name='onsite_complains', on_delete=models.CASCADE, null=True, blank=True)
