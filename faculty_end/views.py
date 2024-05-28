@@ -309,9 +309,13 @@ def log_time_in(request):
                 initial_time_in = datetime.strptime(initial_start_time_str, '%H:%M:%S').strftime('%H:%M')
             else:
                 initial_time_in = ''
+
+            # If the api has contents, then it will run the below code.
+            rejected_complaint = False
             logged_but_absent = False
             TimeIn_record_id = 0
-            # If the api has contents, then it will run the below code.
+            complain_record = None
+
             if schedules_from_api:
                 philippine_timezone = timezone.get_current_timezone()  # Get the current time zone setting (from settings.py)
                 now = timezone.now()  # Get current time in UTC
@@ -332,8 +336,18 @@ def log_time_in(request):
                     if record.is_absent:
                         logged_but_absent = True
                         TimeIn_record_id = record.id
+                        complain = Complains.objects.filter(onsite_id=record.id).exists()
+
+                        if complain:
+                            complain_record = Complains.objects.get(onsite_id=record.id)
+
+                            if complain_record.is_resolved == False:
+                                rejected_complaint = True
+
+
                 else:
                     time_logged = False
+
             else:
                 time_logged = None
                 # If the user already timed in, just make the time_logged true for front end purposes
@@ -348,7 +362,9 @@ def log_time_in(request):
                 'initial_time_in': initial_time_in,
                 'time_logged': time_logged, 
                 'logged_but_absent': logged_but_absent,
-                'TimeIn_record_id': TimeIn_record_id 
+                'TimeIn_record_id': TimeIn_record_id,
+                'rejected_complaint': rejected_complaint,
+                'complain_record': complain_record
                 # Pass the initial time_out value to the template
             })
         else:
@@ -456,7 +472,7 @@ def online_time_in(request):
         # Redirect to the online_time_in view
         messages.success(request, 'Logged in successfully')
         # return redirect('faculty_attendance')  # Replace 'online_time_in' with the actual URL name of your view
-        return JsonResponse(status=200)
+        return JsonResponse({ 'success': True},status=200)
     else:
         # Retrieve the faculty ID and current day
         faculty_id = request.user.facultyaccount.faculty_id

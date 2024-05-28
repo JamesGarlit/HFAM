@@ -91,7 +91,8 @@ def check_attendance(request):
                         room_name=room_name,
                         date=current_date,
                         month=current_month,
-                        status = 'Absent'
+                        status = 'Absent',
+                        is_absent = True
                     )
 
                     return JsonResponse({'success1': True}, status=200)
