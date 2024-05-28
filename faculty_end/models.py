@@ -16,6 +16,7 @@ class TimeIn(models.Model):
     coursesection = models.CharField(max_length=50, blank=True, null=True)
     remarks = models.CharField(max_length=100, blank=True, null=True)
     acadhead_created_at = models.DateTimeField(null=True, blank=True)
+    checker_created_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True) 
     is_absent = models.BooleanField(default=False)
     is_approved = models.BooleanField(default=False, null=True, blank= True)

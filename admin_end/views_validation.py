@@ -1,6 +1,6 @@
 from django.shortcuts import redirect
 from django.contrib import messages
-from faculty_end.models import Complains, TimeIn, Online, TimeOut
+from faculty_end.models import Complains, TimeIn, Online
 from django.contrib.auth import get_user_model
 from datetime import datetime, timedelta
 from django.utils import timezone
@@ -18,6 +18,7 @@ def approved(request):
             record.is_approved = True
             record.status = "Present"
             record.validation_comment = f"Approved by {comments}"
+            record.checker_created_at = timezone.now()
             record.save()
 
             messages.success(request, f'The record is validated successfully!') 
@@ -55,7 +56,7 @@ def rejected(request):
             record.is_approved = False
             record.is_absent = True
             record.validation_comment = comments
-            
+            record.checker_created_at = timezone.now()
             record.save()
 
             messages.success(request, f'The record is validated successfully!') 

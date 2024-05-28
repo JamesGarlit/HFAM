@@ -62,6 +62,82 @@ def generate_qr(request):
 def online_approval(request):
     return render(request,'admin_end/online_approval.html')
 
+def overall(request):
+    # Retrieve TimeIn and Online data ordered by created_at descending
+    time_in_data = TimeIn.objects.select_related('user').order_by('-created_at').all()
+    online_data = Online.objects.select_related('user').order_by('-created_at').all()
+
+    combined_data = []
+
+    # Process TimeIn data
+    for record in time_in_data:
+        combined_data.append({
+            'id': record.id,
+            'user': f"{record.user.user_firstname} {record.user.user_lastname}",
+            'room_name': record.room_name,
+            'time_in': record.time_in,
+            'time_start': record.time_start,
+            'time_out': record.time_out,
+            'day': record.day,
+            'date': record.date,
+            'month': record.month,
+            'delay': record.delay,
+            'status': record.status,
+            'coursesection': record.coursesection,
+            'remarks': record.remarks,
+            'acadhead_created_at': record.acadhead_created_at,
+            'created_at': record.created_at,
+            'is_absent': record.is_absent,
+            'is_approved': record.is_approved,
+            'validation_comment': record.validation_comment,
+            'source': 'Face-to-Face'
+        })
+
+    # Process Online data
+    for record in online_data:
+        combined_data.append({
+            'id': record.id,
+            'user': f"{record.user.user_firstname} {record.user.user_lastname}",
+            'room_name': record.room_name,
+            'time_in': record.time_in,
+            'time_start': record.time_start,
+            'time_out': record.time_out,
+            'day': record.day,
+            'date': record.date,
+            'month': record.month,
+            'delay': record.delay,
+            'status': record.status,
+            'coursesection': record.coursesection,
+            'remarks': '',
+            'acadhead_created_at': record.acadhead_created_at,
+            'created_at': record.created_at,
+            'is_absent': record.is_absent,
+            'is_approved': record.is_approved,
+            'validation_comment': record.validation_comment,
+            'source': 'Online'
+        })
+
+    # Sort the combined data by created_at in descending order
+    combined_data.sort(key=lambda x: x['created_at'], reverse=True)
+
+    context = {'combined_data': combined_data}
+    return render(request, 'admin_end/overall.html', context)
+
+def update_status(request):
+    record_id = request.POST.get('record_id')
+    status = request.POST.get('status')
+    source = request.POST.get('source')
+
+    if source == 'Face-to-Face':
+        record = get_object_or_404(TimeIn, pk=record_id)
+    else:
+        record = get_object_or_404(Online, pk=record_id)
+    
+    record.status = status
+    record.save()
+    
+    return redirect('overall')
+
 def complaints_f2f(request):
 
     complains = Complains.objects.select_related('complainant', 'validated_by').filter()

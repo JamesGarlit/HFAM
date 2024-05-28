@@ -748,19 +748,28 @@ def attendance_record(request):
     else:
         start_date = None
     
-    # Query TimeIn and TimeOut based on start date and merge them
+    # Query TimeIn and Online based on start date
     if start_date:
         time_in_data = TimeIn.objects.filter(date__gte=start_date)
-        time_out_data = TimeOut.objects.filter(date__gte=start_date)
+        online_data = Online.objects.filter(date__gte=start_date)
     else:
         time_in_data = TimeIn.objects.all()
-        time_out_data = TimeOut.objects.all()
+        online_data = Online.objects.all()
     
-    # Merge TimeIn and TimeOut data
-    merged_data = sorted(list(time_in_data) + list(time_out_data), key=lambda x: x.date)
-    
+    # Prepare attendance records including source information
+    attendance_records = []
+
+    for time_in_record in time_in_data:
+        attendance_records.append({'record': time_in_record, 'type': 'Face-to-Face'})
+
+    for online_record in online_data:
+        attendance_records.append({'record': online_record, 'type': 'Online'})
+
+    # Sort attendance records by created_at in descending order
+    attendance_records.sort(key=lambda x: x['record'].created_at, reverse=True)
+
     context = {
-        'merged_data': merged_data,
+        'attendance_records': attendance_records,
         'filter_option': filter_option,
     }
     return render(request, 'faculty_end/attendance_record.html', context)
