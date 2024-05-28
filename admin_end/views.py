@@ -674,7 +674,8 @@ def update_faculty_account(request, faculty_id):
     
 @login_required
 def user_attendance_view(request):
-    attendance_records = Online.objects.select_related('user').all()
+    # Order attendance records by 'created_at' in descending order
+    attendance_records = Online.objects.select_related('user').order_by('-created_at')
 
     data = []
     for record in attendance_records:

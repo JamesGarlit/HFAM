@@ -18,6 +18,9 @@ def is_faculty(user):
 def log_time_in(request):
     return render(request,'faculty_end/log_time_in.html')
 
+def error_message(request):
+    return render(request,'faculty_end/error_message.html')
+
 @login_required
 def faculty_attendance(request):
     user = request.user
@@ -232,16 +235,13 @@ def log_time_in(request):
                     return redirect('faculty_attendance')
                 
 
-                elif api_roomname != room_name:
-                    # Produce an error message
-                    print('may error pare')
-                    messages.error(request, 'The schedule is not yours.')
-                    return redirect('log_time_in')
-          
-                    # JsonResponse({'error': 'The schedule is not yours.'}, status=400)
-                    # pass 
-
-
+                elif api_roomname != room_name or room_name is None:
+                    # Produce an error message with api_roomname
+                    error_message = f'The schedule ({api_roomname}) is not yours.'
+                    messages.error(request, error_message)
+                    # Redirect to error_message.html with the error message
+                    return render(request, 'faculty_end/error_message.html', {'error_message': error_message, 'api_roomname': api_roomname})
+                
             else:
                 print("May error sa API PARE")
                 return render(request, 'faculty_end/log_time_in.html', {'error_message': 'Failed to fetch data from the API'})

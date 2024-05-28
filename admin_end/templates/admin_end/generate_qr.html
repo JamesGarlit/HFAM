@@ -27,10 +27,27 @@
                     <div class="col-lg-4 col-md-4 col-sm-4">
                         <div class="mb-3">
                             <label class="form-label">Room</label>
-                            <select name="room" class="form-select" id="room" required>
+                            <select name="room" class="form-select room" id="room">
                                 <option selected disabled>Select Room</option>
-                                <option value="Room 1">Room 1</option>
-                                <option value="Room 2">Room 2</option>
+                                <option value="A.B 101">A.B 101</option>
+                                <option value="A.B 102">A.B 102</option>
+                                <option value="A.B 103">A.B 103</option>
+                                <option value="A.B 104">A.B 104</option>
+                                <option value="A.B 105">A.B 105</option>
+                                <option value="A.B 106">A.B 106</option>
+                                <option value="A.B 201">A.B 201</option>
+                                <option value="A.B 202">A.B 202</option>
+                                <option value="A.B 203">A.B 203</option>
+                                <option value="A.B 204">A.B 204</option>
+                                <option value="A.B 205">A.B 205</option>
+                                <option value="A.B 206">A.B 206</option>
+                                <option value="AVR">AVR</option>
+                                <option value="ComLab">ComLab</option>
+                                <option value="Chapel">Chapel</option>
+
+
+
+
                             </select>
                         </div>
                     </div>
@@ -40,13 +57,17 @@
                     </div>
                     <div class="col-lg-3 col-md-3 col-sm-3">
                         <label class="form-label">Download</label>
-                        <a href="#" class="btn btn-sm btn-primary m-1" id="downloadQRBtn" download>Download QR Code</a>
+                        <a href="#" class="btn btn-sm btn-primary m-1" id="downloadQRBtn" download="qrcode.png">Download QR Code</a>
+                    </div>
+                    <div class="col-lg-2 col-md-2 col-sm-2">
+                        <label class="form-label">Reset</label>
+                        <button class="btn btn-sm btn-secondary m-1" id="resetQRBtn">Reset</button>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col">
                         <!-- QR Code display -->
-                        <canvas id="qrCanvas"></canvas>
+                        <canvas id="qrCanvas" width="400" height="400"></canvas>
                     </div>
                 </div>
             </div>
@@ -60,9 +81,8 @@
 {% block javascript %}
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-$(document).ready(function() {
+{% comment %} $(document).ready(function() {
     $('#generateQRBtn').on('click', function() {
         var roomName = $('#room').val();
         var link = "http://127.0.0.1:8000/log_time_in/";
@@ -96,7 +116,65 @@ function generateQRCodeImage(text) {
             });
         }
     });
+} {% endcomment %}
+$(document).ready(function() {
+    $('#generateQRBtn').on('click', function() {
+        var roomName = $('#room').val();
+        var link = "http://127.0.0.1:8000/log_time_in/";
+
+        // Generate QR code with link and room name
+        var qrText = link + '?room=' + encodeURIComponent(roomName);
+        generateQRCodeImage(qrText);
+    });
+
+    $('#downloadQRBtn').on('click', function() {
+        var canvas = document.getElementById('qrCanvas');
+        var dataURL = canvas.toDataURL('image/png');
+        $('#downloadQRBtn').attr('href', dataURL);
+    });
+
+    $('#resetQRBtn').on('click', function() {
+        resetQRCode();
+    });
+});
+
+function generateQRCodeImage(text) {
+    // Clear previous QR code if any
+    var canvas = document.getElementById('qrCanvas');
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Generate new QR code
+    QRCode.toCanvas(canvas, text, {
+        errorCorrectionLevel: 'Q',
+        margin: 1,
+        width: canvas.width,
+        height: canvas.height,
+        color: {
+            dark: '#000',  // Foreground color
+            light: '#fff'  // Background color
+        }
+    }, function(error) {
+        if (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Failed to generate QR code!'
+            });
+        }
+    });
 }
+
+function resetQRCode() {
+    var canvas = document.getElementById('qrCanvas');
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+// Initialize Select2 for the class dropdown
+$(document).ready(function() {
+    $('.room').select2();
+});
 </script>
 {% endblock %}
 {% endblock %}
