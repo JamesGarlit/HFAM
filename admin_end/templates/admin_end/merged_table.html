@@ -24,6 +24,7 @@
                 <table id="records" class="table table-striped table-bordered" style="width:100%">
                     <thead>
                         <tr>
+                            <th>Modality</th>
                             <th>Name</th>
                             <th>Room Name</th>
                             <th>Logged Time In</th>
@@ -40,18 +41,19 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for item in merged_data %}
+                        {% for record in merged_data %}
                         <tr class="small">
-                            <td>{{ item.user.get_full_name }}</td>
-                            <td>{{ item.room_name }}</td>
-                            <td>{{ item.time_in }}</td>
-                            <td>{{ item.time_out }}</td>
-                            <td>{{ item.time_start }} - {{ item.time_out }}</td>
-                            <td>{{ item.day }}</td>
-                            <td>{{ item.date }}</td>
-                            <td>{{ item.month }}</td>
-                            <td>{{ item.delay }}</td>
-                            <td>{{ item.status }}</td>
+                            <td>{{ record.source }}</td>
+                            <td>{{ record.user.get_full_name }}</td>
+                            <td>{{ record.room_name }}</td>
+                            <td>{{ record.time_in }}</td>
+                            <td>{{ record.time_out }}</td>
+                            <td>{{ record.time_start }} - {{ record.time_out }}</td>
+                            <td>{{ record.day }}</td>
+                            <td>{{ record.date }}</td>
+                            <td>{{ record.month }}</td>
+                            <td>{{ record.delay }}</td>
+                            <td>{{ record.status }}</td>
                             <td>    
                                 {% comment %} <a href="#" class="btn btn-success btn-icon rounded-circle btn-ghost-success btn-md" aria-label="Approved"  data-bs-toggle="modal" data-bs-target="#approved-modal-{{ item.id }}">
                                     <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>   
@@ -82,8 +84,8 @@
                              <button type="button" class="btn btn-danger btn-sm w-100" data-bs-toggle="modal" data-bs-target="#rejected-modal-{{ item.id }}">Reject</button>
                             
                             </td>
-                            <td>{{ item.validation_comment }}</td>
-                            <td>{{ item.checker_created_at }}</td>
+                            <td>{{ record.validation_comment }}</td>
+                            <td>{{ record.checker_created_at }}</td>
                         </tr>
                         {% include "admin_end/validate-approved-modal.html" %}
                         {% include "admin_end/validate-rejected-modal.html" %}

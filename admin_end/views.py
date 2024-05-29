@@ -669,14 +669,21 @@ def merged_table(request):
     time_in_data = TimeIn.objects.all()
     online_data = Online.objects.all()
 
+    # Add source attribute to each record
+    for record in time_in_data:
+        record.source = 'Face-to-Face'
+    for record in online_data:
+        record.source = 'Online'
+
     # Merge data from both tables
     merged_data = list(time_in_data) + list(online_data)
 
-    # Sort merged data by date
-    merged_data.sort(key=lambda x: x.created_at)
+    # Sort merged data by date (newest to oldest)
+    merged_data.sort(key=lambda x: x.created_at, reverse=True)
 
     # Pass the merged data to the template for rendering
     return render(request, 'admin_end/merged_table.html', {'merged_data': merged_data})
+
 
 
 # ---------------------------------------------------------------------------------------------------------
