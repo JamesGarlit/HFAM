@@ -4,212 +4,221 @@
 {% block content %}
 
 <!-- Page header -->
-{% now "Y-m" as today %}
-<div class="page-header d-print-none">
-    <div class="container-xl">
-        <div class="row g-2 align-items-center">
-            <div class="col">
-                <h2 class="page-title">
-                    Attendance Record
-                </h2>
+    {% now "Y-m" as today %}
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <h2 class="page-title">
+                        Attendance Record
+                    </h2>
+                </div>
             </div>
         </div>
     </div>
-</div>
-<!-- Page body -->
-<div class="page-body">
-    <div class="container-xl">
-        <div class="card">
-            <div class="card-body">
-                    <table id="facultyattendance" class="table table-striped display" style="width:100%">
-                        <thead>
-                            <tr>
-                                <th>Room</th>
-                                <th>Type</th>
-                                <th>Time In</th>
-                                <th>Time Out</th>
-                                <th>Schedule</th>
-                                <th>Day</th>
-                                <th>Date</th>
-                                {% comment %} <th>Month</th> {% endcomment %}
-                                <th>Delay</th>
-                                <th>Status</th>
-                                <th>Comments</th>
-                                <th>Evidence</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in attendance_records %}
-                                <tr class="small">
-                                    <td>{{ item.record.room_name }}</td>
-                                    <td>
-                                        {% if item.type == 'Online' %}
-                                            Online
-                                        {% elif item.type == 'TimeIn' %}
-                                            Face-to-Face
-                                        {% endif %}
-                                     
-                                    <td>{{ item.record.time_in|date:'h:i A' }}</td>
-                                    <td>{{ item.record.time_out|date:'h:i A' }}</td>
-                                    <td>{{ item.record.time_start|date:'h:i A' }} - {{ item.record.time_out|date:'h:i A' }}</td>
-                                    <td>{{ item.record.day }}</td>
-                                    <td>{{ item.record.date }}</td>
-                                    {% comment %} <td>{{ item.record.month }}</td> {% endcomment %}
-                                    <td>{{ item.record.delay }}</td>
-                                    <td>{{ item.record.status }}</td>
-                                    <td>{{ item.record.validation_comment }}</td>
-                                    <td>
-                                        {% if item.type == 'Online' %}
-
-                                            {% if item.record.has_attachments == False and today > item.record.date|date:'Y-m'%}
-                                                Expired
-
-                                            {% elif item.evidences %}
-                                                <ul class="list-unstyled">
-                                                    {% for evidence in item.evidences %}
-                                                        {% if evidence.online_id == item.record.id %}
-                                                            <li>  <a href="{{ evidence.evidence.url }}" target="_blank">Show evidence</a> </li>
-                                                        {% endif %}
-
-                                                    {% endfor %}
-                                                </ul>
-
-                                            {% else %}
-                                            <a href="#" id="{{ item.record.id }}" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#evidence-modal-{{ forloop.counter }}">
-                                                Submit Evidence
-                                            </a>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-
-                                        <a href="#"  type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#complaint-modal-{{ item.record.id }}">Request justification</a>
-                          
-                                    </td>
+    <!-- Page body -->
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="card">
+                <div class="card-body">
+                        <table id="facultyattendance" class="table table-striped display" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>Room</th>
+                                    <th>Type</th>
+                                    <th>Time In</th>
+                                    <th>Time Out</th>
+                                    <th>Schedule</th>
+                                    <th>Day</th>
+                                    <th>Date</th>
+                                    {% comment %} <th>Month</th> {% endcomment %}
+                                    <th>Delay</th>
+                                    <th>Status</th>
+                                    <th>Comments</th>
+                                    <th>Evidence</th>
+                                    <th></th>
                                 </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in attendance_records %}
+                                    <tr class="small">
+                                        <td>{{ item.record.room_name }}</td>
+                                        <td>
+                                            {% if item.type == 'Online' %}
+                                                Online
+                                            {% elif item.type == 'TimeIn' %}
+                                                Face-to-Face
+                                            {% endif %}
+                                        
+                                        <td>{{ item.record.time_in|date:'h:i A' }}</td>
+                                        <td>{{ item.record.time_out|date:'h:i A' }}</td>
+                                        <td>{{ item.record.time_start|date:'h:i A' }} - {{ item.record.time_out|date:'h:i A' }}</td>
+                                        <td>{{ item.record.day }}</td>
+                                        <td>{{ item.record.date }}</td>
+                                        {% comment %} <td>{{ item.record.month }}</td> {% endcomment %}
+                                        <td>{{ item.record.delay }}</td>
+                                        <td>{{ item.record.status }}</td>
+                                        <td>{{ item.record.validation_comment }}</td>
+                                        <td>
+                                            {% if item.type == 'Online' %}
 
-                                {% include "faculty_end/evidence-modal.html" %}
-                                {% include "faculty_end/complaint-modal.html" %}
-                                {% include "faculty_end/remarks-modal.html" %}
+                                                {% if item.record.has_attachments == False and today > item.record.date|date:'Y-m'%}
+                                                    Expired
 
-                            {% endfor %}
-                        </tbody>
-                    </table>                                                                   
-            </div>
-        </div>        
+                                                {% elif item.evidences %}
+                                                    <ul class="list-unstyled">
+                                                        {% for evidence in item.evidences %}
+                                                            {% if evidence.online_id == item.record.id %}
+                                                                <li>  <a href="{{ evidence.evidence.url }}" target="_blank">Show evidence</a> </li>
+                                                            {% endif %}
+
+                                                        {% endfor %}
+                                                    </ul>
+
+                                                {% else %}
+                                                <a href="#" id="{{ item.record.id }}" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#evidence-modal-{{ forloop.counter }}">
+                                                    Submit Evidence
+                                                </a>
+                                                {% endif %}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+
+                                            {% if item.record.status == 'Present' %}
+                                            -
+                                            
+                                            {% elif item.record.justification_count <= 3 and item.record.status == 'Absent'%}
+                                                <a href="#"  type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#complaint-modal-{{ item.record.id }}">Request justification</a>
+                            
+
+                                            {% endif %}
+
+                                            
+                                        </td>
+                                    </tr>
+
+                                    {% include "faculty_end/evidence-modal.html" %}
+                                    {% include "faculty_end/complaint-modal.html" %}
+                                    {% include "faculty_end/remarks-modal.html" %}
+
+                                {% endfor %}
+                            </tbody>
+                        </table>                                                                   
+                </div>
+            </div>        
+        </div>
     </div>
-</div>
-{% block css %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-<style>
-    thead input {
-        width: 100%;
-    }
-</style>
-{% endblock %}
+    {% block css %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <style>
+        thead input {
+            width: 100%;
+        }
+    </style>
+    {% endblock %}
 
-{% block javascript %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>v
-<script>
-    $(document).ready(function() {
-        // Setup - add a text input to each footer cell
-        $('#facultyattendance thead tr').clone(true).addClass('filters').appendTo('#facultyattendance thead');
-    
-        var table = $('#facultyattendance').DataTable({
-            scrollCollapse: true,
-            orderCellsTop: true,
-            fixedHeader: true,
-            ordering: false,
-            order: [[0, 'asc']], // Change 'desc' to 'asc' for ascending order
-            scrollX: true,
-            dom: 'Bfrtlip',
-            buttons: [
-                {
-                    extend: 'print',
-                    title: "{{ request.user.get_full_name }} - Attendance Record - " + new Date().toLocaleDateString(),
-                    exportOptions: {
-                        columns: ':visible'
-                    }
-                },
-                {
-                    extend: 'excel',
-                    title: "{{ request.user.get_full_name }} - Attendance Record - " + new Date().toLocaleDateString(),
-                    exportOptions: {
-                        columns: ':visible'
-                    }
-                },
-                {
-                    extend: 'pdf',
-                    title: "{{ request.user.get_full_name }} - Attendance Record - " + new Date().toLocaleDateString(),
-                    exportOptions: {
-                        columns: ':visible'
-                    }
-                },
-                'colvis'
-            ],
-            initComplete: function() {
-                var api = this.api();
-    
-                api.columns().eq(0).each(function(colIdx) {
-                    // Set the header cell to contain the input element
-                    var cell = $('.filters th').eq($(api.column(colIdx).header()).index());
-                    var title = $(cell).text();
-                    $(cell).html('<input type="text" placeholder="' + title + '" />');
-    
-                    $('input', $('.filters th').eq($(api.column(colIdx).header()).index()))
-                        .off('keyup change')
-                        .on('keyup change', function(e) {
-                            e.stopPropagation();
-                            $(this).attr('title', $(this).val());
-                            var regexr = '({search})';
-                            var cursorPosition = this.selectionStart;
-    
-                            api
-                                .column(colIdx)
-                                .search((this.value != "") ? regexr.replace('{search}', '(((' + this.value + ')))') : "", this.value != "", this.value == "")
-                                .draw();
-                            $(this).focus()[0].setSelectionRange(cursorPosition, cursorPosition);
-                        });
-    
-                    if (colIdx === api.columns().eq(0).length - 1) {
-                        // Include filter input for the last column
+    {% block javascript %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>v
+    <script>
+        $(document).ready(function() {
+            // Setup - add a text input to each footer cell
+            $('#facultyattendance thead tr').clone(true).addClass('filters').appendTo('#facultyattendance thead');
+        
+            var table = $('#facultyattendance').DataTable({
+                scrollCollapse: true,
+                orderCellsTop: true,
+                fixedHeader: true,
+                ordering: false,
+                order: [[0, 'asc']], // Change 'desc' to 'asc' for ascending order
+                scrollX: true,
+                dom: 'Bfrtlip',
+                buttons: [
+                    {
+                        extend: 'print',
+                        title: "{{ request.user.get_full_name }} - Attendance Record - " + new Date().toLocaleDateString(),
+                        exportOptions: {
+                            columns: ':visible'
+                        }
+                    },
+                    {
+                        extend: 'excel',
+                        title: "{{ request.user.get_full_name }} - Attendance Record - " + new Date().toLocaleDateString(),
+                        exportOptions: {
+                            columns: ':visible'
+                        }
+                    },
+                    {
+                        extend: 'pdf',
+                        title: "{{ request.user.get_full_name }} - Attendance Record - " + new Date().toLocaleDateString(),
+                        exportOptions: {
+                            columns: ':visible'
+                        }
+                    },
+                    'colvis'
+                ],
+                initComplete: function() {
+                    var api = this.api();
+        
+                    api.columns().eq(0).each(function(colIdx) {
+                        // Set the header cell to contain the input element
+                        var cell = $('.filters th').eq($(api.column(colIdx).header()).index());
+                        var title = $(cell).text();
                         $(cell).html('<input type="text" placeholder="' + title + '" />');
-                    }
-                });
-            }
+        
+                        $('input', $('.filters th').eq($(api.column(colIdx).header()).index()))
+                            .off('keyup change')
+                            .on('keyup change', function(e) {
+                                e.stopPropagation();
+                                $(this).attr('title', $(this).val());
+                                var regexr = '({search})';
+                                var cursorPosition = this.selectionStart;
+        
+                                api
+                                    .column(colIdx)
+                                    .search((this.value != "") ? regexr.replace('{search}', '(((' + this.value + ')))') : "", this.value != "", this.value == "")
+                                    .draw();
+                                $(this).focus()[0].setSelectionRange(cursorPosition, cursorPosition);
+                            });
+        
+                        if (colIdx === api.columns().eq(0).length - 1) {
+                            // Include filter input for the last column
+                            $(cell).html('<input type="text" placeholder="' + title + '" />');
+                        }
+                    });
+                }
+            });
         });
-    });
-    // Get the current date
-    var currentDate = new Date();
+        // Get the current date
+        var currentDate = new Date();
 
-    // Get the month name
-    var monthNames = ["January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"];
-    var month = monthNames[currentDate.getMonth()];
+        // Get the month name
+        var monthNames = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"];
+        var month = monthNames[currentDate.getMonth()];
 
-    // Get the day and year
-    var day = currentDate.getDate();
-    var year = currentDate.getFullYear();
+        // Get the day and year
+        var day = currentDate.getDate();
+        var year = currentDate.getFullYear();
 
-    // Format the date as Month Day, Year
-    var formattedDate = month + " " + day + ", " + year;
+        // Format the date as Month Day, Year
+        var formattedDate = month + " " + day + ", " + year;
 
-    // Display the formatted date in the specified element
-    document.getElementById("current-date").textContent = formattedDate;
+        // Display the formatted date in the specified element
+        document.getElementById("current-date").textContent = formattedDate;
 
-    $(document).ready(function () {
-        {% if messages %}
-        {% for message in messages %}
-        {% if message.tags == 'success' %}
-        toastr.success('{{ message }}');
-        {% elif message.tags == 'error' %}
-        toastr.error('{{ message }}');
-        {% else %}
-        toastr('{{ message }}');
-        {% endif %}
-        {% endfor %}
-        {% endif %}
-    });
-</script>
-{% endblock %}
+        $(document).ready(function () {
+            {% if messages %}
+            {% for message in messages %}
+            {% if message.tags == 'success' %}
+            toastr.success('{{ message }}');
+            {% elif message.tags == 'error' %}
+            toastr.error('{{ message }}');
+            {% else %}
+            toastr('{{ message }}');
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+        });
+    </script>
+    {% endblock %}
 {% endblock %}

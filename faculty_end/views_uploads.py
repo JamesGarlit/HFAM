@@ -65,6 +65,10 @@ def submit_complaint(request):
 
         length = int(length)
         if length != 0:
+
+            onsite_record = TimeIn.objects.get(id=onsite_id)
+            onsite_record.justification_count = onsite_record.justification_count + 1
+            onsite_record.save()
  
             complain_record = Complains.objects.create(
                 onsite_id = onsite_id,
@@ -85,7 +89,7 @@ def submit_complaint(request):
                     
                 ) 
             # Provide a success message as a JSON response
-            messages.success(request, f'The Evidences successfully uploaded!') 
+            messages.success(request, f'Justification successfully submitted!') 
             return JsonResponse({"status": "success"}, status=200)
         else:
             return JsonResponse({'error': 'Please attach a file before submitting the form.'}, status=400)

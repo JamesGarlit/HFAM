@@ -21,7 +21,8 @@ class TimeIn(models.Model):
     is_absent = models.BooleanField(default=False)
     is_approved = models.BooleanField(default=False, null=True, blank= True)
     validation_comment = models.CharField(max_length=250, null=True, blank= True)
-    flag = models.SmallIntegerField(null=True, blank=True)
+    justification_count = models.SmallIntegerField(default=0, null=True, blank=True)
+    acadhead_is_responded = models.BooleanField(default=False)
 
 class Online(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -42,6 +43,8 @@ class Online(models.Model):
     has_attachments = models.BooleanField(default=False)
     is_approved = models.BooleanField(default=False, null=True, blank= True)
     validation_comment = models.CharField(max_length=250, null=True, blank= True)
+    justification_count = models.SmallIntegerField(default=0, null=True, blank=True)
+    acadhead_is_responded = models.BooleanField(null=True, blank= True)
 
 class TimeOut(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
