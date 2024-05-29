@@ -32,13 +32,15 @@ def faculty_attendance(request):
     online_evidences = Evidence.objects.filter(uploaded_by=user)
 
     attendance_records = [
-        {'type': 'TimeIn', 'record': record} for record in time_in_records
+        {'type': 'TimeIn', 'record': record, 'created_at': record.created_at} for record in time_in_records
     ]
 
     for online_record in online_records:
         evidences = Evidence.objects.filter(online=online_record)  # Get evidences related to this online_record
-        attendance_records.append({'type': 'Online', 'record': online_record, 'evidences': evidences})
+        attendance_records.append({'type': 'Online', 'record': online_record, 'evidences': evidences, 'created_at': online_record.created_at})
 
+    # Sort the records by created_at in descending order
+    attendance_records.sort(key=lambda x: x['created_at'], reverse=True)
 
     context = {
         'attendance_records': attendance_records,

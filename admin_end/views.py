@@ -140,15 +140,15 @@ def update_status(request):
 
 def complaints_f2f(request):
 
-    complains = Complains.objects.select_related('complainant', 'validated_by').filter()
-    evidences = Evidence.objects.select_related('uploaded_by').filter()
+    complains = Complains.objects.select_related('complainant', 'validated_by').order_by('-complained_date')
+    evidences = Evidence.objects.select_related('uploaded_by').all()
 
     context = {
         'complains': complains,
         'evidences': evidences
     }
 
-    return render(request,'admin_end/complaints_f2f.html', context)
+    return render(request, 'admin_end/complaints_f2f.html', context)
 
 def onlineqrcode(request):
     return render(request,'admin_end/onlineqrcode.html')
