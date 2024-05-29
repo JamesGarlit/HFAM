@@ -34,9 +34,11 @@
                                     {% comment %} <th>Month</th> {% endcomment %}
                                     <th>Delay</th>
                                     <th>Status</th>
+                                    <th>Action</th>
                                     <th>Comments</th>
                                     <th>Evidence</th>
-                                    <th></th>
+                                    <th>Validated Date</th>
+                                    <th>ReValidated Date</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -95,6 +97,8 @@
 
                                             
                                         </td>
+                                        <td>{{ item.record.checker_created_at }}</td>
+                                        <td>{{ item.record.validated_at }}</td>
                                     </tr>
 
                                     {% include "faculty_end/evidence-modal.html" %}
