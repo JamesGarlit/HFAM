@@ -107,6 +107,8 @@ def submit_complaint(request):
             onsite_record.acadhead_is_responded = False
             onsite_record.submitted_complaint = True
             onsite_record.validation_comment = None
+            onsite_record.validation_comment = None
+            onsite_record.validation_comment = None
             onsite_record.save()
 
             # Provide a success message as a JSON response

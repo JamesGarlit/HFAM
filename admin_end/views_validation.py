@@ -87,6 +87,7 @@ def approved_revalidation(request, onsite_id):
         record = TimeIn.objects.get(id=onsite_id)
         record.status = "Present"
         record.is_absent = False
+        record.acadhead_created_at = timezone.now()
         record.validation_comment = f"Revalidated by {request.user.get_full_name()}"
         record.acadhead_is_responded = True
         record.save()
@@ -116,7 +117,7 @@ def rejected_revalidation(request, onsite_id):
         record = TimeIn.objects.get(id=onsite_id)
         record.is_absent = True
         record.status = "Absent"
-
+        record.acadhead_created_at = timezone.now()
         record.validation_comment = f"Acad Head remarks: {reason}"
         record.acadhead_is_responded = True
         record.save()
