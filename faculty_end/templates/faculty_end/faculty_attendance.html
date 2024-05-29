@@ -82,16 +82,12 @@
                                         {% endif %}
                                     </td>
                                     <td>
-
                                         <a href="#"  type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#complaint-modal-{{ item.record.id }}">Request justification</a>
-                          
                                     </td>
                                 </tr>
-
                                 {% include "faculty_end/evidence-modal.html" %}
                                 {% include "faculty_end/complaint-modal.html" %}
                                 {% include "faculty_end/remarks-modal.html" %}
-
                             {% endfor %}
                         </tbody>
                     </table>                                                                   
