@@ -1,10 +1,10 @@
 
 <!-- Modal -->
-<div class="modal modal-blur fade" id="complaint-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal modal-blur fade" id="complaint-modal-{{ item.record.id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		  <div class="modal-content">
 			<div class="modal-header">
-				  <h1 class="modal-title">File a Complaint about your Attendance</h1>
+				  <h1 class="modal-title">Request Justification about your Attendance</h1>
 				  <button type="button" class="btn-close" data-bs-dismiss="modal" data-bs-toggle="modal" aria-label="Close"></button>
 			</div>
 
@@ -22,7 +22,7 @@
 					  <div>
 						<h4 class="alert-title">Important Reminder!</h4>
 						<div class="text-secondary">
-							You are allowed only one submission of complaint. After you submit, your complaint will be final and cannot be modified or resubmitted.
+							You are allowed only three submission attempts of justification.
 						</div>
 						
 					  </div>
@@ -30,18 +30,18 @@
 				</div>
 
 				<form method="POST" autocomplete="off" 
-					id="complaint-form"
+					id="complaint-form-{{ forloop.counter }}"
 					class="complaint-form"
 					>
 					{% csrf_token %}
 
-					<input type="hidden" value={{TimeIn_record_id}} name="onsite_id" id="onsite_id">
+					<input type="hidden" value="{{ item.record.id }}" name="onsite_id" id="onsite_id_{{ forloop.counter }}">
 
 					<div class="row">
 						<label class="form-label">Upload Evidence Here <small class="text-muted">(Required)</small></label>
 						<div class = "" >
 							<div class="row">
-								<input type="file" name="evidence" id="evidence" multiple>
+								<input type="file" name="evidence" id="evidence-{{ forloop.counter }}" multiple>
 							</div>
 						</div>
 					</div>
@@ -49,14 +49,14 @@
 					<br>
 
 					<div class="row">
-						<label class="form-label">Complains <small class="text-muted">(Required)</small></label>
-						<textarea class="form-control" name="complains" id="complains" data-bs-toggle="autosize" placeholder="Please input your complains here..." style="overflow: hidden; overflow-wrap: break-word; resize: none; text-align: start; height: 55.3333px;"></textarea>
+						<label class="form-label">Justification <small class="text-muted">(Required)</small></label>
+						<textarea class="form-control" name="complains" id="complains-{{ forloop.counter }}" data-bs-toggle="autosize" placeholder="Please input your complains here..." style="overflow: hidden; overflow-wrap: break-word; resize: none; text-align: start; height: 55.3333px;" required></textarea>
 					</div>
 
 					<br>
 			
 					<div class="form-check">
-						<input class="form-check-input" type="checkbox" value="1" id="chk-btn" name="user_approval">
+						<input class="form-check-input" type="checkbox" value="1" id="chk-btn-{{ forloop.counter }}" name="user_approval">
 						<label class="form-check-label" for="chk-btn">
 							I have read the 'Important Reminder'
 						</label>
@@ -66,7 +66,7 @@
 
 					<div class="modal-footer">
 						<button type="button" class="btn me-auto" data-bs-dismiss="modal" >Close</button>
-						<button id="submit-button" type="submit" class="btn btn-primary disabled">Submit</button>
+						<button id="submit-button-{{ forloop.counter }}" type="submit" class="btn btn-primary disabled">Submit</button>
 					</div>
 
 				</form>
@@ -89,7 +89,7 @@
 			'image/svg+xml',
 			'image/webp',
 			]
-        var files = []
+        var files{{ forloop.counter }} = []
         // Now acceptedFileTypes is a JavaScript array
 
         FilePond.registerPlugin(FilePondPluginFileValidateSize);    //Register plugin to validate file size
@@ -100,43 +100,43 @@
             maxFiles: 5,             //It sets the max file counts
             maxFileSize: '100MB'      //It sets the accepted max storage size
         })
-        const inputElement = document.querySelector('#evidence');  //Convert input types that are file types into filepond
-        var pond = FilePond.create( inputElement, {
+        const inputElement_{{ forloop.counter }} = document.querySelector('#evidence-{{ forloop.counter }}');  //Convert input types that are file types into filepond
+        var pond{{ forloop.counter }} = FilePond.create( inputElement_{{ forloop.counter }}, {
             acceptedFileTypes:  accepted_file_types, // The lists are the accepted file types
             onaddfile: (err, fileItem) => {
                 if (!err) {
-                files.push(fileItem.file)
+                files{{ forloop.counter }}.push(fileItem.file)
                 }
-                console.log(files)
+                console.log(files{{ forloop.counter }})
             },
             onremovefile: (err, fileItem) => {
-                const index = files.indexOf(fileItem.file)
-                if (index > -1) {
-                    files.splice(index, 1)
+                const index{{ forloop.counter }} = files{{ forloop.counter }}.indexOf(fileItem.file)
+                if (index{{ forloop.counter }} > -1) {
+                    files{{ forloop.counter }}.splice(index{{ forloop.counter }}, 1)
                 }
-                console.log(files)
+                console.log(files{{ forloop.counter }})
             }
         } );
 
-		var formData = new FormData();
-		$("#complaint-form").submit(function(event) {
+		var formData{{ forloop.counter }} = new FormData();
+		$("#complaint-form-"+{{ forloop.counter }}).submit(function(event) {
 			event.preventDefault();
             event.stopPropagation();
-            var url = "/submit/complaint/";
-            formData.append('length', files.length)
-            for (var i = 0; i < files.length; i++) {
-                formData.append('files' + i, files[i])
+            var url{{ forloop.counter }} = "/submit/complaint/";
+            formData{{ forloop.counter }}.append('length', files{{ forloop.counter }}.length)
+            for (var i = 0; i < files{{ forloop.counter }}.length; i++) {
+                formData{{ forloop.counter }}.append('files' + i, files{{ forloop.counter }}[i])
             }
-            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+            formData{{ forloop.counter }}.append('csrfmiddlewaretoken', '{{ csrf_token }}');
 
-			formData.append('complains', document.getElementById('complains').value);
+			formData{{ forloop.counter }}.append('complains', document.getElementById('complains-{{ forloop.counter }}').value);
 			
-			formData.append('onsite_id', document.getElementById('onsite_id').value);
+			formData{{ forloop.counter }}.append('onsite_id', document.getElementById('onsite_id_{{ forloop.counter }}').value);
 
             $.ajax({
                 type: 'POST',
-                url: url,
-                data: formData,
+                url: url{{ forloop.counter }},
+                data: formData{{ forloop.counter }},
 				headers: { 'X-CSRFToken': '{{ csrf_token }}' }, 
                 cache: false,
                 processData: false,
@@ -169,15 +169,15 @@
 
 
 <script>
-	const checkbox_complaint = document.getElementById("chk-btn");
-	const submitComplaint = document.getElementById('submit-button'); // Select all submit buttons
+	const checkbox_complaint_{{ forloop.counter }} = document.getElementById("chk-btn-{{ forloop.counter }}");
+	const submitComplaint_{{ forloop.counter }} = document.getElementById('submit-button-{{ forloop.counter }}'); // Select all submit buttons
 
-	checkbox_complaint.addEventListener("change", function() {
-		if (checkbox_complaint.checked) {
-			submitComplaint.classList.remove("disabled"); // Enable
+	checkbox_complaint_{{ forloop.counter }}.addEventListener("change", function() {
+		if (checkbox_complaint_{{ forloop.counter }}.checked) {
+			submitComplaint_{{ forloop.counter }}.classList.remove("disabled"); // Enable
 			checkbox.value = '1';
 		} else {
-			submitComplaint.classList.add("disabled");    // Disable
+			submitComplaint_{{ forloop.counter }}.classList.add("disabled");    // Disable
 			checkbox.value = '0';
 		}
 	});

@@ -20,6 +20,7 @@ class TimeIn(models.Model):
     is_absent = models.BooleanField(default=False)
     is_approved = models.BooleanField(default=False, null=True, blank= True)
     validation_comment = models.CharField(max_length=250, null=True, blank= True)
+    flag = models.SmallIntegerField(null=True, blank=True)
 
 class Online(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -56,7 +57,7 @@ class WorkedHours(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
 
 class Complains(models.Model):
-    onsite = models.OneToOneField(TimeIn, related_name='onsite_complains', on_delete=models.CASCADE, null=True, blank=True)
+    onsite = models.ForeignKey(TimeIn, related_name='onsite_complains', on_delete=models.CASCADE, null=True, blank=True)
     complainant = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     complained_date = models.DateTimeField(default=timezone.now)
     complains =  models.TextField(null=True, blank=True)

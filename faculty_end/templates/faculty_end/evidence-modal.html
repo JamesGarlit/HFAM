@@ -1,11 +1,11 @@
 
 <!-- Modal -->
-<div class="modal modal-blur fade" id="evidence-modal-{{ item.record.id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal modal-blur fade" id="evidence-modal-{{ forloop.counter }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		  <div class="modal-content">
 			<div class="modal-header">
 				  <h1 class="modal-title">Upload new evidence</h1>
-				  <button type="button" class="btn-close" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#result-modal-{{ item.record.id }}" aria-label="Close"></button>
+				  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 
 			<div class="modal-body">
@@ -30,7 +30,7 @@
 				</div>
 
 				<form method="POST" autocomplete="off" 
-					id="evidence-form-{{ item.record.id }}"
+					id="evidence-form-{{ forloop.counter }}"
 					class="evidence-form"
 					>
 					{% csrf_token %}
@@ -105,9 +105,10 @@
         } );
 
 		var formData = new FormData();
-		$("#evidence-form-"+{{ item.record.id }}).submit(function(event) {
+		$("#evidence-form-"+{{ forloop.counter }}).submit(function(event) {
 			event.preventDefault();
             event.stopPropagation();
+			var form = $(this);
             var url = "/upload/evidence/"+{{ item.record.id }}+"/";
             formData.append('length', files.length)
             for (var i = 0; i < files.length; i++) {
@@ -116,6 +117,8 @@
             formData.append('csrfmiddlewaretoken', '{{ csrf_token }}')
 
 			formData.append('user_approval', document.getElementById('chk-'+{{ item.record.id }}).value);
+			    // Disable the submit button
+				form.find('button[type="submit"]').prop('disabled', true);
             $.ajax({
                 type: 'POST',
                 url: url,

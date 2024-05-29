@@ -384,6 +384,7 @@ def online_time_in(request):
         date = request.POST.get('date')
         month = request.POST.get('month')
         length = request.POST.get('length')
+        
         length = int(length)
         
         # Parse time_in to datetime object
