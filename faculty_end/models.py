@@ -45,7 +45,8 @@ class Online(models.Model):
     is_approved = models.BooleanField(default=False, null=True, blank= True)
     validation_comment = models.CharField(max_length=250, null=True, blank= True)
     justification_count = models.SmallIntegerField(default=0, null=True, blank=True)
-    acadhead_is_responded = models.BooleanField(null=True, blank= True)
+    acadhead_is_responded = models.BooleanField(default=False)
+    submitted_complaint = models.BooleanField(default=False)
 
 class Complains(models.Model):
     onsite = models.OneToOneField(TimeIn, related_name='onsite_complains', on_delete=models.CASCADE, null=True, blank=True)
