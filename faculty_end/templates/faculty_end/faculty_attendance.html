@@ -91,6 +91,8 @@
                                             
                                             {% elif item.record.justification_count <= 3 and item.record.status == 'Absent'%}
                                                 <a href="#"  type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#complaint-modal-{{ item.record.id }}">Request justification</a>
+
+                                            {% elif item.record.justification_count <= 3 and item.record.status == 'Absent'%}
                             
 
                                             {% endif %}
