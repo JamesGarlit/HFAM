@@ -96,10 +96,19 @@
 
                                             {% if item.record.status == 'Present' %}
                                             -
-                                            {% elif item.record.justification_count <= 3 and item.record.status == 'Absent'%}
+
+                                               
+                                            {% elif item.record.submitted_complaint == False and item.record.status == 'Absent' %}
                                                 <a href="#"  type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#complaint-modal-{{ item.record.id }}">Request justification</a>
 
-                                            {% elif item.record.justification_count <= 3 and item.record.status == 'Absent'%}
+                                            
+                                            {% elif item.record.submitted_complaint and item.record.status == 'Absent' and item.record.acadhead_is_responded == False %}
+                                                <span class="badge badge-outline text-blue badge-blink">Awaiting Response</span>
+
+                                            {% elif item.record.submitted_complaint and item.record.status == 'Absent' and item.record.acadhead_is_responded == True %}
+                                            <a href="#"  type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#complaint-modal-{{ item.record.id }}">Request justification</a>
+
+
                                             {% endif %}
                                         </td>
                                     </tr>

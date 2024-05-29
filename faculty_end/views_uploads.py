@@ -105,6 +105,7 @@ def submit_complaint(request):
             onsite_record = TimeIn.objects.get(id=onsite_id)
             onsite_record.justification_count = onsite_record.justification_count + 1
             onsite_record.acadhead_is_responded = False
+            onsite_record.submitted_complaint = True
             onsite_record.validation_comment = None
             onsite_record.save()
 

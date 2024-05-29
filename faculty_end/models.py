@@ -23,6 +23,7 @@ class TimeIn(models.Model):
     validation_comment = models.CharField(max_length=250, null=True, blank= True)
     justification_count = models.SmallIntegerField(default=0, null=True, blank=True)
     acadhead_is_responded = models.BooleanField(default=False)
+    submitted_complaint = models.BooleanField(default=False)
 
 class Online(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
