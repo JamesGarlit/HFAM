@@ -30,6 +30,7 @@ def faculty_attendance(request):
     time_in_records = TimeIn.objects.filter(user=user)
     online_records = Online.objects.filter(user=user)
     online_evidences = Evidence.objects.filter(uploaded_by=user)
+    complain_records = Complains.objects.filter(complainant=user)
 
     attendance_records = [
         {'type': 'TimeIn', 'record': record, 'created_at': record.created_at} for record in time_in_records
@@ -45,6 +46,7 @@ def faculty_attendance(request):
     context = {
         'attendance_records': attendance_records,
         'online_evidences': online_evidences,
+        'complain_records': complain_records
     }
 
     return render(request, 'faculty_end/faculty_attendance.html', context)

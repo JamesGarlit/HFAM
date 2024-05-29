@@ -145,7 +145,7 @@ def overall(request):
             'status': record.status,
             'coursesection': record.coursesection,
             'remarks': record.remarks,
-            'acadhead_created_at': record.acadhead_created_at,
+            'validated_at': record.acadhead_created_at,
             'created_at': record.created_at,
             'is_absent': record.is_absent,
             'is_approved': record.is_approved,

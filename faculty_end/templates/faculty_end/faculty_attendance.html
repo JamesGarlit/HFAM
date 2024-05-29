@@ -34,11 +34,11 @@
                                     {% comment %} <th>Month</th> {% endcomment %}
                                     <th>Delay</th>
                                     <th>Status</th>
-                                    <th>Action</th>
                                     <th>Comments</th>
-                                    <th>Evidence</th>
                                     <th>Validated Date</th>
                                     <th>ReValidated Date</th>
+                                    <th>Evidence</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -61,6 +61,14 @@
                                         <td>{{ item.record.delay }}</td>
                                         <td>{{ item.record.status }}</td>
                                         <td>{{ item.record.validation_comment }}</td>
+                                        <td>{{ item.record.checker_created_at }}</td>
+                                        <td>
+                                            {% for complain in complain_record  %}
+                                                {% if complain.onsite_id == item.record.id %}
+                                                    {{ complain.validated_at }}
+                                                {% endif %}
+                                            {% endfor %}
+                                        </td>
                                         <td>
                                             {% if item.type == 'Online' %}
 
@@ -88,21 +96,13 @@
 
                                             {% if item.record.status == 'Present' %}
                                             -
-                                            
                                             {% elif item.record.justification_count <= 3 and item.record.status == 'Absent'%}
                                                 <a href="#"  type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#complaint-modal-{{ item.record.id }}">Request justification</a>
 
                                             {% elif item.record.justification_count <= 3 and item.record.status == 'Absent'%}
-                            
-
                                             {% endif %}
-
-                                            
                                         </td>
-                                        <td>{{ item.record.checker_created_at }}</td>
-                                        <td>{{ item.record.validated_at }}</td>
                                     </tr>
-
                                     {% include "faculty_end/evidence-modal.html" %}
                                     {% include "faculty_end/complaint-modal.html" %}
                                     {% include "faculty_end/remarks-modal.html" %}
