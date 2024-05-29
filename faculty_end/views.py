@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views.decorators.cache import cache_control
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import Complains, Evidence, TimeIn, TimeOut, Online
+from .models import Complains, Evidence, TimeIn, Online
 from django.contrib.auth import authenticate, login, logout
 from datetime import datetime, timedelta
 from django.contrib.auth import update_session_auth_hash
@@ -32,13 +32,15 @@ def faculty_attendance(request):
     online_evidences = Evidence.objects.filter(uploaded_by=user)
 
     attendance_records = [
-        {'type': 'TimeIn', 'record': record} for record in time_in_records
+        {'type': 'TimeIn', 'record': record, 'created_at': record.created_at} for record in time_in_records
     ]
 
     for online_record in online_records:
         evidences = Evidence.objects.filter(online=online_record)  # Get evidences related to this online_record
-        attendance_records.append({'type': 'Online', 'record': online_record, 'evidences': evidences})
+        attendance_records.append({'type': 'Online', 'record': online_record, 'evidences': evidences, 'created_at': online_record.created_at})
 
+    # Sort the records by created_at in descending order
+    attendance_records.sort(key=lambda x: x['created_at'], reverse=True)
 
     context = {
         'attendance_records': attendance_records,
@@ -384,7 +386,6 @@ def online_time_in(request):
         date = request.POST.get('date')
         month = request.POST.get('month')
         length = request.POST.get('length')
-        
         length = int(length)
         
         # Parse time_in to datetime object
@@ -627,115 +628,6 @@ def change_password(request):
     else:
         messages.error(request, 'Invalid request method.')
         return redirect('faculty_end/account_settings')
-
-
-def log_time_out(request):
-    if request.method == 'POST':
-        location = request.POST.get('location')
-        date = datetime.now().date()
-        time_out = datetime.now().time()
-
-        # Fetch the end time for the faculty's schedule from the API
-        api_url = 'https://schedulerserver-6e565d991c10.herokuapp.com/facultyloadings/getfacultyloading'
-        access_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqYW1lc0BzYW5kbG90LnBoIiwidXNlcnR5cGUiOiJzdGFmZiIsImV4cCI6MTcxNzYxMjgzNH0.0NDFuxsVNh40fsIVf8b2H_4OBSdm0LPRPdUDpkf8NxE'
-
-        headers = {
-            'Authorization': f'Bearer {access_token}',
-        }
-
-        response = requests.get(api_url, headers=headers)
-
-        if response.status_code == 200:
-            api_data = response.json().get('data', [])  # 'data' key holds the schedule end time
-            if not api_data:
-                end_time = None  # No data returned from API
-            else:
-                # Assuming 'fend_time' is the key for end time in API response
-                end_time_str = api_data[0].get('fend_time', '')
-                end_time = datetime.strptime(end_time_str, '%H:%M:%S').time() if end_time_str else None
-
-            # Compute the status based on the end time and current time
-            if end_time is None:
-                status = 'No Schedule'  # If no end time found
-            else:
-                # Convert time_out and end_time to datetime objects
-                time_out_datetime = datetime.combine(date, time_out)
-                end_time_datetime = datetime.combine(date, end_time)
-
-                # Compute the difference in minutes
-                time_difference_minutes = int((time_out_datetime - end_time_datetime).total_seconds() / 60)
-
-                # Set the status based on the time difference
-                if time_difference_minutes < 0:
-                    status = 'Early'
-                elif time_difference_minutes > 0:
-                    status = 'Late'
-                else:
-                    status = 'On time'
-
-            # Save the TimeOut record
-            TimeOut.objects.create(user=request.user, location=location, date=date, time_out=time_out, status=status)
-
-            messages.success(request, 'Time out logged successfully')
-            return redirect('attendance_record')  # Redirect to the attendance record page after logging time out
-        else:
-            return render(request, 'faculty_end/log_time_out.html', {'error_message': 'Failed to fetch end time from API'})
-
-    return render(request, 'faculty_end/log_time_out.html')
-
-def log_time_out(request):
-    if request.method == 'POST':
-        location = request.POST.get('location')
-        date = datetime.now().date()
-        time_out = datetime.now().time()
-
-        # Fetch the end time for the faculty's schedule from the API
-        api_url = 'https://schedulerserver-6e565d991c10.herokuapp.com/facultyloadings/getfacultyloading'
-        access_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqYW1lc0BzYW5kbG90LnBoIiwidXNlcnR5cGUiOiJzdGFmZiIsImV4cCI6MTcxNzYxMjgzNH0.0NDFuxsVNh40fsIVf8b2H_4OBSdm0LPRPdUDpkf8NxE'
-
-        headers = {
-            'Authorization': f'Bearer {access_token}',
-        }
-
-        response = requests.get(api_url, headers=headers)
-
-        if response.status_code == 200:
-            api_data = response.json().get('data', [])  # 'data' key holds the schedule end time
-            if not api_data:
-                end_time = None  # No data returned from API
-            else:
-                # Assuming 'fend_time' is the key for end time in API response
-                end_time_str = api_data[0].get('fend_time', '')
-                end_time = datetime.strptime(end_time_str, '%H:%M:%S').time() if end_time_str else None
-
-            # Compute the status based on the end time and current time
-            if end_time is None:
-                status = 'No Schedule'  # If no end time found
-            else:
-                # Convert time_out and end_time to datetime objects
-                time_out_datetime = datetime.combine(date, time_out)
-                end_time_datetime = datetime.combine(date, end_time)
-
-                # Compute the difference in minutes
-                time_difference_minutes = int((time_out_datetime - end_time_datetime).total_seconds() / 60)
-
-                # Set the status based on the time difference
-                if time_difference_minutes < 0:
-                    status = f'{abs(time_difference_minutes)} minute/s early'
-                elif time_difference_minutes > 0:
-                    status = f'{time_difference_minutes} minute/s overtime'
-                else:
-                    status = 'On time'
-
-            # Save the TimeOut record
-            TimeOut.objects.create(user=request.user, location=location, date=date, time_out=time_out, status=status)
-
-            messages.success(request, 'Time out logged successfully')
-            return redirect('attendance_record')  # Redirect to the attendance record page after logging time out
-        else:
-            return render(request, 'faculty_end/log_time_out.html', {'error_message': 'Failed to fetch end time from API'})
-
-    return render(request, 'faculty_end/log_time_out.html')
 
 def attendance_record(request):
     # Default filter by last 7 days

@@ -46,20 +46,6 @@ class Online(models.Model):
     justification_count = models.SmallIntegerField(default=0, null=True, blank=True)
     acadhead_is_responded = models.BooleanField(null=True, blank= True)
 
-class TimeOut(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    location = models.CharField(max_length=255)
-    date = models.DateField()
-    time_out = models.TimeField(blank=True, null=True)
-    status = models.CharField(max_length=50) # Early, Late, On Time
-    created_at = models.DateTimeField(default=timezone.now) 
-
-class WorkedHours(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    date = models.DateField()
-    hours_worked = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-    created_at = models.DateTimeField(default=timezone.now)
-
 class Complains(models.Model):
     onsite = models.OneToOneField(TimeIn, related_name='onsite_complains', on_delete=models.CASCADE, null=True, blank=True)
     complainant = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -69,7 +55,6 @@ class Complains(models.Model):
     validated_at = models.DateTimeField(auto_now=False, null=True, blank=True)
     validated_by =  models.ForeignKey(CustomUser, related_name='validated_by' ,on_delete=models.CASCADE, null=True, blank=True)
 
-    
 class Evidence(models.Model):
     online = models.ForeignKey(Online, related_name='online_evidence', on_delete=models.CASCADE, null=True, blank=True)
     onsite = models.ForeignKey(TimeIn, related_name='onsite_evidence', on_delete=models.CASCADE, null=True, blank=True)
