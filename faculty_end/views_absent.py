@@ -1,17 +1,11 @@
 # faculty_end/views.py
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render
 from django.contrib import messages
-from django.views.decorators.cache import cache_control
-from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import TimeIn, TimeOut
-from django.contrib.auth import authenticate, login, logout
-from admin_end.models import CustomUser
-from datetime import datetime, timedelta
-from django.contrib.auth import update_session_auth_hash
+from .models import TimeIn
+from datetime import datetime
 import requests
-from django.utils import timezone
 from datetime import date
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 
 def check_attendance(request):
     # Get faculty ID and current day
