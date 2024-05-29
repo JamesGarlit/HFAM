@@ -61,7 +61,7 @@ class WorkedHours(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
 
 class Complains(models.Model):
-    onsite = models.ForeignKey(TimeIn, related_name='onsite_complains', on_delete=models.CASCADE, null=True, blank=True)
+    onsite = models.OneToOneField(TimeIn, related_name='onsite_complains', on_delete=models.CASCADE, null=True, blank=True)
     complainant = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     complained_date = models.DateTimeField(default=timezone.now)
     complains =  models.TextField(null=True, blank=True)

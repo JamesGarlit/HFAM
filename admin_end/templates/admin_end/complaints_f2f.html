@@ -25,8 +25,8 @@
                     <thead>
                         <tr>
                             <th>Name</th>
-                            <th>Complains</th>
-                            <th>Complained Date</th>
+                            <th>justification</th>
+                            <th>Request Date</th>
                             <th>Evidence</th>
                             <th>Issue Status</th>
                             <th>Validated by</th>
@@ -91,7 +91,7 @@
                                     {% else %}
                                         <button type="button" class="btn btn-success btn-sm w-100 mb-1" data-bs-toggle="modal" data-bs-target="#modal-approve-{{ complain.id }}">Approve</button>
         
-                                        <button type="button" class="btn btn-danger btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modal-disapprove-{{ complain.id }}">Disapprove</button>
+                                        <button type="button" class="btn btn-danger btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modal-disapprove-{{ complain.id }}">Invalidate</button>
                                     {% endif %}
                                    
                                 </td>

@@ -66,28 +66,58 @@ def submit_complaint(request):
         length = int(length)
         if length != 0:
 
+            complains_exist = Complains.objects.filter(onsite_id=onsite_id).exists()
+
+            if complains_exist == False:
+ 
+                complain_record = Complains.objects.create(
+                    onsite_id = onsite_id,
+                    complainant_id = user_id,
+                    complains = complains
+                )
+
+                complaint_id = complain_record.id
+
+
+                for file_num in range(0, int(length)):
+                    print('File:', request.FILES.get(f'files{file_num}'))
+                    Evidence.objects.create(
+                        complain_id = complaint_id ,
+                        uploaded_by = request.user,
+                        name =  request.FILES.get(f'files{file_num}'), 
+                        evidence = request.FILES.get(f'files{file_num}')
+                        
+                    ) 
+
+            else:
+                complains_record = Complains.objects.get(onsite_id=onsite_id)
+                complains_record.complains = complains
+                complains_record.validated_by = None
+                complains_record.validated_at = None
+
+                complains_id = complains_record.id
+
+                complains_record.save()
+
+                queryset = Evidence.objects.filter(complain_id=complains_id)
+                queryset.delete()
+
+                for file_num in range(0, int(length)):
+                    print('File:', request.FILES.get(f'files{file_num}'))
+                    Evidence.objects.create(
+                        complain_id = complains_id ,
+                        uploaded_by = request.user,
+                        name =  request.FILES.get(f'files{file_num}'), 
+                        evidence = request.FILES.get(f'files{file_num}')
+                        
+                    ) 
+
             onsite_record = TimeIn.objects.get(id=onsite_id)
             onsite_record.justification_count = onsite_record.justification_count + 1
+            onsite_record.acadhead_is_responded = False
+            onsite_record.validation_comment = None
             onsite_record.save()
- 
-            complain_record = Complains.objects.create(
-                onsite_id = onsite_id,
-                complainant_id = user_id,
-                complains = complains
-            )
 
-            complaint_id = complain_record.id
-
-
-            for file_num in range(0, int(length)):
-                print('File:', request.FILES.get(f'files{file_num}'))
-                Evidence.objects.create(
-                    complain_id = complaint_id ,
-                    uploaded_by = request.user,
-                    name =  request.FILES.get(f'files{file_num}'), 
-                    evidence = request.FILES.get(f'files{file_num}')
-                    
-                ) 
             # Provide a success message as a JSON response
             messages.success(request, f'Justification successfully submitted!') 
             return JsonResponse({"status": "success"}, status=200)
