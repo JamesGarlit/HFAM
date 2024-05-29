@@ -26,9 +26,9 @@
                         <tr>
                             <th>Name</th>
                             <th>Room Name</th>
-                            <th>Time In</th>
-                            <th>Time Start</th>
-                            <th>Time Out</th>
+                            <th>Logged Time In</th>
+                            <th>Logged Time Out</th>
+                            <th>Schedule</th>
                             <th>Day</th>
                             <th>Date</th>
                             <th>Month</th>
@@ -37,6 +37,7 @@
                             <th>Remarks</th>
                             <th>Validate</th>
                             <th>Comment</th>
+                            <th>Validated Date</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -45,8 +46,8 @@
                             <td>{{ item.user.get_full_name }}</td>
                             <td>{{ item.room_name }}</td>
                             <td>{{ item.time_in }}</td>
-                            <td>{{ item.time_start }}</td>
                             <td>{{ item.time_out }}</td>
+                            <td>{{ item.time_start }} - {{ item.time_out }}</td>
                             <td>{{ item.day }}</td>
                             <td>{{ item.date }}</td>
                             <td>{{ item.month }}</td>
@@ -84,6 +85,7 @@
                             
                             </td>
                             <td>{{ item.validation_comment }}</td>
+                            <td>{{ item.checker_created_at }}</td>
                         </tr>
                         {% include "admin_end/validate-approved-modal.html" %}
                         {% include "admin_end/validate-rejected-modal.html" %}

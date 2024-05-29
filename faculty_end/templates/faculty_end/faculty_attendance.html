@@ -79,12 +79,6 @@
                                             <a href="#" id="{{ item.record.id }}" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#evidence-modal-{{ forloop.counter }}">
                                                 Submit Evidence
                                             </a>
-
-                                            
-                                            {% endif %}
-                          
-                                        {% else %}
-                                            N/A
                                         {% endif %}
                                     </td>
                                     <td>
@@ -125,7 +119,7 @@
             scrollCollapse: true,
             orderCellsTop: true,
             fixedHeader: true,
-            ordering: true,
+            ordering: false,
             order: [[0, 'asc']], // Change 'desc' to 'asc' for ascending order
             scrollX: true,
             dom: 'Bfrtlip',
