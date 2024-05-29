@@ -62,13 +62,7 @@
                                         <td>{{ item.record.status }}</td>
                                         <td>{{ item.record.validation_comment }}</td>
                                         <td>{{ item.record.checker_created_at }}</td>
-                                        <td>
-                                            {% for complain in complain_record  %}
-                                                {% if complain.onsite_id == item.record.id %}
-                                                    {{ complain.validated_at }}
-                                                {% endif %}
-                                            {% endfor %}
-                                        </td>
+                                        <td>{{ item.record.acadhead_created_at }}</td>
                                         <td>
                                             {% if item.type == 'Online' %}
 
