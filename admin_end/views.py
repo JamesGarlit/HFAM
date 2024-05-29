@@ -6,11 +6,10 @@ from django.contrib import messages
 from .models import CustomUser, FacultyAccount
 from faculty_end.models import Complains, TimeIn, Online, Evidence
 from django.contrib.auth import get_user_model
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import dateutil.parser
 from django.utils import timezone
-from django.http import JsonResponse
-from django.http import HttpResponse
+from django.http import JsonResponse, HttpResponse
 from django.db.models import Count
 import requests
 
@@ -153,12 +152,56 @@ def complaints_f2f(request):
 def onlineqrcode(request):
     return render(request,'admin_end/onlineqrcode.html')
 
+def get_users_data(request, status):
+    # Calculate the date range for the past 7 days
+    today = date.today()
+    seven_days_ago = today - timedelta(days=7)
+
+    if status == "present":
+        # Query present users for the past 7 days
+        present_users = TimeIn.objects.filter(
+            status="Present",
+            created_at__date__range=[seven_days_ago, today]
+        ).values(
+            'user__user_firstname', 'user__user_middlename', 'user__user_lastname', 'user__extension_name'
+        ).annotate(count=Count('user'))
+
+    elif status == "absent":
+        # Query absent users for the past 7 days
+        absent_users = TimeIn.objects.filter(
+            status="Absent",
+            created_at__date__range=[seven_days_ago, today]
+        ).values(
+            'user__user_firstname', 'user__user_middlename', 'user__user_lastname', 'user__extension_name'
+        ).annotate(count=Count('user'))
+
+    # Format the data as required
+    data = [
+        {
+            'name': f"{user['user__user_firstname']} {' ' + user['user__user_middlename'] if user['user__user_middlename'] else ''} {user['user__user_lastname']} {' ' + user['user__extension_name'] if user['user__extension_name'] else ''}",
+            'y': user['count']
+        }
+        for user in (present_users if status == "present" else absent_users)
+    ]
+
+    return JsonResponse(data, safe=False)
+
 def absent_users_chart(request):
-    absent_users_timein = TimeIn.objects.filter(status="Absent", user__user_role="faculty").values(
+    today = date.today()
+
+    absent_users_timein = TimeIn.objects.filter(
+        status="Absent",
+        user__user_role="faculty",
+        created_at__date=today
+    ).values(
         'user__user_firstname', 'user__user_middlename', 'user__user_lastname', 'user__extension_name'
     ).annotate(count=Count('user'))
 
-    absent_users_online = Online.objects.filter(status="Absent", user__user_role="faculty").values(
+    absent_users_online = Online.objects.filter(
+        status="Absent",
+        user__user_role="faculty",
+        created_at__date=today
+    ).values(
         'user__user_firstname', 'user__user_middlename', 'user__user_lastname', 'user__extension_name'
     ).annotate(count=Count('user'))
 
@@ -176,11 +219,21 @@ def absent_users_chart(request):
     return JsonResponse(data, safe=False)
 
 def present_users_chart(request):
-    present_users_timein = TimeIn.objects.filter(status="Present", user__user_role="faculty").values(
+    today = date.today()
+
+    present_users_timein = TimeIn.objects.filter(
+        status="Present",
+        user__user_role="faculty",
+        created_at__date=today
+    ).values(
         'user__user_firstname', 'user__user_middlename', 'user__user_lastname', 'user__extension_name'
     ).annotate(count=Count('user'))
 
-    present_users_online = Online.objects.filter(status="Present", user__user_role="faculty").values(
+    present_users_online = Online.objects.filter(
+        status="Present",
+        user__user_role="faculty",
+        created_at__date=today
+    ).values(
         'user__user_firstname', 'user__user_middlename', 'user__user_lastname', 'user__extension_name'
     ).annotate(count=Count('user'))
 
