@@ -50,6 +50,7 @@ class Online(models.Model):
 
 class Complains(models.Model):
     onsite = models.OneToOneField(TimeIn, related_name='onsite_complains', on_delete=models.CASCADE, null=True, blank=True)
+    online =  models.OneToOneField(Online, related_name='online_complains', on_delete=models.CASCADE, null=True, blank=True)
     complainant = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     complained_date = models.DateTimeField(default=timezone.now)
     complains =  models.TextField(null=True, blank=True)
