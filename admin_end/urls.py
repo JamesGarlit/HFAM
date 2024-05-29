@@ -2,11 +2,12 @@
 from django.urls import path
 
 from faculty_end.views_absent import check_attendance
-from .views import update_status, overall, directordashboard, user_attendance_view, approve_attendance, disapprove_attendance, online_approval, complaints_f2f, supmerged_table, supdashboard, suppresent_users_chart, supabsent_users_chart, onlineqrcode, generate_qr, dashboard, present_users_chart, absent_users_chart, dashboard, merged_table, update_faculty_account, create_faculty_account, admin_settings, schedule_api, user_create, user_list, faculty_members, user_update, user_view, login, login_as, admin_logout, deactivate_user, activate_user
+from .views import get_users_data, update_status, overall, directordashboard, user_attendance_view, approve_attendance, disapprove_attendance, online_approval, complaints_f2f, supmerged_table, supdashboard, suppresent_users_chart, supabsent_users_chart, onlineqrcode, generate_qr, dashboard, present_users_chart, absent_users_chart, dashboard, merged_table, update_faculty_account, create_faculty_account, admin_settings, schedule_api, user_create, user_list, faculty_members, user_update, user_view, login, login_as, admin_logout, deactivate_user, activate_user
 from .views_reports import DTRReport
 from .views_validation import approved, approved_revalidation, rejected, rejected_revalidation
 
 urlpatterns = [
+    path('get_users_data/<str:status>/', get_users_data, name='get_users_data'),
     path('online_approval/', user_attendance_view, name='user_attendance'),
     path('online_approval/approve/<int:online_id>/', approve_attendance, name='approve_attendance'),
     path('online_approval/disapprove/<int:online_id>/', disapprove_attendance, name='disapprove_attendance'),

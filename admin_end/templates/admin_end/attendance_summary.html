@@ -1,0 +1,202 @@
+{% extends "admin_end/directorbase.html" %}
+{% load static %}
+{% block content %}
+<!-- Page header -->
+<div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">
+                    Overview
+                </div>
+                <h2 class="page-title">Attendance Records
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Page body -->
+<div class="page-body">
+    <div class="container-xl">
+        <div class="card">
+            <div class="card-body">
+                <table id="records" class="table table-striped table-bordered" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Room Name</th>
+                            <th>Time In</th>
+                            <th>Time Out</th>
+                            <th>Schedule</th>
+                            <th>Day</th>
+                            <th>Date</th>
+                            <th>Month</th>
+                            <th>Delay</th>
+                            <th>Status</th>
+                            <th>Revalidation Date</th>
+                            <th>Submittion Date</th>
+                            <th>Validation Comment</th>
+                            <th>Source</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in combined_data %}
+                        <tr>
+                            <td>{{ record.user }}</td>
+                            <td>{{ record.room_name }}</td>
+                            <td>{{ record.time_in }}</td>
+                            <td>{{ record.time_out }}</td>
+                            <td>{{ record.time_start }} - {{ record.time_out }}</td>
+                            <td>{{ record.day }}</td>
+                            <td>{{ record.date }}</td>
+                            <td>{{ record.month }}</td>
+                            <td>{{ record.delay }}</td>
+                            <td>{{ record.status }}</td>
+                            <td>{{ record.acadhead_created_at }}</td>
+                            <td>{{ record.created_at }}</td>
+                            <td>{{ record.validation_comment }}</td>
+                            <td>{{ record.source }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="modal modal-blur fade" id="modal-updatestatus" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <div class="modal-status bg-info"></div>
+                            <div class="modal-body text-center py-4">
+                                <h3>Update Status</h3>
+                                <form id="updateStatusForm" method="post" action="{% url 'update_status' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="record_id" id="record_id">
+                                    <input type="hidden" name="source" id="source">
+                                    <div class="form-group">
+                                        <select class="form-select" id="status" name="status">
+                                            <option selected disabled>Select Status</option>
+                                            <option value="Present">Present</option>
+                                            <option value="Absent">Absent</option>
+                                        </select>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <div class="w-100">
+                                    <div class="row">
+                                        <div class="col">
+                                            <button class="btn w-100" data-bs-dismiss="modal">
+                                                Cancel
+                                            </button>
+                                        </div>
+                                        <div class="col">
+                                            <button type="submit" form="updateStatusForm" class="btn btn-primary w-100">
+                                                Confirm
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% block css %}
+<style>
+    thead input {
+        width: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block javascript %}
+{% comment %} specific js {% endcomment %}
+<script>
+    $(document).ready(function () {
+        // Setup - add a text input to each footer cell
+        $('#records thead tr').clone(true).addClass('filters').appendTo('#records thead');
+
+        var table = $('#records').DataTable({
+            scrollCollapse: true,
+            orderCellsTop: true,
+            ordering: false,
+            fixedHeader: true,
+            order: [[0, 'desc']],
+            scrollX: true,
+            dom: 'Bfrtlip',
+            buttons: [
+                {
+                    extend: 'print',
+                    title: 'Attendance Record - ' + new Date().toLocaleDateString(),
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'excel',
+                    title: 'Attendance Record - ' + new Date().toLocaleDateString(),
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdf',
+                    title: 'Attendance Record - ' + new Date().toLocaleDateString(),
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                'colvis'
+            ],
+            initComplete: function () {
+                var api = this.api();
+
+                api.columns().eq(0).each(function (colIdx) {
+                    // Set the header cell to contain the input element
+                    var cell = $('.filters th').eq($(api.column(colIdx).header()).index());
+                    var title = $(cell).text();
+                    $(cell).html('<input type="text" placeholder="' + title + '" />');
+
+                    $('input', $('.filters th').eq($(api.column(colIdx).header()).index()))
+                        .off('keyup change')
+                        .on('keyup change', function (e) {
+                            e.stopPropagation();
+                            $(this).attr('title', $(this).val());
+                            var regexr = '({search})';
+                            var cursorPosition = this.selectionStart;
+
+                            api
+                                .column(colIdx)
+                                .search((this.value != "") ? regexr.replace('{search}', '(((' + this.value + ')))') : "", this.value != "", this.value == "")
+                                .draw();
+                            $(this).focus()[0].setSelectionRange(cursorPosition, cursorPosition);
+                        });
+
+                    if (colIdx === api.columns().eq(0).length - 1) {
+                        // Include filter input for the last column
+                        $(cell).html('<input type="text" placeholder="' + title + '" />');
+                    }
+                });
+            }
+        });
+    });
+
+    $(document).ready(function () {
+        $('#modal-updatestatus').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget) // Button that triggered the modal
+            var id = button.data('id') // Extract info from data-* attributes
+            var status = button.data('status')
+            var source = button.data('source')
+
+            var modal = $(this)
+            modal.find('#record_id').val(id)
+            modal.find('#status').val(status)
+            modal.find('#source').val(source)
+        })
+    });
+</script>
+{% endblock %}
+{% endblock %}

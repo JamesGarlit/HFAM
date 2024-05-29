@@ -36,6 +36,22 @@
         </div>
       </div>
     </div>
+    <div class="row row-cards">
+      <div class="col-lg-4 col-md-12 col-sm-12">
+        <div class="card">
+          <div class="card-body">
+            <div id="presentChart"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-12 col-sm-12">
+        <div class="card">
+          <div class="card-body">
+            <div id="absentChart"></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 {% block css %}
@@ -92,10 +108,55 @@
 }
 
 // Fetch data and render pie chart for present users
-renderPieChart("{% url 'present_users_chart' %}", 'present-chart', 'Present Users');
+renderPieChart("{% url 'present_users_chart' %}", 'present-chart', 'Present Faculties for Today');
 
 // Fetch data and render pie chart for absent users
-renderPieChart("{% url 'absent_users_chart' %}", 'absent-chart', 'Absent Users');
+renderPieChart("{% url 'absent_users_chart' %}", 'absent-chart', 'Absent Faculties for Today');
+
+function fetchPresentUsersData() {
+  fetch('/get_users_data/present/')
+      .then(response => response.json())
+      .then(data => {
+          Highcharts.chart('presentChart', {
+              chart: {
+                  type: 'pie'
+              },
+              title: {
+                  text: 'Present Faculties for the Past 7 Days'
+              },
+              series: [{
+                  name: 'Users',
+                  data: data
+              }]
+          });
+      });
+}
+
+// Function to fetch absent users data and render pie chart
+function fetchAbsentUsersData() {
+  fetch('/get_users_data/absent/')
+      .then(response => response.json())
+      .then(data => {
+          Highcharts.chart('absentChart', {
+              chart: {
+                  type: 'pie'
+              },
+              title: {
+                  text: 'Absent Faculties for the Past 7 Days'
+              },
+              series: [{
+                  name: 'Users',
+                  data: data
+              }]
+          });
+      });
+}
+
+// Fetch data and render charts when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+  fetchPresentUsersData();
+  fetchAbsentUsersData();
+});
 </script>
 {% endblock %}
 {% endblock %}
