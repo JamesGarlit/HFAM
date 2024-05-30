@@ -21,33 +21,43 @@
     <div class="container-xl">
         {% if time_logged and logged_but_absent == False%}
             <div class="card">
-                <div class="container-tight py-4">
-                    <div class="empty">
-                        <div class="empty-header">You have Already Submitted your Time In!</div>
-                        {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
-                        <p class="empty-subtitle text-muted">
-                            Time in could only be process once a day.
-                        </p>
+                <div class="card-header">
+                    <h3 class="card-title">Your schedule today: {{ initial_time_in }} to {{ initial_time_out }}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="container-tight py-4">
+                        <div class="empty">
+                            <div class="empty-header">You have Already Submitted your Time In!</div>
+                            {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
+                            <p class="empty-subtitle text-muted">
+                                Time in could only be process once a day.
+                            </p>
 
+                        </div>
                     </div>
                 </div>
             </div>
 
         {% elif time_logged and logged_but_absent == True and rejected_complaint == False %}
             <div class="card">
-                <div class="container-tight py-4">
-                    <div class="empty">
-                        <div class="empty-header">Time-in already submitted, but marked absent.</div>
-                        {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
-                        <p class="empty-subtitle text-muted">
-                            To resolve this, please file a justification request by clicking the button
+                <div class="card-header">
+                    <h3 class="card-title">Your schedule today: {{ initial_time_in }} to {{ initial_time_out }}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="container-tight py-4">
+                        <div class="empty">
+                            <div class="empty-header">Time-in already submitted, but marked absent.</div>
+                            {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
+                            <p class="empty-subtitle text-muted">
+                                To resolve this, please file a justification request by clicking the button
 
-                            <div class="d-grid text-center w-100">
-                                <a href="#" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#complaint-modal">Request justification</a>
-                            </div>
+                                <div class="d-grid text-center w-100">
+                                    <a href="#" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#complaint-modal">Request justification</a>
+                                </div>
 
-                        </p>
-                
+                            </p>
+                    
+                        </div>
                     </div>
                 </div>
             </div>
@@ -74,7 +84,7 @@
         {% elif time_logged == False %}
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Your starting schedule: {{ initial_time_in }} to {{ initial_time_out }}</h3>
+                    <h3 class="card-title">Your schedule today: {{ initial_time_in }} to {{ initial_time_out }}</h3>
                 </div>
                 <div class="card-body">
                     <div class="row justify-content-center">
@@ -259,14 +269,20 @@
 
         {% elif time_logged == None %}
             <div class="card">
-                <div class="container-tight py-4">
-                    <div class="empty">
-                        <div class="empty-header">You don't have any schedule/s for Today!</div>
-                        {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
-                        {% comment %} <p class="empty-subtitle text-muted">
-                            Time in could only be process once a day.
-                        </p> {% endcomment %}
-                
+                <div class="card-header">
+                    <h3 class="card-title">Your schedule today: {{ initial_time_in }} to {{ initial_time_out }}</h3>
+                </div>
+                <div class="card-body">
+
+                    <div class="container-tight py-4">
+                        <div class="empty">
+                            <div class="empty-header">You don't have any schedule/s for Today!</div>
+                            {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
+                            {% comment %} <p class="empty-subtitle text-muted">
+                                Time in could only be process once a day.
+                            </p> {% endcomment %}
+                    
+                        </div>
                     </div>
                 </div>
             </div>

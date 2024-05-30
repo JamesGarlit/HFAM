@@ -20,33 +20,45 @@
         
         {% if time_logged and logged_but_absent == False%}
             <div class="card">
-                <div class="container-tight py-4">
-                    <div class="empty">
-                        <div class="empty-header">You have Already Submitted your Time In!</div>
-                        {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
-                        <p class="empty-subtitle text-muted">
-                            Time in could only be process once a day.
-                        </p>
+                <div class="card-header">
+                    <h3 class="card-title">Your schedule today: {{ initial_time_in }} to {{ initial_time_out }}</h3>
+                </div>
+                <div class="card-body">
 
+                    <div class="container-tight py-4">
+                        <div class="empty">
+                            <div class="empty-header">You have Already Submitted your Time In!</div>
+                            {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
+                            <p class="empty-subtitle text-muted">
+                                Time in could only be process once a day.
+                            </p>
+
+                        </div>
                     </div>
                 </div>
             </div>
 
         {% elif time_logged and logged_but_absent == True and rejected_complaint == False %}
             <div class="card">
-                <div class="container-tight py-4">
-                    <div class="empty">
-                        <div class="empty-header">Time-in already submitted, but marked absent.</div>
-                        {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
-                        <p class="empty-subtitle text-muted">
-                            To resolve this, please file a justification request by clicking the button
+                <div class="card-header">
+                    <h3 class="card-title">Your schedule today: {{ initial_time_in }} to {{ initial_time_out }}</h3>
+                </div>
+                <div class="card-body">
 
-                            <div class="d-grid text-center w-100">
-                                <a href="#" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#complaint-modal">Request justification</a>
-                            </div>
+                    <div class="container-tight py-4">
+                        <div class="empty">
+                            <div class="empty-header">Time-in already submitted, but marked absent.</div>
+                            {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
+                            <p class="empty-subtitle text-muted">
+                                To resolve this, please file a justification request by clicking the button
 
-                        </p>
-                
+                                <div class="d-grid text-center w-100">
+                                    <a href="#" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#complaint-modal">Request justification</a>
+                                </div>
+
+                            </p>
+                    
+                        </div>
                     </div>
                 </div>
             </div>
@@ -54,14 +66,19 @@
 
         {% elif time_logged and logged_but_absent == True and rejected_complaint == True %}
             <div class="card">
-                <div class="container-tight py-4">
-                    <div class="empty">
-                    <div class="h3">Your justification request has been approved. Your attendance is now marked as present!</div>
-                    {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
-                    <p class="empty-subtitle text-muted">
-                        Your justification was validated by {{ complain_record.validated_by.user_firstname }} {{ complain_record.validated_by.user_lastname }} at {{ complain_record.validated_at|date:'H:s A' }}
-                    </p>
-                
+                <div class="card-header">
+                    <h3 class="card-title">Your schedule today: {{ initial_time_in }} to {{ initial_time_out }}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="container-tight py-4">
+                        <div class="empty">
+                        <div class="h3">Your justification request has been approved. Your attendance is now marked as present!</div>
+                        {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
+                        <p class="empty-subtitle text-muted">
+                            Your justification was validated by {{ complain_record.validated_by.user_firstname }} {{ complain_record.validated_by.user_lastname }} at {{ complain_record.validated_at|date:'H:s A' }}
+                        </p>
+                    
+                        </div>
                     </div>
                 </div>
             </div>
@@ -69,9 +86,9 @@
 
         {% elif time_logged == False %}
             <div class="card">
-                {% comment %} <div class="card-header">
-                    <h3 class="card-title">Please scan the QR code to log your attendance.</h3>
-                </div> {% endcomment %}
+                <div class="card-header">
+                    <h3 class="card-title">Your schedule today: {{ initial_time_in }} to {{ initial_time_out }}</h3>
+                </div>
                 <div class="card-body">
                     <div class="row justify-content-center">
                         <div class="col-lg-5 col-md-5 col-sm-12">
@@ -173,14 +190,20 @@
 
         {% elif time_logged == None %}
             <div class="card">
-                <div class="container-tight py-4">
-                    <div class="empty">
-                        <div class="empty-header">You don't have any schedule/s for Today!</div>
-                        {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
-                        {% comment %} <p class="empty-subtitle text-muted">
-                            Time in could only be process once a day.
-                        </p> {% endcomment %}
-                
+                <div class="card-header">
+                    <h3 class="card-title">Your schedule today: {{ initial_time_in }} to {{ initial_time_out }}</h3>
+                </div>
+                <div class="card-body">
+
+                    <div class="container-tight py-4">
+                        <div class="empty">
+                            <div class="empty-header">You don't have any schedule/s for Today!</div>
+                            {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
+                            {% comment %} <p class="empty-subtitle text-muted">
+                                Time in could only be process once a day.
+                            </p> {% endcomment %}
+                    
+                        </div>
                     </div>
                 </div>
             </div>
