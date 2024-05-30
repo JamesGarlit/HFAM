@@ -63,7 +63,8 @@ def submit_complaint(request):
                 complain_record = Complains.objects.create(
                     onsite_id = onsite_id,
                     complainant_id = user_id,
-                    complains = complains
+                    complains = complains,
+                    type = 'onsite',
                 )
 
                 complaint_id = complain_record.id
@@ -110,6 +111,86 @@ def submit_complaint(request):
             onsite_record.validation_comment = None
             onsite_record.validation_comment = None
             onsite_record.save()
+
+            # Provide a success message as a JSON response
+            messages.success(request, f'Justification successfully submitted!') 
+            return JsonResponse({"status": "success"}, status=200)
+        else:
+            return JsonResponse({'error': 'Please attach a file before submitting the form.'}, status=400)
+        
+
+
+    else:
+        # Return a validation error as a JSON response
+        return JsonResponse({'error': 'Invalid request method.'}, status=400)
+    
+
+def submit_online_complaint(request):
+    # update_form = Create_Bodies_Form(instance=type)
+    if request.method == 'POST':
+        length = request.POST.get('length')
+        complains = request.POST.get('complains')
+        user_id = request.user.id
+        online_id =  request.POST.get('online_id')
+
+        length = int(length)
+        if length != 0:
+
+            complains_exist = Complains.objects.filter(online_id=online_id).exists()
+
+            if complains_exist == False:
+ 
+                complain_record = Complains.objects.create(
+                    online_id = online_id,
+                    complainant_id = user_id,
+                    complains = complains,
+                    type = 'online',
+                )
+
+                complaint_id = complain_record.id
+
+
+                for file_num in range(0, int(length)):
+                    print('File:', request.FILES.get(f'files{file_num}'))
+                    Evidence.objects.create(
+                        complain_id = complaint_id ,
+                        uploaded_by = request.user,
+                        name =  request.FILES.get(f'files{file_num}'), 
+                        evidence = request.FILES.get(f'files{file_num}')
+                        
+                    ) 
+
+            else:
+                complains_record = Complains.objects.get(online_id=online_id)
+                complains_record.complains = complains
+                complains_record.validated_by = None
+                complains_record.validated_at = None
+
+                complains_id = complains_record.id
+
+                complains_record.save()
+
+                queryset = Evidence.objects.filter(complain_id=complains_id)
+                queryset.delete()
+
+                for file_num in range(0, int(length)):
+                    print('File:', request.FILES.get(f'files{file_num}'))
+                    Evidence.objects.create(
+                        complain_id = complains_id ,
+                        uploaded_by = request.user,
+                        name =  request.FILES.get(f'files{file_num}'), 
+                        evidence = request.FILES.get(f'files{file_num}')
+                        
+                    ) 
+
+            online_record = Online.objects.get(id=online_id)
+            online_record.justification_count = online_record.justification_count + 1
+            online_record.acadhead_is_responded = False
+            online_record.submitted_complaint = True
+            online_record.validation_comment = None
+            online_record.validation_comment = None
+            online_record.validation_comment = None
+            online_record.save()
 
             # Provide a success message as a JSON response
             messages.success(request, f'Justification successfully submitted!') 

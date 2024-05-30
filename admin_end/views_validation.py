@@ -136,3 +136,60 @@ def rejected_revalidation(request, onsite_id):
     else:
         # Return a validation error using a JSON response
         return JsonResponse({'error': 'Invalid request. Please try again.'}, status=400)
+    
+
+
+def online_approved_revalidation(request, online_id):
+    if request.method == 'POST':
+        record = Online.objects.get(id=online_id)
+        record.status = "Present"
+        record.is_absent = False
+        record.acadhead_created_at = timezone.now()
+        record.validation_comment = f"Revalidated by {request.user.get_full_name()}"
+        record.acadhead_is_responded = True
+        record.save()
+
+
+        complain = Complains.objects.get(online_id=online_id)
+        complain.is_resolved = True
+        complain.validated_by = request.user
+        complain.validated_at = timezone.now()
+        complain.save()
+        messages.success(request, f'The record is revalidated successfully!') 
+        # return JsonResponse({'success': True}, status=200)
+        return redirect('complaints_online')
+    
+                
+    else:
+        # Return a validation error using a JSON response
+        return JsonResponse({'error': 'Invalid request. Please try again.'}, status=400)
+
+
+
+
+def online_rejected_revalidation(request, online_id):
+    if request.method == 'POST':
+        reason = request.POST.get('reason')
+
+        record = Online.objects.get(id=online_id)
+        record.is_absent = True
+        record.status = "Absent"
+        record.acadhead_created_at = timezone.now()
+        record.validation_comment = f"Acad Head remarks: {reason}"
+        record.acadhead_is_responded = True
+        record.save()
+
+
+        complain = Complains.objects.get(online_id=online_id)
+        complain.is_resolved = False
+        complain.validated_by = request.user
+        complain.validated_at = timezone.now()
+        complain.save()
+        messages.success(request, f'The record is revalidated successfully!') 
+        return redirect('complaints_online')
+        # return JsonResponse({'success': True}, status=200)
+    
+                
+    else:
+        # Return a validation error using a JSON response
+        return JsonResponse({'error': 'Invalid request. Please try again.'}, status=400)
