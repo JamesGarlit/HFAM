@@ -920,7 +920,7 @@ def disapprove_attendance(request, online_id):
 
         online_record.status = 'Absent'
         online_record.is_absent = 'True'
-        online_record.validation_comment = f"Disapproved by {request.user.get_full_name()}: {remarks}"
+        online_record.validation_comment = f"Invalidated by {request.user.get_full_name()}: {remarks}"
         online_record.acadhead_created_at = timezone.now()  # Set the current timestamp
         online_record.save()
         return redirect('user_attendance')
