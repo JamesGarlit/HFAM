@@ -359,6 +359,12 @@ def suppresent_users_chart(request):
 @login_required(login_url='login_as')
 def admin_settings(request):
     return render(request,'admin_end/admin_settings.html')
+
+def directorsettings(request):
+    return render(request,'admin_end/directorsettings.html')
+
+def headsettings(request):
+    return render(request,'admin_end/headsettings.html')
 # ---------------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------
 # USER FUNCTION

@@ -2,7 +2,7 @@
 from django.urls import path
 
 from faculty_end.views_absent import check_attendance
-from .views import attendance_summary, get_users_data, update_status, overall, directordashboard, user_attendance_view, approve_attendance, disapprove_attendance, online_approval, complaints_f2f, supmerged_table, supdashboard, suppresent_users_chart, supabsent_users_chart, onlineqrcode, generate_qr, dashboard, present_users_chart, absent_users_chart, dashboard, merged_table, update_faculty_account, create_faculty_account, admin_settings, schedule_api, user_create, user_list, faculty_members, user_update, user_view, login, login_as, admin_logout, deactivate_user, activate_user
+from .views import directorsettings, headsettings, attendance_summary, get_users_data, update_status, overall, directordashboard, user_attendance_view, approve_attendance, disapprove_attendance, online_approval, complaints_f2f, supmerged_table, supdashboard, suppresent_users_chart, supabsent_users_chart, onlineqrcode, generate_qr, dashboard, present_users_chart, absent_users_chart, dashboard, merged_table, update_faculty_account, create_faculty_account, admin_settings, schedule_api, user_create, user_list, faculty_members, user_update, user_view, login, login_as, admin_logout, deactivate_user, activate_user
 from .views_reports import DTRReport
 from .views_validation import approved, approved_revalidation, rejected, rejected_revalidation
 
@@ -42,6 +42,10 @@ urlpatterns = [
     path('overall/', overall, name='overall'),
     path('attendance_summary/', attendance_summary, name='attendance_summary'),
     path('directordashboard/', directordashboard, name='directordashboard'),
+    path('directorsettings/', directorsettings, name='directorsettings'),
+    path('headsettings/', headsettings, name='headsettings'),
+
+
 
     # These are the paths for all the reports
     path('reports/dtr/', DTRReport, name='report-dtr'),

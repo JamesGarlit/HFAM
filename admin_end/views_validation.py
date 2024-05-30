@@ -55,7 +55,7 @@ def rejected(request):
             record.status = "Absent"
             record.is_approved = False
             record.is_absent = True
-            record.validation_comment = comments
+            record.validation_comment = f"Invalidated by {comments}"
             record.checker_created_at = timezone.now()
             record.save()
 
@@ -88,7 +88,7 @@ def approved_revalidation(request, onsite_id):
         record.status = "Present"
         record.is_absent = False
         record.acadhead_created_at = timezone.now()
-        record.validation_comment = f"Revalidated by {request.user.get_full_name()}"
+        record.validation_comment = f"Approved by Demelyn Monzon {request.user.get_full_name()}"
         record.acadhead_is_responded = True
         record.save()
 
@@ -118,7 +118,7 @@ def rejected_revalidation(request, onsite_id):
         record.is_absent = True
         record.status = "Absent"
         record.acadhead_created_at = timezone.now()
-        record.validation_comment = f"Acad Head remarks: {reason}"
+        record.validation_comment = f"Invalidated by Demelyn Monzon : {reason}"
         record.acadhead_is_responded = True
         record.save()
 

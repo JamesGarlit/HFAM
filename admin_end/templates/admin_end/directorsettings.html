@@ -1,0 +1,160 @@
+{% extends 'admin_end/directorbase.html' %}
+{% load static %}
+{% block content %}
+
+<!-- Page header -->
+<div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <h2 class="page-title">
+                    Account Settings
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Page body -->
+<div class="page-body">
+    <div class="container-xl">
+        <div class="card">
+            <div class="row g-0">
+                <div class="col-12">
+                    <div class="card-body">
+                        <h2 class="mb-4">My Account</h2>
+                        <h3 class="card-title">Profile Details</h3>
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                {% if request.user.user_picture %}
+                                    <span class="avatar avatar-xl" style="background-image: url({{ request.user.user_picture.url }})"></span>
+                                {% else %}
+                                    <!-- Provide a default image or placeholder if user_picture is not available -->
+                                    <span class="avatar avatar-xl" style="background-image: url({% static '/dist/img/default_img.png' %})"></span>
+                                {% endif %}
+                            </div>
+                            {% comment %} <div class="col-auto"><a href="#" class="btn">
+                                    Change avatar
+                                </a></div>
+                            <div class="col-auto"><a href="#" class="btn btn-ghost-danger">
+                                    Delete avatar
+                                </a></div> {% endcomment %}
+                        </div>
+                        <div class="row g-3 mt-4">
+                            <div class="col-md">
+                                <div class="form-label">Full Name</div>
+                                <input type="text" class="form-control" value="{{ request.user.get_full_name }}" disabled>
+                            </div>
+                            <div class="col-md">
+                                <div class="form-label">Employment Status</div>
+                                <input type="text" class="form-control" value="{{ request.user.employment_status }}" disabled>
+                            </div>
+                            <div class="col-md">
+                                <div class="form-label">Role</div>
+                                <input type="text" class="form-control" value="{{ request.user.user_role }}" id="userRoleInput" disabled>
+                            </div>
+                        </div>
+                        <h3 class="card-title mt-4">Email</h3>
+                        <p class="card-subtitle">If you want to update your email address, please contact the administrator.
+                        </p>
+                        <div>
+                            <div class="row g-2">
+                                <div class="col-auto">
+                                    <input type="text" class="form-control w-auto" value="{{ request.user.email }}" disabled>
+                                </div>
+                            </div>
+                        </div>
+                        <h3 class="card-title mt-4">Password</h3>
+                        <p class="card-subtitle">If you forgot your password, please contact the administrator.</p>
+                        <div>
+                            <form class="needs-validation" nonvalidate method="post" action="">
+                                {% csrf_token %}
+                                <div class="row mt-1">
+                                    <div class="col-lg-5 col-md-5 col-sm-12">
+                                        <div class="form-label">Current Password</div>
+                                        <input name="old_password" type="password" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="row mt-1">
+                                    <div class="col-lg-5 col-md-5 col-sm-12">
+                                        <div class="form-label">New Password</div>
+                                        <input name="password" type="password" id="password" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="row mt-1">
+                                    <div class="col-lg-5 col-md-5 col-sm-12">
+                                        <div class="form-label">Confirm New Password</div>
+                                        <input name="repassword" type="password" data-v-equal="#password" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="row mt-1">
+                                    <div class="col-lg-5 col-md-5 col-sm-12">
+                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                    </div>
+                                </div>
+                            </form>                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% block css %}
+<!-- Include external CSS stylesheets -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<!-- Additional CSS for the specific page -->
+<style>
+    /* Your specific page CSS styles */
+</style>
+{% endblock %}
+
+{% block javascript %}
+<!-- Include external JavaScript libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emretulek/jbvalidator" defer></script>
+<!-- Additional JavaScript for the specific page -->
+<script>
+    $(function () {
+
+        let validator = $('form.needs-validation').jbvalidator({
+            errorMessage: true,
+            successClass: true,
+            language: "https://emretulek.github.io/jbvalidator/dist/lang/en.json"
+        });
+
+        validator.validator.custom = function(el, event) {
+            if ($(el).is('[name=password]')) {
+              var password = $(el).val();
+          
+              // Check if password length is less than 5
+              if (password.length < 8) {
+                return 'Your password is too weak. It should be at least 8 characters long.';
+              }
+          
+              // Check if the password contains at least one letter and one character
+              var letterRegex = /[a-zA-Z]/;
+              var characterRegex = /[!@#$%^&*(),.?":{}|<>]/;
+          
+              if (!letterRegex.test(password) || !characterRegex.test(password)) {
+                return 'Your password should contain at least one letter and one special character.';
+              }
+            }
+          };  
+    })
+    {% comment %} Alert Message Scripts {% endcomment %}
+    $(document).ready(function () {
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    toastr.success('{{ message }}');
+                {% elif message.tags == 'error' %}
+                    toastr.error('{{ message }}');
+                {% else %}
+                    toastr('{{ message }}');
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+      });
+</script>
+{% endblock %}
+{% endblock %}
