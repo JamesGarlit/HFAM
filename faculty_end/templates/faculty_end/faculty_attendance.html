@@ -98,7 +98,7 @@
                                                     <a href="#"  type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#complaint-modal-{{ item.record.id }}">Request justification</a>
 
                                                 
-                                                {% elif item.record.submitted_complaint and item.record.status == 'Absent' and item.record.acadhead_is_responded == False %}
+                                                {% elif item.record.submitted_complaint and item.record.status == 'Pending' and item.record.acadhead_is_responded == False %}
                                                     <span class="badge badge-outline text-blue badge-blink">Awaiting Response</span>
 
                                                 {% elif item.record.submitted_complaint and item.record.status == 'Absent' and item.record.acadhead_is_responded == True %}
@@ -116,7 +116,7 @@
                                                 {% elif item.record.submitted_complaint == False and item.record.status == 'Absent' %}
                                                     <a href="#"  type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#online-complaint-modal-{{ item.record.id }}">Request justification</a>
 
-                                                {% elif item.record.submitted_complaint and item.record.status == 'Absent' and item.record.acadhead_is_responded == False %}
+                                                {% elif item.record.submitted_complaint and item.record.status == 'Pending' and item.record.acadhead_is_responded == False %}
                                                     <span class="badge badge-outline text-blue badge-blink">Awaiting Response</span>
 
                                                 {% elif item.record.submitted_complaint and item.record.status == 'Absent' and item.record.acadhead_is_responded == True %}

@@ -106,6 +106,7 @@ def submit_complaint(request):
             onsite_record = TimeIn.objects.get(id=onsite_id)
             onsite_record.justification_count = onsite_record.justification_count + 1
             onsite_record.acadhead_is_responded = False
+            onsite_record.status = 'Pending'
             onsite_record.submitted_complaint = True
             onsite_record.validation_comment = None
             onsite_record.validation_comment = None
@@ -187,6 +188,7 @@ def submit_online_complaint(request):
             online_record.justification_count = online_record.justification_count + 1
             online_record.acadhead_is_responded = False
             online_record.submitted_complaint = True
+            online_record.status = 'Pending'
             online_record.validation_comment = None
             online_record.validation_comment = None
             online_record.validation_comment = None

@@ -231,7 +231,7 @@ def log_time_in(request):
                         delay=delay,
                         coursesection=coursesection,
                         remarks=remarks,
-                        status="Present",
+                        status="Pending",
                         is_absent = False,
                     )
 
@@ -330,7 +330,7 @@ def log_time_in(request):
 
                 print('HAHHAHHAHAHA :', date, room_name)    
                 is_TimeLogged = TimeIn.objects.filter(user=request.user, date=date, room_name = room_name).exists()
-                is_OnlineLogged = Online.objects.filter(user=request.user, date=date).exists()
+                is_OnlineLogged = Online.objects.filter(user=request.user,room_name = room_name, date=date).exists()
 
                 if is_TimeLogged:
                     record = TimeIn.objects.get(user=request.user, date=date, room_name = room_name)
@@ -351,7 +351,7 @@ def log_time_in(request):
                                 rejected_complaint = True
 
                 elif is_OnlineLogged:
-                    record = Online.objects.get(user=request.user, date=date)
+                    record = Online.objects.get(user=request.user, date=date, room_name = room_name)
                     complain = Complains.objects.filter(online_id=record.id).exists()
 
                     time_logged = True
@@ -368,6 +368,10 @@ def log_time_in(request):
                             if complain_record.is_resolved == False:
                                 rejected_complaint = True
 
+                    else:
+                        complain = Complains.objects.filter(online_id=record.id).exists()
+                        if complain:
+                            complain_record = Complains.objects.get(online_id=record.id)
 
                 else:
                     time_logged = False
@@ -375,7 +379,7 @@ def log_time_in(request):
             else:
                 time_logged = None
                 # If the user already timed in, just make the time_logged true for front end purposes
-
+            print(time_logged, record, complain_record) 
             return render(request, 'faculty_end/log_time_in.html', {
                 'schedules': processed_schedules,
                 'current_day': current_day,
@@ -560,14 +564,12 @@ def online_time_in(request):
             else:
                 initial_time_in = ''
 
-
-
             # If the api has contents, then it will run the below code.
             rejected_complaint = False
             logged_but_absent = False
             TimeIn_record_id = 0
             complain_record = None
-            online_record = None
+            record = None
 
             if schedules_from_api:
                 philippine_timezone = timezone.get_current_timezone()  # Get the current time zone setting (from settings.py)
@@ -576,10 +578,29 @@ def online_time_in(request):
                 date = local_time.date()  # Extract the date
                 # Check if the user already timed in
 
-                print('HAHHAHHAHAHA :', date, room_name)    
-                is_TimeLogged = Online.objects.filter(user=request.user, date=date, room_name = room_name).exists()
-                online_record = Online.objects.get(user=request.user, date=date, room_name = room_name)
+                schedules = processed_schedules[0]
+                is_TimeLogged = TimeIn.objects.filter(user=request.user, date=date, room_name = room_name).exists()
+                is_OnlineLogged = Online.objects.filter(user=request.user, date=date, room_name = room_name).exists()
+
                 if is_TimeLogged:
+                    record = TimeIn.objects.get(user=request.user, date=date, room_name = room_name)
+                    complain = Complains.objects.filter(onsite_id=record.id).exists()
+
+                    time_logged = True
+
+                    # Check if the time in record is considered as absent or have an absent status
+                    if record.is_absent:
+                        logged_but_absent = True
+                        TimeIn_record_id = record.id
+                        complain = Complains.objects.filter(onsite_id=record.id).exists()
+
+                        if complain:
+                            complain_record = Complains.objects.get(onsite_id=record.id)
+
+                            if complain_record.is_resolved == False:
+                                rejected_complaint = True
+
+                elif is_OnlineLogged:
                     record = Online.objects.get(user=request.user, date=date, room_name = room_name)
                     complain = Complains.objects.filter(online_id=record.id).exists()
 
@@ -590,12 +611,18 @@ def online_time_in(request):
                         logged_but_absent = True
                         TimeIn_record_id = record.id
                         complain = Complains.objects.filter(online_id=record.id).exists()
+                        print(complain)
 
                         if complain:
                             complain_record = Complains.objects.get(online_id=record.id)
 
                             if complain_record.is_resolved == False:
                                 rejected_complaint = True
+
+                    else:
+                        complain = Complains.objects.filter(online_id=record.id).exists()
+                        if complain:
+                            complain_record = Complains.objects.get(online_id=record.id)
 
 
                 else:
@@ -604,10 +631,10 @@ def online_time_in(request):
             else:
                 time_logged = None
                 # If the user already timed in, just make the time_logged true for front end purposes
-
-
+            print(time_logged, record, complain_record) 
+           
             return render(request, 'faculty_end/online_time_in.html', {
-                'schedules': processed_schedules,
+                'schedule': schedules,
                 'current_day': current_day,
                 'current_time': current_time,
                 'current_date': current_date,
@@ -620,7 +647,7 @@ def online_time_in(request):
                 'TimeIn_record_id': TimeIn_record_id,
                 'rejected_complaint': rejected_complaint,
                 'complain_record': complain_record,
-                'online_record': online_record
+                'record': record
             })
         else:
             return render(request, 'faculty_end/online_time_in.html', {'error_message': 'Failed to fetch data from the API', 'has_schedule': False})
