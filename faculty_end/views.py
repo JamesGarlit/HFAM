@@ -508,6 +508,9 @@ def online_time_in(request):
                 start_time = datetime.strptime(start_time_str, '%H:%M:%S').strftime('%I:%M %p')
                 end_time = datetime.strptime(end_time_str, '%H:%M:%S').strftime('%I:%M %p')
 
+                # Get RoomName (this line is already correct)
+                room_name = schedule_info.get('roomname', '')
+
                 schedule_data = {
                     'Id': schedule_info.get('id', ''),
                     'FacultyId': schedule_info.get('facultyid', ''),
@@ -536,6 +539,52 @@ def online_time_in(request):
             else:
                 initial_time_in = ''
 
+
+
+            # If the api has contents, then it will run the below code.
+            rejected_complaint = False
+            logged_but_absent = False
+            TimeIn_record_id = 0
+            complain_record = None
+            online_record = None
+
+            if schedules_from_api:
+                philippine_timezone = timezone.get_current_timezone()  # Get the current time zone setting (from settings.py)
+                now = timezone.now()  # Get current time in UTC
+                local_time = now.astimezone(philippine_timezone) # Convert to Philippine time
+                date = local_time.date()  # Extract the date
+                # Check if the user already timed in
+
+                print('HAHHAHHAHAHA :', date, room_name)    
+                is_TimeLogged = Online.objects.filter(user=request.user, date=date, room_name = room_name).exists()
+                online_record = Online.objects.get(user=request.user, date=date, room_name = room_name)
+                if is_TimeLogged:
+                    record = Online.objects.get(user=request.user, date=date, room_name = room_name)
+                    complain = Complains.objects.filter(online_id=record.id).exists()
+
+                    time_logged = True
+
+                    # Check if the time in record is considered as absent or have an absent status
+                    if record.is_absent:
+                        logged_but_absent = True
+                        TimeIn_record_id = record.id
+                        complain = Complains.objects.filter(online_id=record.id).exists()
+
+                        if complain:
+                            complain_record = Complains.objects.get(online_id=record.id)
+
+                            if complain_record.is_resolved == False:
+                                rejected_complaint = True
+
+
+                else:
+                    time_logged = False
+
+            else:
+                time_logged = None
+                # If the user already timed in, just make the time_logged true for front end purposes
+
+
             return render(request, 'faculty_end/online_time_in.html', {
                 'schedules': processed_schedules,
                 'current_day': current_day,
@@ -545,6 +594,12 @@ def online_time_in(request):
                 'initial_time_out': initial_time_out, 
                  'has_schedule': True, # Pass the initial time_out value to the template
                 'initial_time_in': initial_time_in,  # Pass the initial time_out value to the template
+                'time_logged': time_logged, 
+                'logged_but_absent': logged_but_absent,
+                'TimeIn_record_id': TimeIn_record_id,
+                'rejected_complaint': rejected_complaint,
+                'complain_record': complain_record,
+                'online_record': online_record
             })
         else:
             return render(request, 'faculty_end/online_time_in.html', {'error_message': 'Failed to fetch data from the API', 'has_schedule': False})

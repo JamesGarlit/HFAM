@@ -88,26 +88,52 @@
                                         </td>
                                         <td>
 
-                                            {% if item.record.status == 'Present' %}
-                                            -
+                                            {% if item.type == 'TimeIn' %}
 
-                                               
-                                            {% elif item.record.submitted_complaint == False and item.record.status == 'Absent' %}
+                                                {% if item.record.status == 'Present' %}
+                                                -
+
+                                                
+                                                {% elif item.record.submitted_complaint == False and item.record.status == 'Absent' %}
+                                                    <a href="#"  type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#complaint-modal-{{ item.record.id }}">Request justification</a>
+
+                                                
+                                                {% elif item.record.submitted_complaint and item.record.status == 'Absent' and item.record.acadhead_is_responded == False %}
+                                                    <span class="badge badge-outline text-blue badge-blink">Awaiting Response</span>
+
+                                                {% elif item.record.submitted_complaint and item.record.status == 'Absent' and item.record.acadhead_is_responded == True %}
                                                 <a href="#"  type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#complaint-modal-{{ item.record.id }}">Request justification</a>
 
+
+                                                {% endif %}
+
+
+                                            {% elif  item.type == 'Online' %}
+
+                                                {% if item.record.status == 'Present' %}
+                                                -
+
+                                                {% elif item.record.submitted_complaint == False and item.record.status == 'Absent' %}
+                                                    <a href="#"  type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#online-complaint-modal-{{ item.record.id }}">Request justification</a>
+
+                                                {% elif item.record.submitted_complaint and item.record.status == 'Absent' and item.record.acadhead_is_responded == False %}
+                                                    <span class="badge badge-outline text-blue badge-blink">Awaiting Response</span>
+
+                                                {% elif item.record.submitted_complaint and item.record.status == 'Absent' and item.record.acadhead_is_responded == True %}
+                                                <a href="#"  type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#online-complaint-modal-{{ item.record.id }}">Request justification</a>
+
+
+                                                {% endif %}
                                             
-                                            {% elif item.record.submitted_complaint and item.record.status == 'Absent' and item.record.acadhead_is_responded == False %}
-                                                <span class="badge badge-outline text-blue badge-blink">Awaiting Response</span>
-
-                                            {% elif item.record.submitted_complaint and item.record.status == 'Absent' and item.record.acadhead_is_responded == True %}
-                                            <a href="#"  type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#complaint-modal-{{ item.record.id }}">Request justification</a>
-
-
+                                            
                                             {% endif %}
+
+                                           
                                         </td>
                                     </tr>
                                     {% include "faculty_end/evidence-modal.html" %}
                                     {% include "faculty_end/complaint-modal.html" %}
+                                    {% include "faculty_end/online-complaint-modal.html" %}
                                     {% include "faculty_end/remarks-modal.html" %}
 
                                 {% endfor %}

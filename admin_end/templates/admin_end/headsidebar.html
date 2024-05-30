@@ -41,13 +41,21 @@
                 <li class="nav-item {% if request.path == '/complaints_f2f/' %}active{% endif %}">
                     <a class="nav-link" href="{% url 'complaints_f2f' %}">
                         <span class="material-symbols-outlined m-1">monitoring</span>
-                        <span class="nav-link-title">FacetoFace Complaints</span>
+                        <span class="nav-link-title">Face-to-Face Complaints</span>
                     </a>
                 </li>
+
+                <li class="nav-item {% if request.path == '/complaints_online/' %}active{% endif %}">
+                    <a class="nav-link" href="{% url 'complaints_online' %}">
+                        <span class="material-symbols-outlined m-1">monitoring</span>
+                        <span class="nav-link-title">Online Complaints</span>
+                    </a>
+                </li>
+
                 <li class="nav-item {% if request.path == '/online_approval/' %}active{% endif %}">
                     <a class="nav-link" href="{% url 'online_approval' %}">
                         <span class="material-symbols-outlined m-1">event_available</span>
-                        <span class="nav-link-title">Online Approval</span>
+                        <span class="nav-link-title">Online Attendance Approval</span>
                     </a>
                 </li>
                 <li class="nav-item {% if request.path == '/overall/' %}active{% endif %}">

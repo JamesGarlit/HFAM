@@ -8,7 +8,7 @@
         <div class="row g-2 align-items-center">
             <div class="col">
                 <h2 class="page-title">
-                    Time In
+                    Online
                 </h2>
             </div>
         </div>
@@ -17,107 +17,269 @@
 <!-- Page body -->
 <div class="page-body">
     <div class="container-xl">
-        <div class="card">
-            {% comment %} <div class="card-header">
-                <h3 class="card-title">Please scan the QR code to log your attendance.</h3>
-            </div> {% endcomment %}
-            <div class="card-body">
-                <div class="row justify-content-center">
-                    <div class="col-lg-5 col-md-5 col-sm-12">
-                        {% if error_message %}
-                        <p>{{ error_message }}</p>
-                        {% endif %}
-                        
-                        <form id="time-in-form" method="post" action="" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            {% if schedules %}
-                            {% for schedule in schedules %}
-                            <div class="row">
-                                <div class="col">
-                                    <div class="form-floating mb-1">
-                                        <input name="time_in" type="time" class="form-control" id="time_in" value="{{ current_time }}" readonly required>
-                                        <label for="time_in">Log Time In</label>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="form-floating mb-1">
-                                        <input name="time_out" type="time" class="form-control" id="time_out" value="{{ initial_time_out }}" readonly required>
-                                        <label for="time_out">Log Time Out</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col">
-                                    <div class="form-floating mb-1">
-                                        <input name="room_name" type="text" class="form-control" id="room_name" value="{{ schedule.RoomName }}" readonly required>
-                                        <label for="room_name">Room Name</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col">
-                                    <div class="form-floating mb-1">
-                                        <input name="time_in" type="time" class="form-control" id="time_in" value="{{ initial_time_in }}" readonly required>
-                                        <label for="time_in">Time In</label>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="form-floating mb-1">
-                                        <input name="time_out" type="time" class="form-control" id="time_out" value="{{ initial_time_out }}" readonly required>
-                                        <label for="time_out">Time Out</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col">
-                                    <div class="form-floating mb-1">
-                                        <input name="date" type="text" class="form-control" id="date" value="{{ current_date }}" readonly required>
-                                        <label for="date">Date</label>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="form-floating mb-1">
-                                        <input name="day" type="text" class="form-control" id="day" value="{{ current_day }}" readonly required>
-                                        <label for="day">Day</label>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="form-floating mb-1">
-                                        <input name="month" type="text" class="form-control" id="month" value="{{ current_month }}" readonly required>
-                                        <label for="month">Month</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col">
+        
+        {% if time_logged and online_record.is_absent == False  and online_record.acadhead_created_at == None and complain_record == None %}
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Your schedule today: {{ initial_time_in }} to {{ initial_time_out }}</h3>
+                </div>
+                <div class="card-body">
+
+                    <div class="container-tight py-4">
+                        <div class="empty">
+                            <div class="empty-title">Waiting for the attendance validation...</div>
+                            {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
+                            <p class="empty-subtitle text-muted">
+                                Time in could only be process once a day.
+                            </p>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
 
 
-                                    <div class="row">
-                                        <input type="file" name="evidence" id="evidence" multiple>
-                                    </div>
-                                
+        {% elif time_logged and online_record.is_absent == False  and online_record.acadhead_created_at and complain_record == None %}
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Your schedule today: {{ initial_time_in }} to {{ initial_time_out }}</h3>
+                </div>
+                <div class="card-body">
 
-                                    {% comment %} <div class="form-floating mb-1">
-                                        <input name="evidence" type="file" class="form-control" id="evidence">
-                                        <label for="evidence">Upload Evidence</label>
-                                    </div> {% endcomment %}
+                    <div class="container-tight py-4">
+                        <div class="empty">
+                            <div class="empty-title">Your attendance has been validated. Your attendance is now marked as present.</div>
+                            {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
+                            <p class="empty-subtitle text-muted">
+                                Time in could only be process once a day.
+                            </p>
 
-                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        {% elif time_logged and online_record.is_absent == True and online_record.acadhead_created_at and complain_record == None and online_record.justification_count == 0 %}
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Your schedule today: {{ initial_time_in }} to {{ initial_time_out }}</h3>
+                </div>
+                <div class="card-body">
+
+                    <div class="container-tight py-4">
+                        <div class="empty">
+                            <div class="empty-title">Attendance Discrepancy</div>
+                            <p class="empty-subtitle text-muted">
+                                Your time-in was recorded, but your attendance is currently marked as absent.
+                            </p>
+                            <div class="d-grid text-center w-100">
+                                <a href="/faculty_attendance/" class="btn btn-primary">
+                                    Go to Attendance to Request Justification
+                                </a>
                             </div>
-                            <div class="row justify-content-center">
-                                <div class="col-lg-12 col-md-12 col-sm-12">
-                                    <div class="d-grid text-center w-100">
-                                        <button id="submit-button" type="submit" class="btn btn-primary">Submit</button>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                            {% endif %}
-                        </form>
+                            
+                    
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+    
+        {% elif time_logged and online_record.is_absent == True and online_record.acadhead_created_at and complain_record and online_record.submitted_complaint and online_record.justification_count > 2 %}
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Your schedule today: {{ initial_time_in }} to {{ initial_time_out }}</h3>
+                </div>
+                <div class="card-body">
+
+                    <div class="container-tight py-4">
+
+                        <div class="empty">
+                            <p class="empty-title">Justification Attempts Exceeded</p>
+                            <p class="empty-subtitle text-muted">
+                                You have reached the maximum number of justification attempts. Please visit the academic head's office for further assistance. <br>
+                            </p>
+
+                            <p class="empty-subtitle text-muted">
+                               <i> Your last request has been validated by {{ complain_record.validated_by.user_firstname }} {{ complain_record.validated_by.user_lastname }} at {{ complain_record.validated_at|date:'H:s A' }} </i>
+                            </p>
+                        </div>
+
+
+
+
                        
                     </div>
                 </div>
             </div>
+
+
+        {% elif time_logged and online_record.is_absent == False and online_record.acadhead_created_at and complain_record and online_record.submitted_complaint %}
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Your schedule today: {{ initial_time_in }} to {{ initial_time_out }}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="container-tight py-4">
+                        <div class="empty">
+                        <div class="empty-title">Your justification request has been validated. Your attendance is now marked as present!</div>
+                        {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
+                        <p class="empty-subtitle text-muted">
+                            Your justification was validated by {{ complain_record.validated_by.user_firstname }} {{ complain_record.validated_by.user_lastname }} at {{ complain_record.validated_at|date:'H:s A' }}
+                        </p>
+                    
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        {% elif time_logged and online_record.is_absent == True and online_record.acadhead_created_at and complain_record and online_record.submitted_complaint and online_record.justification_count < 3 %}
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Your schedule today: {{ initial_time_in }} to {{ initial_time_out }}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="container-tight py-4">
+                        <div class="empty">
+                        <div class="empty-title">We've received your justification request.  Your attendance is still marked as absent, but if you believe there's been a mistake, please feel free to submit another justification request.</div>
+                        {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
+                        <p class="empty-subtitle text-muted">
+                            Your justification was validated by {{ complain_record.validated_by.user_firstname }} {{ complain_record.validated_by.user_lastname }} at {{ complain_record.validated_at|date:'H:s A' }}
+                        </p>
+                    
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        {% elif time_logged == False %}
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Your schedule today: {{ initial_time_in }} to {{ initial_time_out }}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-5 col-md-5 col-sm-12">
+                            {% if error_message %}
+                            <p>{{ error_message }}</p>
+                            {% endif %}
+                            
+                            <form id="time-in-form" method="post" action="" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                {% if schedules %}
+                                    {% for schedule in schedules %}
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="form-floating mb-1">
+                                                    <input name="time_in" type="time" class="form-control" id="time_in" value="{{ current_time }}" readonly required>
+                                                    <label for="time_in">Log Time In</label>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="form-floating mb-1">
+                                                    <input name="time_out" type="time" class="form-control" id="time_out" value="{{ initial_time_out }}" readonly required>
+                                                    <label for="time_out">Log Time Out</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="form-floating mb-1">
+                                                    <input name="room_name" type="text" class="form-control" id="room_name" value="{{ schedule.RoomName }}" readonly required>
+                                                    <label for="room_name">Room Name</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="form-floating mb-1">
+                                                    <input name="time_in" type="time" class="form-control" id="time_in" value="{{ initial_time_in }}" readonly required>
+                                                    <label for="time_in">Time In</label>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="form-floating mb-1">
+                                                    <input name="time_out" type="time" class="form-control" id="time_out" value="{{ initial_time_out }}" readonly required>
+                                                    <label for="time_out">Time Out</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="form-floating mb-1">
+                                                    <input name="date" type="text" class="form-control" id="date" value="{{ current_date }}" readonly required>
+                                                    <label for="date">Date</label>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="form-floating mb-1">
+                                                    <input name="day" type="text" class="form-control" id="day" value="{{ current_day }}" readonly required>
+                                                    <label for="day">Day</label>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="form-floating mb-1">
+                                                    <input name="month" type="text" class="form-control" id="month" value="{{ current_month }}" readonly required>
+                                                    <label for="month">Month</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col">
+
+
+                                                <div class="row">
+                                                    <input type="file" name="evidence" id="evidence" multiple>
+                                                </div>
+                                            
+
+                                                {% comment %} <div class="form-floating mb-1">
+                                                    <input name="evidence" type="file" class="form-control" id="evidence">
+                                                    <label for="evidence">Upload Evidence</label>
+                                                </div> {% endcomment %}
+
+                                            </div>
+                                        </div>
+                                        <div class="row justify-content-center">
+                                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                                <div class="d-grid text-center w-100">
+                                                    <button id="submit-button" type="submit" class="btn btn-primary">Submit</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            </form>
+                        
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        {% elif time_logged == None %}
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Your schedule today: {{ initial_time_in }} to {{ initial_time_out }}</h3>
+                </div>
+                <div class="card-body">
+
+                    <div class="container-tight py-4">
+                        <div class="empty">
+                            <div class="empty-title">You don't have any schedule/s for Today!</div>
+                            {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
+                            {% comment %} <p class="empty-subtitle text-muted">
+                                Time in could only be process once a day.
+                            </p> {% endcomment %}
+                    
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        {% endif %}
+
     </div>
 </div>
 {% block css %}

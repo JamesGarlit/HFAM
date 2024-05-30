@@ -2,9 +2,9 @@
 from django.urls import path
 
 from faculty_end.views_absent import check_attendance
-from .views import directorsettings, headsettings, attendance_summary, get_users_data, update_status, overall, directordashboard, user_attendance_view, approve_attendance, disapprove_attendance, online_approval, complaints_f2f, supmerged_table, supdashboard, suppresent_users_chart, supabsent_users_chart, onlineqrcode, generate_qr, dashboard, present_users_chart, absent_users_chart, dashboard, merged_table, update_faculty_account, create_faculty_account, admin_settings, schedule_api, user_create, user_list, faculty_members, user_update, user_view, login, login_as, admin_logout, deactivate_user, activate_user
+from .views import directorsettings, complaints_online, headsettings, attendance_summary, get_users_data, update_status, overall, directordashboard, user_attendance_view, approve_attendance, disapprove_attendance, online_approval, complaints_f2f, supmerged_table, supdashboard, suppresent_users_chart, supabsent_users_chart, onlineqrcode, generate_qr, dashboard, present_users_chart, absent_users_chart, dashboard, merged_table, update_faculty_account, create_faculty_account, admin_settings, schedule_api, user_create, user_list, faculty_members, user_update, user_view, login, login_as, admin_logout, deactivate_user, activate_user
 from .views_reports import DTRReport
-from .views_validation import approved, approved_revalidation, rejected, rejected_revalidation
+from .views_validation import approved, approved_revalidation, online_approved_revalidation, online_rejected_revalidation, rejected, rejected_revalidation
 
 urlpatterns = [
     path('get_users_data/<str:status>/', get_users_data, name='get_users_data'),
@@ -13,7 +13,12 @@ urlpatterns = [
     path('online_approval/disapprove/<int:online_id>/', disapprove_attendance, name='disapprove_attendance'),
     path('user_create/', user_create, name='user_create'),
     path('generate_qr/', generate_qr, name='generate_qr'),
+
+
     path('complaints_f2f/', complaints_f2f, name='complaints_f2f'),
+    path('complaints_online/', complaints_online, name='complaints_online'),
+
+
     path('onlineqrcode/', onlineqrcode, name='onlineqrcode'),
     path('user_list/', user_list, name='user_list'),
     path('faculty_members/', faculty_members, name='faculty_members'),
@@ -58,4 +63,7 @@ urlpatterns = [
 
     path('revalidate/approved/<int:onsite_id>/', approved_revalidation, name='revalidate-approved'),
     path('revalidate/rejected/<int:onsite_id>/', rejected_revalidation, name='revalidate-rejected'),
+
+    path('online/revalidate/approved/<int:online_id>/', online_approved_revalidation, name='online-revalidate-approved'),
+    path('online/revalidate/rejected/<int:online_id>/', online_rejected_revalidation, name='online-revalidate-rejected'),
 ]

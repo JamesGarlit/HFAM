@@ -200,7 +200,7 @@ def update_status(request):
 
 def complaints_f2f(request):
 
-    complains = Complains.objects.select_related('complainant', 'validated_by').order_by('-complained_date')
+    complains = Complains.objects.select_related('complainant', 'validated_by').filter(type='onsite').order_by('-complained_date')
     evidences = Evidence.objects.select_related('uploaded_by').all()
 
     context = {
@@ -209,6 +209,20 @@ def complaints_f2f(request):
     }
 
     return render(request, 'admin_end/complaints_f2f.html', context)
+
+def complaints_online(request):
+
+    complains = Complains.objects.select_related('complainant', 'validated_by').filter(type='online').order_by('-complained_date')
+    evidences = Evidence.objects.select_related('uploaded_by').all()
+
+    context = {
+        'complains': complains,
+        'evidences': evidences
+    }
+
+    return render(request, 'admin_end/complaints_online.html', context)
+
+
 
 def onlineqrcode(request):
     return render(request,'admin_end/onlineqrcode.html')
@@ -905,6 +919,7 @@ def disapprove_attendance(request, online_id):
         remarks = request.POST.get('remarks', '') 
 
         online_record.status = 'Absent'
+        online_record.is_absent = 'True'
         online_record.validation_comment = f"Disapproved by {request.user.get_full_name()}: {remarks}"
         online_record.acadhead_created_at = timezone.now()  # Set the current timestamp
         online_record.save()
@@ -916,6 +931,7 @@ def disapprove_attendance(request, online_id):
 def approve_attendance(request, online_id):
     online_record = get_object_or_404(Online, pk=online_id)
     online_record.status = 'Present'
+    online_record.is_absent = 'False'
     online_record.validation_comment = f"Approved by {request.user.get_full_name()}"
     online_record.acadhead_created_at = timezone.now()
     online_record.save()

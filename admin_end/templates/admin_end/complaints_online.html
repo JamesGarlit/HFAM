@@ -1,0 +1,190 @@
+{% extends "admin_end/headbase.html" %}
+{% load static %}
+{% block content %}
+<!-- Page header -->
+<div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">
+                    Overview
+                </div>
+                <h2 class="page-title">Online Complaints
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Page body -->
+<div class="page-body">
+    <div class="container-xl">
+        <div class="card">
+            <div class="card-body">
+                <table id="complaints_f2f" class="table table-striped table-bordered" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>justification</th>
+                            <th>Request Date</th>
+                            <th>Evidence</th>
+                            <th>Issue Status</th>
+                            <th>Validated by</th>
+                            <th>Validated at</th>
+                            <th>Revalidate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for complain in complains %}
+                            <tr class="small">
+                                <td  class="align-middle"> {{ complain.complainant.user_firstname }} {{ complain.complainant.user_lastname }}</td>
+                                <td  class="align-middle"> {{ complain.complains }}</td>
+                                <td  class="align-middle"> {{ complain.complained_date|date:"F d, Y" }}</td>
+                                <td  class="align-middle"> 
+                                    <ul class="list-unstyled">
+                                        {% for evidence in evidences  %}
+                                            {% if evidence.complain_id == complain.id %}
+                                            
+                                            <li>  <a href="{{ evidence.evidence.url }}" target="_blank">Show evidence</a> </li>
+                                            
+                                            {% endif %}
+                                        
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                                <td  class="align-middle"> 
+                                    {% if complain.is_resolved == True %}
+                                        Approved
+                                    {% elif complain.is_resolved == False and complain.validated_by == None  %}
+                                        Waiting for Revalidation
+                                        
+                                    {% elif complain.is_resolved == False and complain.validated_by %}
+                                        Not Approved
+
+                                    {% endif %}
+                                </td>
+                                <td  class="align-middle"> 
+                                    {% if complain.validated_by %}
+                                        {{ complain.validated_by.user_firstname }} {{ complain.validated_by.user_lastname }}
+
+                                    {% else %}
+                                        Waiting for Revalidation
+                                    
+                                    {% endif %}
+
+
+                                </td>
+                                <td  class="align-middle"> 
+                                    {% if complain.validated_at %}
+                                        {{ complain.validated_at|date:"F d, Y" }}
+
+                                    {% else %}
+                                        Waiting for Revalidation
+                                    
+                                    {% endif %}
+
+                                </td>
+                                <td class="align-middle">
+
+                                    {% if complain.validated_by %}
+                                        -
+                                    {% else %}
+                                        <button type="button" class="btn btn-success btn-sm w-100 mb-1" data-bs-toggle="modal" data-bs-target="#online-modal-approve-{{ complain.id }}">Approve</button>
+        
+                                        <button type="button" class="btn btn-danger btn-sm w-100" data-bs-toggle="modal" data-bs-target="#online-modal-disapprove-{{ complain.id }}">Invalidate</button>
+                                    {% endif %}
+                                   
+                                </td>
+                            </tr>
+
+                            {% include "admin_end/online-revalidation-modal.html" %}
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% block css %}
+<style>
+    thead input {
+        width: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block javascript %}
+{% comment %} specific js {% endcomment %}
+<script>
+    $(document).ready(function () {
+        // Setup - add a text input to each footer cell
+        $('#complaints_f2f thead tr').clone(true).addClass('filters').appendTo('#complaints_f2f thead');
+
+        var table = $('#complaints_f2f').DataTable({
+            scrollCollapse: true,
+            orderCellsTop: true,
+            ordering: false,
+            fixedHeader: true,
+            order: [[0, 'desc']],
+            scrollX: true,
+            dom: 'Bfrtlip',
+            buttons: [
+                {
+                    extend: 'print',
+                    title: 'Attendance Record - ' + new Date().toLocaleDateString(),
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'excel',
+                    title: 'Attendance Record - ' + new Date().toLocaleDateString(),
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                {
+                    extend: 'pdf',
+                    title: 'Attendance Record - ' + new Date().toLocaleDateString(),
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                },
+                'colvis'
+            ],
+            initComplete: function () {
+                var api = this.api();
+
+                api.columns().eq(0).each(function (colIdx) {
+                    // Set the header cell to contain the input element
+                    var cell = $('.filters th').eq($(api.column(colIdx).header()).index());
+                    var title = $(cell).text();
+                    $(cell).html('<input type="text" placeholder="' + title + '" />');
+
+                    $('input', $('.filters th').eq($(api.column(colIdx).header()).index()))
+                        .off('keyup change')
+                        .on('keyup change', function (e) {
+                            e.stopPropagation();
+                            $(this).attr('title', $(this).val());
+                            var regexr = '({search})';
+                            var cursorPosition = this.selectionStart;
+
+                            api
+                                .column(colIdx)
+                                .search((this.value != "") ? regexr.replace('{search}', '(((' + this.value + ')))') : "", this.value != "", this.value == "")
+                                .draw();
+                            $(this).focus()[0].setSelectionRange(cursorPosition, cursorPosition);
+                        });
+
+                    if (colIdx === api.columns().eq(0).length - 1) {
+                        // Include filter input for the last column
+                        $(cell).html('<input type="text" placeholder="' + title + '" />');
+                    }
+                });
+            }
+        });
+    });    
+</script>
+{% endblock %}
+{% endblock %}

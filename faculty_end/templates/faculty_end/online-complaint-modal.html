@@ -1,0 +1,237 @@
+
+<!-- Modal -->
+<div class="modal modal-blur fade" id="online-complaint-modal-{{ item.record.id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		  <div class="modal-content">
+			<div class="modal-header">
+				  <h1 class="modal-title">Request Justification about your Attendance</h1>
+				  <button type="button" class="btn-close" data-bs-dismiss="modal" data-bs-toggle="modal" aria-label="Close"></button>
+			</div>
+
+
+			{% if item.record.justification_count > 2 %}
+
+				<div class="modal-body">
+					<div class="alert alert-info" role="alert">
+						<div class="d-flex">
+						<div>
+							<svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+								<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+								<circle cx="12" cy="12" r="9"></circle>
+								<line x1="12" y1="8" x2="12.01" y2="8"></line>
+								<polyline points="11 12 12 12 12 16 13 16"></polyline>
+							</svg>
+						</div>
+						<div>
+							<h4 class="alert-title">Important Reminder!</h4>
+							<div class="text-secondary">
+								You are allowed only three submission attempts of justification.<br>
+								<b>Current attempt: {{ item.record.justification_count }}/3</b> 
+							</div>
+						</div>
+
+						
+						</div>
+					</div>
+
+					<div class="empty">
+						<div class="empty-img">
+							<img src="./static/illustrations/undraw_quitting_time_dm8t.svg" height="128" alt="">
+						</div>
+						<p class="empty-title">Justification Attempts Exceeded</p>
+						<p class="empty-subtitle text-muted">
+							You have reached the maximum number of justification attempts. Please visit the academic head's office for further assistance.
+						</p>
+					</div>
+					
+
+						
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn me-auto" data-bs-dismiss="modal" >Close</button>
+				</div>
+			
+			{% else %}
+
+				<div class="modal-body">
+					<div class="alert alert-info" role="alert">
+						<div class="d-flex">
+						<div>
+							<svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+								<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+								<circle cx="12" cy="12" r="9"></circle>
+								<line x1="12" y1="8" x2="12.01" y2="8"></line>
+								<polyline points="11 12 12 12 12 16 13 16"></polyline>
+							</svg>
+						</div>
+						<div>
+							<h4 class="alert-title">Important Reminder!</h4>
+							<div class="text-secondary">
+								You are allowed only three submission attempts of justification.<br>
+								<b>Current attempt: {{ item.record.justification_count }}/3</b> 
+							</div>
+						</div>
+						
+						</div>
+					</div>
+
+					<form method="POST" autocomplete="off" 
+						id="online-complaint-form-{{ forloop.counter }}"
+						class="online-complaint-form"
+						>
+						{% csrf_token %}
+
+						<input type="hidden" value="{{ item.record.id }}" name="online_id" id="online-online_id_{{ forloop.counter }}">
+
+						<div class="row">
+							<label class="form-label">Upload Evidence Here <small class="text-muted">(Required)</small></label>
+							<div class = "" >
+								<div class="row">
+									<input type="file" name="evidence" id="online-evidence-{{ forloop.counter }}" multiple>
+								</div>
+							</div>
+						</div>
+
+						<br>
+
+						<div class="row">
+							<label class="form-label">Justification <small class="text-muted">(Required)</small></label>
+							<textarea class="form-control" name="complains" id="online-complains-{{ forloop.counter }}" data-bs-toggle="autosize" placeholder="Please input your complains here..." style="overflow: hidden; overflow-wrap: break-word; resize: none; text-align: start; height: 55.3333px;" required></textarea>
+						</div>
+
+						<br>
+				
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" value="1" id="online-chk-btn-{{ forloop.counter }}" name="user_approval">
+							<label class="form-check-label" for="chk-btn">
+								I have read the 'Important Reminder'
+							</label>
+						</div>
+						
+				</div>
+
+						<div class="modal-footer">
+							<button type="button" class="btn me-auto" data-bs-dismiss="modal" >Close</button>
+							<button id="submit-online-button-{{ forloop.counter }}" type="submit" class="btn btn-primary disabled">Submit</button>
+						</div>
+
+					</form>
+			
+			{% endif %}
+
+		</div>
+	  </div>
+</div>
+
+
+
+{% block javascript %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+		var accepted_file_types = [ 
+			'image/jpeg',
+			'image/png',
+			'image/gif',
+			'image/bmp',
+			'image/svg+xml',
+			'image/webp',
+			]
+        var files{{ forloop.counter }} = []
+        // Now acceptedFileTypes is a JavaScript array
+
+        FilePond.registerPlugin(FilePondPluginFileValidateSize);    //Register plugin to validate file size
+        FilePond.registerPlugin(FilePondPluginFileValidateType);    //Register plugin to validate file type
+        FilePond.registerPlugin(FilePondPluginImagePreview);
+        FilePond.setOptions({
+            allowMultiple:true,
+            maxFiles: 5,             //It sets the max file counts
+            maxFileSize: '100MB'      //It sets the accepted max storage size
+        })
+        const inputElement_{{ forloop.counter }} = document.querySelector('#online-evidence-{{ forloop.counter }}');  //Convert input types that are file types into filepond
+        var pond{{ forloop.counter }} = FilePond.create( inputElement_{{ forloop.counter }}, {
+            acceptedFileTypes:  accepted_file_types, // The lists are the accepted file types
+            onaddfile: (err, fileItem) => {
+                if (!err) {
+                files{{ forloop.counter }}.push(fileItem.file)
+                }
+                console.log(files{{ forloop.counter }})
+            },
+            onremovefile: (err, fileItem) => {
+                const index{{ forloop.counter }} = files{{ forloop.counter }}.indexOf(fileItem.file)
+                if (index{{ forloop.counter }} > -1) {
+                    files{{ forloop.counter }}.splice(index{{ forloop.counter }}, 1)
+                }
+                console.log(files{{ forloop.counter }})
+            }
+        } );
+
+		var formData{{ forloop.counter }} = new FormData();
+		$("#online-complaint-form-"+{{ forloop.counter }}).submit(function(event) {
+			event.preventDefault();
+            event.stopPropagation();
+            var url{{ forloop.counter }} = "/submit/online-complaint/";
+            formData{{ forloop.counter }}.append('length', files{{ forloop.counter }}.length)
+            for (var i = 0; i < files{{ forloop.counter }}.length; i++) {
+                formData{{ forloop.counter }}.append('files' + i, files{{ forloop.counter }}[i])
+            }
+            formData{{ forloop.counter }}.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+			formData{{ forloop.counter }}.append('complains', document.getElementById('online-complains-{{ forloop.counter }}').value);
+			
+			formData{{ forloop.counter }}.append('online_id', document.getElementById('online-online_id_{{ forloop.counter }}').value);
+
+            $.ajax({
+                type: 'POST',
+                url: url{{ forloop.counter }},
+                data: formData{{ forloop.counter }},
+				headers: { 'X-CSRFToken': '{{ csrf_token }}' }, 
+                cache: false,
+                processData: false,
+                contentType: false,
+                enctype: 'multipart/form-data',
+                success: function(response) {
+					location.reload();
+
+                },
+                error: function(error) {
+					if (error.responseJSON && error.responseJSON.error) {
+                        // Handle the other error message
+                        toastr.error(error.responseJSON.error);
+                    }
+                    // Check for the errors field in the JSON response
+                    else if (error.responseJSON && error.responseJSON.errors) {
+                        // Iterate over the errors field and display the validation errors to the user
+                        for (var field in error.responseJSON.errors) {
+                            toastr.error(error.responseJSON.errors[field]);
+                        }
+                    } else {
+                        toastr.error('Something went wrong. Please try again later.');
+                    }
+                    
+                }
+            })
+        })
+    })
+</script>  
+
+
+<script>
+	const checkbox_online_complaint_{{ forloop.counter }} = document.getElementById("online-chk-btn-{{ forloop.counter }}");
+	const submitOnlineComplaint_{{ forloop.counter }} = document.getElementById('submit-online-button-{{ forloop.counter }}'); // Select all submit buttons
+
+	checkbox_online_complaint_{{ forloop.counter }}.addEventListener("change", function() {
+		if (checkbox_online_complaint_{{ forloop.counter }}.checked) {
+			submitOnlineComplaint_{{ forloop.counter }}.classList.remove("disabled"); // Enable
+			checkbox.value = '1';
+		} else {
+			submitOnlineComplaint_{{ forloop.counter }}.classList.add("disabled");    // Disable
+			checkbox.value = '0';
+		}
+	});
+	
+</script>
+    
+{% endblock %}
