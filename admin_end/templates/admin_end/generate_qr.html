@@ -116,7 +116,7 @@ function generateQRCodeImage(text) {
 $(document).ready(function() {
     $('#generateQRBtn').on('click', function() {
         var roomName = $('#room').val();
-        var link = "http://127.0.0.1:8000/log_time_in/";
+        var link = "https://hfam-mdf2.onrender.com/log_time_in/";
 
         // Generate QR code with link and room name
         var qrText = link + '?room=' + encodeURIComponent(roomName);
