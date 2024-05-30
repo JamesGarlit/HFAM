@@ -319,6 +319,7 @@ def log_time_in(request):
             logged_but_absent = False
             TimeIn_record_id = 0
             complain_record = None
+            record = None
 
             if schedules_from_api:
                 philippine_timezone = timezone.get_current_timezone()  # Get the current time zone setting (from settings.py)
@@ -329,6 +330,7 @@ def log_time_in(request):
 
                 print('HAHHAHHAHAHA :', date, room_name)    
                 is_TimeLogged = TimeIn.objects.filter(user=request.user, date=date, room_name = room_name).exists()
+                is_OnlineLogged = Online.objects.filter(user=request.user, date=date).exists()
 
                 if is_TimeLogged:
                     record = TimeIn.objects.get(user=request.user, date=date, room_name = room_name)
@@ -344,6 +346,24 @@ def log_time_in(request):
 
                         if complain:
                             complain_record = Complains.objects.get(onsite_id=record.id)
+
+                            if complain_record.is_resolved == False:
+                                rejected_complaint = True
+
+                elif is_OnlineLogged:
+                    record = Online.objects.get(user=request.user, date=date)
+                    complain = Complains.objects.filter(online_id=record.id).exists()
+
+                    time_logged = True
+
+                    # Check if the time in record is considered as absent or have an absent status
+                    if record.is_absent:
+                        logged_but_absent = True
+                        TimeIn_record_id = record.id
+                        complain = Complains.objects.filter(online_id=record.id).exists()
+
+                        if complain:
+                            complain_record = Complains.objects.get(online_id=record.id)
 
                             if complain_record.is_resolved == False:
                                 rejected_complaint = True
@@ -368,7 +388,8 @@ def log_time_in(request):
                 'logged_but_absent': logged_but_absent,
                 'TimeIn_record_id': TimeIn_record_id,
                 'rejected_complaint': rejected_complaint,
-                'complain_record': complain_record
+                'complain_record': complain_record,
+                'record': record,
                 # Pass the initial time_out value to the template
             })
         else:
