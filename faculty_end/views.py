@@ -546,6 +546,7 @@ def online_time_in(request):
             logged_but_absent = False
             TimeIn_record_id = 0
             complain_record = None
+            online_record = None
 
             if schedules_from_api:
                 philippine_timezone = timezone.get_current_timezone()  # Get the current time zone setting (from settings.py)
@@ -556,7 +557,7 @@ def online_time_in(request):
 
                 print('HAHHAHHAHAHA :', date, room_name)    
                 is_TimeLogged = Online.objects.filter(user=request.user, date=date, room_name = room_name).exists()
-
+                online_record = Online.objects.get(user=request.user, date=date, room_name = room_name)
                 if is_TimeLogged:
                     record = Online.objects.get(user=request.user, date=date, room_name = room_name)
                     complain = Complains.objects.filter(online_id=record.id).exists()
@@ -597,7 +598,8 @@ def online_time_in(request):
                 'logged_but_absent': logged_but_absent,
                 'TimeIn_record_id': TimeIn_record_id,
                 'rejected_complaint': rejected_complaint,
-                'complain_record': complain_record
+                'complain_record': complain_record,
+                'online_record': online_record
             })
         else:
             return render(request, 'faculty_end/online_time_in.html', {'error_message': 'Failed to fetch data from the API', 'has_schedule': False})

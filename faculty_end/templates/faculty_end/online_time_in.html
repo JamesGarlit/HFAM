@@ -8,7 +8,7 @@
         <div class="row g-2 align-items-center">
             <div class="col">
                 <h2 class="page-title">
-                    Time In
+                    Online
                 </h2>
             </div>
         </div>
@@ -18,7 +18,7 @@
 <div class="page-body">
     <div class="container-xl">
         
-        {% if time_logged and logged_but_absent == False%}
+        {% if time_logged and online_record.is_absent == False  and online_record.acadhead_created_at == None and complain_record == None %}
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Your schedule today: {{ initial_time_in }} to {{ initial_time_out }}</h3>
@@ -27,7 +27,7 @@
 
                     <div class="container-tight py-4">
                         <div class="empty">
-                            <div class="empty-header">You have Already Submitted your Time In!</div>
+                            <div class="empty-title">Waiting for the attendance validation...</div>
                             {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
                             <p class="empty-subtitle text-muted">
                                 Time in could only be process once a day.
@@ -38,7 +38,8 @@
                 </div>
             </div>
 
-        {% elif time_logged and logged_but_absent == True and rejected_complaint == False %}
+
+        {% elif time_logged and online_record.is_absent == False  and online_record.acadhead_created_at and complain_record == None %}
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Your schedule today: {{ initial_time_in }} to {{ initial_time_out }}</h3>
@@ -47,16 +48,85 @@
 
                     <div class="container-tight py-4">
                         <div class="empty">
-                            <div class="empty-header">Time-in already submitted, but marked absent.</div>
+                            <div class="empty-title">Your attendance has been validated. Your attendance is now marked as present.</div>
                             {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
                             <p class="empty-subtitle text-muted">
-                                To resolve this, please file a justification request by clicking the button
-
-                                <div class="d-grid text-center w-100">
-                                    <a href="#" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#complaint-modal">Request justification</a>
-                                </div>
-
+                                Time in could only be process once a day.
                             </p>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        {% elif time_logged and online_record.is_absent == True and online_record.acadhead_created_at and complain_record == None and online_record.justification_count == 0 %}
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Your schedule today: {{ initial_time_in }} to {{ initial_time_out }}</h3>
+                </div>
+                <div class="card-body">
+
+                    <div class="container-tight py-4">
+                        <div class="empty">
+                            <div class="empty-title">Attendance Discrepancy</div>
+                            <p class="empty-subtitle text-muted">
+                                Your time-in was recorded, but your attendance is currently marked as absent.
+                            </p>
+                            <div class="d-grid text-center w-100">
+                                <a href="/faculty_attendance/" class="btn btn-primary">
+                                    Go to Attendance to Request Justification
+                                </a>
+                            </div>
+                            
+                    
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+    
+        {% elif time_logged and online_record.is_absent == True and online_record.acadhead_created_at and complain_record and online_record.submitted_complaint and online_record.justification_count > 2 %}
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Your schedule today: {{ initial_time_in }} to {{ initial_time_out }}</h3>
+                </div>
+                <div class="card-body">
+
+                    <div class="container-tight py-4">
+
+                        <div class="empty">
+                            <p class="empty-title">Justification Attempts Exceeded</p>
+                            <p class="empty-subtitle text-muted">
+                                You have reached the maximum number of justification attempts. Please visit the academic head's office for further assistance. <br>
+                            </p>
+
+                            <p class="empty-subtitle text-muted">
+                               <i> Your last request has been validated by {{ complain_record.validated_by.user_firstname }} {{ complain_record.validated_by.user_lastname }} at {{ complain_record.validated_at|date:'H:s A' }} </i>
+                            </p>
+                        </div>
+
+
+
+
+                       
+                    </div>
+                </div>
+            </div>
+
+
+        {% elif time_logged and online_record.is_absent == False and online_record.acadhead_created_at and complain_record and online_record.submitted_complaint %}
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Your schedule today: {{ initial_time_in }} to {{ initial_time_out }}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="container-tight py-4">
+                        <div class="empty">
+                        <div class="empty-title">Your justification request has been validated. Your attendance is now marked as present!</div>
+                        {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
+                        <p class="empty-subtitle text-muted">
+                            Your justification was validated by {{ complain_record.validated_by.user_firstname }} {{ complain_record.validated_by.user_lastname }} at {{ complain_record.validated_at|date:'H:s A' }}
+                        </p>
                     
                         </div>
                     </div>
@@ -64,7 +134,7 @@
             </div>
 
 
-        {% elif time_logged and logged_but_absent == True and rejected_complaint == True %}
+        {% elif time_logged and online_record.is_absent == True and online_record.acadhead_created_at and complain_record and online_record.submitted_complaint and online_record.justification_count < 3 %}
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Your schedule today: {{ initial_time_in }} to {{ initial_time_out }}</h3>
@@ -72,7 +142,7 @@
                 <div class="card-body">
                     <div class="container-tight py-4">
                         <div class="empty">
-                        <div class="h3">Your justification request has been approved. Your attendance is now marked as present!</div>
+                        <div class="empty-title">We've received your justification request.  Your attendance is still marked as absent, but if you believe there's been a mistake, please feel free to submit another justification request.</div>
                         {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
                         <p class="empty-subtitle text-muted">
                             Your justification was validated by {{ complain_record.validated_by.user_firstname }} {{ complain_record.validated_by.user_lastname }} at {{ complain_record.validated_at|date:'H:s A' }}
@@ -197,7 +267,7 @@
 
                     <div class="container-tight py-4">
                         <div class="empty">
-                            <div class="empty-header">You don't have any schedule/s for Today!</div>
+                            <div class="empty-title">You don't have any schedule/s for Today!</div>
                             {% comment %} <p class="empty-title">Oops… You just found an error page</p> {% endcomment %}
                             {% comment %} <p class="empty-subtitle text-muted">
                                 Time in could only be process once a day.
