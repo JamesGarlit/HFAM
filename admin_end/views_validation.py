@@ -17,7 +17,7 @@ def approved(request):
 
             record.is_approved = True
             record.status = "Present"
-            record.validation_comment = f"Approved by {comments}"
+            record.validation_comment = f"Approved by Jean-Paul De Guzman {comments}"
             record.checker_created_at = timezone.now()
             record.save()
 
@@ -55,7 +55,7 @@ def rejected(request):
             record.status = "Absent"
             record.is_approved = False
             record.is_absent = True
-            record.validation_comment = f"Invalidated by {comments}"
+            record.validation_comment = f"Invalidated by Jean-Paul De Guzman {comments}"
             record.checker_created_at = timezone.now()
             record.save()
 
