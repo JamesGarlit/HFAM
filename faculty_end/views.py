@@ -350,6 +350,11 @@ def log_time_in(request):
                             if complain_record.is_resolved == False:
                                 rejected_complaint = True
 
+                    else:
+                        complain = Complains.objects.filter(onsite_id=record.id).exists()
+                        if complain:
+                            complain_record = Complains.objects.get(onsite_id=record.id)
+
                 elif is_OnlineLogged:
                     record = Online.objects.get(user=request.user, date=date, room_name = room_name)
                     complain = Complains.objects.filter(online_id=record.id).exists()
@@ -599,6 +604,12 @@ def online_time_in(request):
 
                             if complain_record.is_resolved == False:
                                 rejected_complaint = True
+
+                    else:
+                        complain = Complains.objects.filter(onsite_id=record.id).exists()
+                        if complain:
+                            complain_record = Complains.objects.get(onsite_id=record.id)
+
 
                 elif is_OnlineLogged:
                     record = Online.objects.get(user=request.user, date=date, room_name = room_name)
