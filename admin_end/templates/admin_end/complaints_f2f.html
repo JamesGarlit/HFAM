@@ -25,6 +25,7 @@
                     <thead>
                         <tr>
                             <th>Name</th>
+                            <th>Attendance Date</th>
                             <th>justification</th>
                             <th>Request Date</th>
                             <th>Evidence</th>
@@ -38,6 +39,7 @@
                         {% for complain in complains %}
                             <tr class="small">
                                 <td  class="align-middle"> {{ complain.complainant.user_firstname }} {{ complain.complainant.user_lastname }}</td>
+                                <td  class="align-middle"> {{ complain.complained_date|date:"F d, Y" }}</td>
                                 <td  class="align-middle"> {{ complain.complains }}</td>
                                 <td  class="align-middle"> {{ complain.complained_date|date:"F d, Y" }}</td>
                                 <td  class="align-middle"> 
