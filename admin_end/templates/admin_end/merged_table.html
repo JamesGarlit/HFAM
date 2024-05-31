@@ -58,8 +58,17 @@
                                 {% if record.source == "Online" %}
                                 -
                                 {% else %}
-                                <button type="button" class="btn btn-success btn-sm w-100 mb-1" data-bs-toggle="modal" data-bs-target="#approved-modal-{{ record.id }}">Approve</button>
-                                <button type="button" class="btn btn-danger btn-sm w-100" data-bs-toggle="modal" data-bs-target="#rejected-modal-{{ record.id }}">Reject</button>
+                                    {% if record.status == 'Present' %}
+                                    -
+
+                                    {% elif record.status == 'Absent' and record.checker_created_at %}
+                                    
+                                    -
+                                    {% elif record.status == 'Pending' %}
+                                        <button type="button" class="btn btn-success btn-sm w-100 mb-1" data-bs-toggle="modal" data-bs-target="#approved-modal-{{ record.id }}">Approve</button>
+                                        <button type="button" class="btn btn-danger btn-sm w-100" data-bs-toggle="modal" data-bs-target="#rejected-modal-{{ record.id }}">Reject</button>
+                                    {% endif %}
+                                    
                                 {% endif %}
                             </td>
                             <td>{{ record.validation_comment }}</td>
